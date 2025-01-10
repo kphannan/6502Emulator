@@ -9,7 +9,7 @@
 
 #define DEFAULT_BANK_NAME "DefaultMemory"
 
-namespace cpu
+namespace memory
 {
     class Memory
     {
@@ -24,11 +24,11 @@ namespace cpu
     public:
     private:
         char bankName[32 + 1];
-        const Address lowerBound;
-        const Address upperBound;
-        const Word byteCount;
+        const hardware::Address lowerBound;
+        const hardware::Address upperBound;
+        const hardware::Word byteCount;
 
-        Byte *contents;
+        hardware::Byte *contents;
 
     protected:
     public:
@@ -39,12 +39,12 @@ namespace cpu
         // --- Constructors
         // default memory that encompases the entire address space
         Memory();
-        Memory(const Word byteCount);
-        Memory(const char *name, const Word byteCount);
+        Memory(const hardware::Word byteCount);
+        Memory(const char *name, const hardware::Word byteCount);
         // named memory that spans the entire address space
         Memory(const char *name);
         // named subset of the address space
-        Memory(const char *name, const Address lowLimit, const Address upperLimit);
+        Memory(const char *name, const hardware::Address lowLimit, const hardware::Address upperLimit);
 
         ~Memory();
 
@@ -53,18 +53,18 @@ namespace cpu
     protected:
     public:
         // Read a single byte from memory
-        Byte read(const Address address) const;
-        Word readWord(const Address memory) const;
-        Byte write(const Address address, Byte value);
+        hardware::Byte read(const hardware::Address address) const;
+        hardware::Word readWord(const hardware::Address memory) const;
+        hardware::Byte write(const hardware::Address address, hardware::Byte value);
 
         void clear();
 
         // const char *name() const;
         char *name();
 
-        Address lowAddress() const;
-        Address highAddress() const;
-        Word memorySize() const;
+        hardware::Address lowAddress() const;
+        hardware::Address highAddress() const;
+        hardware::Word memorySize() const;
 
         // Operators
     private:

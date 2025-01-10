@@ -3,7 +3,7 @@
 #ifndef HARDWARE_HPP
 #define HARDWARE_HPP
 
-namespace cpu
+namespace hardware
 {
     // Size of General purpose registers and the data bus
     using Byte = unsigned char; // or uint8_t

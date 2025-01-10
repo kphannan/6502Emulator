@@ -5,22 +5,21 @@
 
 #include "6502.hpp"
 
-namespace cpu
+namespace m6502
 {
+    memory::Memory defaultMemory;
 
-    Memory defaultMemory;
-
-    Processor::Processor() : Processor(defaultMemory)
+    CPU::CPU() : CPU(defaultMemory)
     {
         reset();
     }
 
-    Processor::Processor(Memory &memory) : memory(memory)
+    CPU::CPU(memory::Memory &memory) : memory(memory)
     {
         reset();
     }
 
-    void Processor::reset()
+    void CPU::reset()
     {
         model.registers.A = 0xAB;
         model.registers.X = 0xCD;
@@ -41,7 +40,7 @@ namespace cpu
         model.P = 0b10100101; // TODO reset it properly...
     }
 
-    void Processor::showRegisters()
+    void CPU::showRegisters()
     {
         // TODO output stream does not treat a Word the same as an int so the format is off
         std::cout.setf(std::ios::hex, std::ios::basefield);
@@ -51,7 +50,7 @@ namespace cpu
         std::cout << "         Y: " << std::setfill('0') << std::setw(2) << (int)(model.registers.Y) << " Index register Y" << std::endl;
         std::cout << "         S: " << std::setfill('0') << std::setw(2) << (int)(model.registers.S) << " Stack pointer" << std::endl;
         std::cout << "        PC: " << std::setfill('0') << std::setw(4) << (int)(model.registers.PC) << " Program Counter" << std::endl;
-        std::cout << "         P: N V 1 B D I Z C  Processor Status Register" << std::endl
+        std::cout << "         P: N V 1 B D I Z C  CPU Status Register" << std::endl
                   << "            "
                   << std::setw(1)
                   << std::bitset<1>(model.flags.N) << " "
@@ -75,24 +74,24 @@ namespace cpu
     //     std::cout << " S: " << std:format( "  S: {} ", model.registers.S ) << " Stack pointer" << std::endl;
     //     std::cout << "PC: " << std:format( " PC: {} ", model.registers.PC ) << " Program Counter" << std::endl;
 
-    // void Processor::memoryBank(Memory &memory)
+    // void CPU::memoryBank(Memory &memory)
     // {
     //     this->memory = memory;
     // }
 
-    Memory Processor::currentMemory()
+    memory::Memory CPU::currentMemory()
     {
         return memory;
     }
 
     // ===== Execute Instructions =====
 
-    void Processor::execute()
+    void CPU::execute()
     {
         execute(-1);
     }
 
-    void Processor::execute(Address address)
+    void CPU::execute(hardware::Address address)
     {
         // set PC and execute 1 instruction
     }
@@ -103,7 +102,7 @@ namespace cpu
     // fetch operand (advance PC as defined by operand)
     // evaluate OpCode (set status flags)
 
-    void Processor::execute(int numberOfInstructions)
+    void CPU::execute(int numberOfInstructions)
     {
         std::cout << " execute instruction pipeline " << std::endl;
 
@@ -114,7 +113,7 @@ namespace cpu
         // TODO evaluate the instruction
     }
 
-    void Processor::fetchOpCode()
+    void CPU::fetchOpCode()
     {
         int opcode = memory.read(model.registers.PC++);
         instruction = opcode;
@@ -124,7 +123,7 @@ namespace cpu
         std::cout.unsetf(std::ios::basefield);
     }
 
-    void Processor::fetchOperand()
+    void CPU::fetchOperand()
     {
         std::cout << " fetch operand " << std::endl;
         model.registers.A = memory.read(model.registers.PC++);

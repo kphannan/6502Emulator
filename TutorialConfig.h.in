@@ -1,0 +1,4 @@
+// the configured options and settings for EMU
+#define EMU_VERSION_MAJOR @EMU_VERSION_MAJOR@
+#define EMU_VERSION_MINOR @EMU_VERSION_MINOR@
+#define EMU_VERSION_PATCH @EMU_VERSION_PATCH@

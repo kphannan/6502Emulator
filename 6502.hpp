@@ -9,19 +9,19 @@
 #include "hardware.hpp"
 #include "memory.hpp"
 
-namespace cpu
+namespace m6502
 {
 
     typedef struct GeneralPurposeRegisters
     {
-        Byte A; // Accumulator
+        hardware::Byte A; // Accumulator
 
-        Byte Y; // Index register Y
-        Byte X; // Index register  X
+        hardware::Byte Y; // Index register Y
+        hardware::Byte X; // Index register  X
 
-        Byte S; // Stack Pointer
+        hardware::Byte S; // Stack Pointer
 
-        Address PC; // Program Counter
+        hardware::Address PC; // Program Counter
     } REGISTERS;
 
     // Bit definitions of the Processor Status Register (P)
@@ -45,7 +45,7 @@ namespace cpu
         // Processor Status Register, accessible as a byte or indiviidual bits.
         union
         {
-            Byte P;
+            hardware::Byte P;
             STATUS_FLAGS flags;
         };
     } PROGRAMMING_MODEL;
@@ -80,7 +80,7 @@ namespace cpu
      * @brief A model of the registers (programming model) of the 6502 microprocessor.
      *
      */
-    class Processor
+    class CPU
     {
         // ----- Constants -----
     private:
@@ -89,9 +89,9 @@ namespace cpu
         // ----- Attributes -----
     private:
         PROGRAMMING_MODEL model;
-        Memory &memory; // make a reference
+        memory::Memory &memory; // make a reference
 
-        Byte instruction;
+        hardware::Byte instruction;
 
     protected:
     public:
@@ -99,8 +99,8 @@ namespace cpu
     private:
     protected:
     public:
-        Processor();
-        Processor(Memory &memory);
+        CPU();
+        CPU(memory::Memory &memory);
 
         // ----- Methods -----
     private:
@@ -113,11 +113,11 @@ namespace cpu
         // void memoryBank(Memory *memory); // currently only support full address space.
         void showRegisters();
 
-        void execute(Address address);
+        void execute(hardware::Address address);
         void execute(int numberOfInstructions);
         void execute();
 
-        Memory currentMemory();
+        memory::Memory currentMemory();
     };
 
 }

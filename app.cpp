@@ -18,20 +18,27 @@
 // #include "app.h"
 #include "memory.hpp"
 #include "6502.hpp"
-
-// std::string Greeter::greeting()
-// {
-//     return std::string("Hello, World!");
-// }
+#include "TutorialConfig.h"
 
 // Forward declarations
-void loadProgram(cpu::Memory memory);
+void loadProgram(memory::Memory memory);
 
 // ===== Entry Pointt =====
-int main()
+int main(int argc, char **argv)
 {
-    cpu::Memory memory;
-    cpu::Processor processor(memory);
+    if (argc < 2)
+    {
+        // report version
+        std::cout << argv[0] << " Version " << EMU_VERSION_MAJOR << "."
+                  << EMU_VERSION_MINOR << "."
+                  << EMU_VERSION_PATCH << std::endl;
+        std::cout << "Usage: " << argv[0] << " number" << std::endl;
+        std::cout << "Usage: " << argv[0] << std::endl;
+        // return 1;
+    }
+
+    memory::Memory memory;
+    m6502::CPU processor(memory);
 
     loadProgram(memory);
 
@@ -46,11 +53,11 @@ int main()
     return 0;
 }
 
-void loadProgram(cpu::Memory memory)
+void loadProgram(memory::Memory memory)
 {
     // model.registers.PC = std::to_underlying(HardwareVector::RESET);
     // cpu::Address = std::to_underlying(cpu::HardwareVector::RESET);
-    int address = std::to_underlying(cpu::HardwareVector::RESET);
+    int address = std::to_underlying(m6502::HardwareVector::RESET);
 
     memory.write(0x0000, 0xA9); // LDA #00 // starting instruction after reset
     memory.write(0x0001, 0x00); //
