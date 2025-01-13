@@ -8,7 +8,6 @@
 
 #include "hardware.hpp"
 #include "memory.hpp"
-#include "pipeline.hpp"
 
 namespace m6502
 {

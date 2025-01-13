@@ -3,12 +3,22 @@
 #include <iostream>
 #include <iomanip>
 
-#include "pipeline.hpp"
 #include "6502.hpp"
 
 namespace m6502
 {
 
+    /**
+     * @brief Implementation of the Instruction fetch, decode and execute
+     * pipeliine within a 6502 Central Processing Unit (CPU).
+     *
+     */
+
+    /**
+     * @brief Instantiate an instance of Pipliine, connecting it to the CPU
+     * that contains it.
+     *
+     */
     CPU::Pipeline::Pipeline(CPU &processor)
         : cpu(processor)
     {
@@ -64,24 +74,9 @@ namespace m6502
                   << std::endl;
         std::cout.unsetf(std::ios::basefield);
 
-        // switch (instruction.bits.c) // 2 bits
-        // {
-        // case 0:
-        //     break;
-        // case 1:
-        //     break;
-        // case 2:
-        //     break;
-        // case 3:
-        //     // n/a
-        //     break;
-        // default:
-        //     // error
-        //     break;
-        // }
-
-        // AddressMode addressMode;
-
+        // Decode an instruction byte which is decomposed into bit fields within a byte
+        // format: aaabbbcc where aaa, bbb, cc represent groups of 2 or 3 bits.  Each
+        // letter represents a single bit.
         switch (instruction.bits.b) // 3 bits
         {
         case 00:                        // b(0)
