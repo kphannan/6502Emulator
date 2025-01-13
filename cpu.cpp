@@ -14,10 +14,15 @@ namespace m6502
         reset();
     }
 
-    CPU::CPU(memory::Memory &memory) : memory(memory)
+    CPU::CPU(memory::Memory &memory)
+        : addressSpace(memory)
+    // : addressSpace(memory), pipeline(memory, this->model.registers.PC)
     {
+        pipeline = new CPU::Pipeline(*this);
         reset();
     }
+
+    // CPU::CPU()
 
     void CPU::reset()
     {
@@ -25,20 +30,32 @@ namespace m6502
         model.registers.X = 0xCD;
         model.registers.Y = 0xE5;
         model.registers.S = 0xFF;
+        model.P = 0b10100101; // TODO reset it properly...
 
-        // Load the reset vector and jump to the address stored at that location
-        // model.registers.PC = (Word)HardwareVector::RESET;
-        model.registers.PC = std::to_underlying(HardwareVector::RESET);
+        // Reset the CPU / decode pipeline from the reset vector
+        pipeline->reset(std::to_underlying(HardwareVector::RESET));
 
         std::cout.setf(std::ios::hex, std::ios::basefield);
         std::cout << "PC: " << std::setfill('0') << std::setw(4) << (int)model.registers.PC << " reset vector" << std::endl;
         std::cout.unsetf(std::ios::basefield);
-
-        model.registers.PC = memory.readWord(model.registers.PC); // jump to address
-        // Load PC with the address at the reset vector
-
-        model.P = 0b10100101; // TODO reset it properly...
     }
+
+    // hardware::Address &CPU::PC()
+    // {
+    //     return model.registers.PC;
+    // }
+    // hardware::Byte &CPU::A()
+    // {
+    //     return cpu.model.registers.A;
+    // }
+    // hardware::Byte &CPU::X()
+    // {
+    //     return cpu.model.registers.X;
+    // }
+    // hardware::Byte &CPU::Y()
+    // {
+    //     return cpu.model.registers.Y;
+    // }
 
     void CPU::showRegisters()
     {
@@ -67,6 +84,8 @@ namespace m6502
                   //   << std::bitset<8>(model.P)
                   << std::endl;
         std::cout.unsetf(std::ios::basefield);
+
+        pipeline->showPipeline();
     }
     //    std::cout << " A: " << std:format( "  A: {} ", model.registers.A ) << " Accumulator" << std::endl;
     //     std::cout << " X: " << std:format( "  X: {} ", model.registers.X ) << " Index register X" << std::endl;
@@ -79,9 +98,9 @@ namespace m6502
     //     this->memory = memory;
     // }
 
-    memory::Memory CPU::currentMemory()
+    memory::Memory &CPU::currentMemory()
     {
-        return memory;
+        return addressSpace;
     }
 
     // ===== Execute Instructions =====
@@ -96,38 +115,9 @@ namespace m6502
         // set PC and execute 1 instruction
     }
 
-    // Instruction Pipeline
-    // fetch OpCode (advance PC)
-    // decode OpCode
-    // fetch operand (advance PC as defined by operand)
-    // evaluate OpCode (set status flags)
-
     void CPU::execute(int numberOfInstructions)
     {
-        std::cout << " execute instruction pipeline " << std::endl;
-
-        // Pseudo instruction pipeline....
-        fetchOpCode();
-        fetchOperand();
-
-        // TODO evaluate the instruction
-    }
-
-    void CPU::fetchOpCode()
-    {
-        int opcode = memory.read(model.registers.PC++);
-        instruction = opcode;
-        std::cout.setf(std::ios::hex, std::ios::basefield);
-        // std::cout << " opcode: " << std::setfill('0') << std::setw(2) << instruction << std::endl;
-        std::cout << " OpCode: " << opcode << std::endl;
-        std::cout.unsetf(std::ios::basefield);
-    }
-
-    void CPU::fetchOperand()
-    {
-        std::cout << " fetch operand " << std::endl;
-        model.registers.A = memory.read(model.registers.PC++);
-        // std::cout << " implement fetch opcode based on the addressing mode of the instruction" << std::end;
+        pipeline->execute(numberOfInstructions);
     }
 
 }

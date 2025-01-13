@@ -8,6 +8,7 @@
 
 #include "hardware.hpp"
 #include "memory.hpp"
+#include "pipeline.hpp"
 
 namespace m6502
 {
@@ -23,6 +24,62 @@ namespace m6502
 
         hardware::Address PC; // Program Counter
     } REGISTERS;
+
+    /*
+        Status Register Flags (bit 7 to bit 0)
+
+        N	Negative
+        V	Overflow
+        -	ignored
+        B	Break
+        D	Decimal (use BCD for arithmetics)
+        I	Interrupt (IRQ disable)
+        Z	Zero
+        C	Carry
+        The zero flag (Z) indicates a value of all zero bits and the negative flag (N)
+        indicates the presence of a set sign bit in bit-position 7. These flags are
+        always updated, whenever a value is transferred to a CPU register (A,X,Y) and
+        as a result of any logical ALU operations. The Z and N flags are also updated
+        by increment and decrement operations acting on a memory location.
+
+        The carry flag (C) flag is used as a buffer and as a borrow in arithmetic
+        operations. Any comparisons will update this additionally to the Z and N flags,
+        as do shift and rotate operations.
+
+        All arithmetic operations update the Z, N, C and V flags.
+
+        The overflow flag (V) indicates overflow with signed binary arithmetics.
+        As a signed byte represents a range of -128 to +127, an overflow can never occur
+        when the operands are of opposite sign, since the result will never exceed this
+        range. Thus, overflow may only occur, if both operands are of the same sign.
+        Then, the result must be also of the same sign. Otherwise, overflow is detected
+        and the overflow flag is set. (I.e., both operands have a zero in the sign
+        position at bit 7, but bit 7 of the result is 1, or, both operands have the
+        sign-bit set, but the result is positive.)
+
+        The decimal flag (D) sets the ALU to binary coded decimal (BCD) mode for
+        additions and subtractions (ADC, SBC).
+
+        The interrupt inhibit flag (I) blocks any maskable interrupt requests (IRQ).
+
+        The break flag (B) is not an actual flag implemented in a register, and rather
+        appears only, when the status register is pushed onto or pulled from the stack.
+        When pushed, it will be 1 when transfered by a BRK or PHP instruction, and zero
+        otherwise (i.e., when pushed by a hardware interrupt). When pulled into the
+        status register (by PLP or on RTI), it will be ignored.
+
+        In other words, the break flag will be inserted, whenever the status register
+        is transferred to the stack by software (BRK or PHP), and will be zero, when
+        transferred by hardware. Since there is no actual slot for the break flag, it
+        will be always ignored, when retrieved (PLP or RTI). The break flag is not
+        accessed by the CPU at anytime and there is no internal representation.
+        Its purpose is more for patching, to discern an interrupt caused by a BRK
+        instruction from a normal interrupt initiated by hardware.
+
+        Any of these flags (but the break flag) may be set or cleared by dedicated
+        instructions. Moreover, there are branch instructions to conditionally divert
+        the control flow depending on the respective state of the Z, N, C or V flag.
+    */
 
     // Bit definitions of the Processor Status Register (P)
     typedef struct ProcessorStatusRegister
@@ -82,6 +139,110 @@ namespace m6502
      */
     class CPU
     {
+        // ===== Inner Classes =====
+    private:
+        // TODO maybe split to instruction set class
+        union Instruction
+        {
+            hardware::Byte opcode;
+            struct foo
+            {
+                unsigned c : 2; // 1..0
+                unsigned b : 3; // 4..2
+                unsigned a : 3; // 7..5
+                int z : 1;
+            } bits;
+        };
+
+        // Addressing Modes
+
+        // Instruction code chart
+        // https://www.masswerk.at/6502/6502_instruction_set.html
+        enum class AddressMode
+        {
+            IMPLICIT,           // Implicit
+            ACCUMULATOR,        // Accumulator         A
+            IMMEDIATE,          // Immediate           #$nn
+            ZERO_PAGE,          // Zero Page           $nn        LO bits 4,5,6
+            ZERO_PAGE_X,        // Zero Page, X        $nn, X     LO bits 4,5,6
+            ZERO_PAGE_Y,        // Zero Page, Y        $nn, Y     LO bits 4,5,6
+            RELATIVE,           // Relative            $nnnn
+            ABSOLUTE,           // Absolute            $nnnn
+            ABSOLUTE_X,         // Absolute, X         $nnnn, X
+            ABSOLUTE_Y,         // Absolute, Y         $nnnn, Y
+            INDIRECT,           // Indirect            ($nnnn)
+            INDEXED_INDIRECT_X, // X Indexed Indirect  ($nn, X)   LO bit 1
+            INDIRECT_INDEXED_Y  // Y Indirect Indexed  ($nn), Y   LO bit 1
+        };
+
+        // Instruction Pipeline
+        // fetch OpCode (advance PC)
+        // decode OpCode
+        // fetch operand (advance PC as defined by operand)
+        // evaluate OpCode (set status flags)
+
+        class Pipeline
+        {
+            // Constants
+        private:
+        protected:
+        public:
+            // Fields
+        private:
+            CPU &cpu;
+            // The Address space connected to the CPU
+            // memory::Memory &addressSpace;
+            // hardware::Address &address; // Same as program counter
+
+            Instruction instruction;
+            // int opcode;
+            int operand; // struct/union/class (register,implied,Byte,Word)
+            AddressMode addressMode;
+
+        protected:
+        public:
+            // Constructors
+        private:
+        protected:
+        public:
+            /** Configure the instruction pipeline with the address space and program counter. */
+            // Pipeline(memory::Memory &memory, hardware::Address &address);
+            Pipeline(CPU &cpu);
+            // Pipeline(memory::Memory &memory);
+
+            // ~Pipeline();
+
+            // Methods
+        private:
+            // Read an opcode from the cuurrent memory address
+            void fetchOpCode();
+            AddressMode decodeAddressMode(const Instruction instruction);
+            void showAddressMode(const AddressMode addressMode) const;
+            void decodeSource();
+            void decodeDestination();
+            void decodeOperation();
+
+            // Decode  the opcode and determine the addressing mode and read the operand
+            void fetchOperand(const AddressMode addressMode);
+
+        protected:
+        public:
+            void reset(hardware::Address address);
+            // Reset the pipeline, removing any instructions being decoded.
+            void clear();
+            void execute(int numberOfSteps);
+            void showPipeline() const;
+            //  Registers
+
+            // Operators
+        private:
+        protected:
+        public:
+        };
+        // End of Pipeline inner class
+
+    protected:
+    public:
         // ----- Constants -----
     private:
     protected:
@@ -89,9 +250,10 @@ namespace m6502
         // ----- Attributes -----
     private:
         PROGRAMMING_MODEL model;
-        memory::Memory &memory; // make a reference
+        memory::Memory &addressSpace; // make a reference
 
         hardware::Byte instruction;
+        CPU::Pipeline *pipeline;
 
     protected:
     public:
@@ -105,19 +267,20 @@ namespace m6502
         // ----- Methods -----
     private:
     protected:
-        void fetchOpCode();
-        void fetchOperand(); // this considers addressing mode
-
     public:
         void reset();
         // void memoryBank(Memory *memory); // currently only support full address space.
+        hardware::Address &PC();
+        hardware::Byte &A();
+        hardware::Byte &X();
+        hardware::Byte &Y();
         void showRegisters();
 
         void execute(hardware::Address address);
         void execute(int numberOfInstructions);
         void execute();
 
-        memory::Memory currentMemory();
+        memory::Memory &currentMemory();
     };
 
 }
