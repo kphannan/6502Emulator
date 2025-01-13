@@ -139,11 +139,30 @@ namespace m6502
     class CPU
     {
         // ===== Inner Classes =====
+    public:
+        // ----- Forward Declarations of Inner classes
+        // --- Address Modes
+        class AddressMode; // base
+        class AddressModeImplicit;
+        class AddressModeAccumulator;
+        class AddressModeZeroPage;
+        class AddressModeZeroPageIndexedX;
+        class AddressModeZeroPageIndexedY;
+        class AddressModeRelative;
+        class AddressModeAbsolute;
+        class AddressModeAbsoluteIndexedX;
+        class AddressModeAbsoluteIndexedY;
+        class AddressModeIndirect;
+        class AddressModeIndexedIndirectX;
+        class AddressModeIndirectIndexedY;
+        class AddressModeImmediate;
+
+    protected:
     private:
         // TODO maybe split to instruction set class
-        union Instruction
+        union OpCode
         {
-            hardware::Byte opcode;
+            hardware::Byte value;
             struct foo
             {
                 unsigned c : 2; // 1..0
@@ -157,7 +176,7 @@ namespace m6502
 
         // Instruction code chart
         // https://www.masswerk.at/6502/6502_instruction_set.html
-        enum class AddressMode
+        enum class AddressModeKind
         {
             IMPLICIT,           // Implicit
             ACCUMULATOR,        // Accumulator         A
@@ -193,10 +212,11 @@ namespace m6502
             // memory::Memory &addressSpace;
             // hardware::Address &address; // Same as program counter
 
-            Instruction instruction;
+            OpCode opCode;
             // int opcode;
             int operand; // struct/union/class (register,implied,Byte,Word)
-            AddressMode addressMode;
+            AddressModeKind addressModeKind;
+            AddressMode *addressMode;
 
         protected:
         public:
@@ -215,14 +235,14 @@ namespace m6502
         private:
             // Read an opcode from the cuurrent memory address
             void fetchOpCode();
-            AddressMode decodeAddressMode(const Instruction instruction);
-            void showAddressMode(const AddressMode addressMode) const;
+            AddressModeKind decodeAddressMode(const OpCode instruction);
+            void showAddressMode(const AddressModeKind addressMode) const;
             void decodeSource();
             void decodeDestination();
             void decodeOperation();
 
             // Decode  the opcode and determine the addressing mode and read the operand
-            void fetchOperand(const AddressMode addressMode);
+            void fetchOperand(const AddressModeKind addressMode);
 
         protected:
         public:
@@ -253,6 +273,22 @@ namespace m6502
 
         hardware::Byte instruction;
         CPU::Pipeline *pipeline;
+
+        // -----
+        CPU::AddressMode *_addressModeUndefined;
+        CPU::AddressMode *_addressModeImplicit;
+        CPU::AddressMode *_addressModeAccumulator;
+        CPU::AddressMode *_addressModeZeroPage;
+        CPU::AddressMode *_addressModeZeroPageIndexedX;
+        CPU::AddressMode *_addressModeZeroPageIndexedY;
+        CPU::AddressMode *_addressModeRelative;
+        CPU::AddressMode *_addressModeAbsolute;
+        CPU::AddressMode *_addressModeAbsoluteIndexedX;
+        CPU::AddressMode *_addressModeAbsoluteIndexedY;
+        CPU::AddressMode *_addressModeIndirect;
+        CPU::AddressMode *_addressModeIndexedIndirectX;
+        CPU::AddressMode *_addressModeIndirectIndexedY;
+        CPU::AddressMode *_addressModeImmediate;
 
     protected:
     public:

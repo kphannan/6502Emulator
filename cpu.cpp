@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "6502.hpp"
+#include "AddressMode.hpp"
 
 namespace m6502
 {
@@ -18,6 +19,21 @@ namespace m6502
         : addressSpace(memory)
     // : addressSpace(memory), pipeline(memory, this->model.registers.PC)
     {
+        _addressModeUndefined = new AddressModeUndefined();
+        _addressModeImplicit = new AddressModeImplicit();
+        _addressModeAccumulator = new AddressModeAccumulator();
+        _addressModeZeroPage = new AddressModeZeroPage();
+        _addressModeZeroPageIndexedX = new AddressModeZeroPageIndexedX();
+        _addressModeZeroPageIndexedY = new AddressModeZeroPageIndexedY();
+        _addressModeRelative = new AddressModeRelative();
+        _addressModeAbsolute = new AddressModeAbsolute();
+        _addressModeAbsoluteIndexedX = new AddressModeAbsoluteIndexedX();
+        _addressModeAbsoluteIndexedY = new AddressModeAbsoluteIndexedY();
+        _addressModeIndirect = new AddressModeIndirect();
+        _addressModeIndexedIndirectX = new AddressModeIndexedIndirectX();
+        _addressModeIndirectIndexedY = new AddressModeIndirectIndexedY();
+        _addressModeImmediate = new AddressModeImmediate();
+
         pipeline = new CPU::Pipeline(*this);
         reset();
     }
