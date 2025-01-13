@@ -57,6 +57,21 @@ void loadProgram(memory::Memory memory)
     // cpu::Address = std::to_underlying(cpu::HardwareVector::RESET);
     // int address = std::to_underlying(m6502::HardwareVector::RESET);
 
+    memory.write(0x0000, 0xAD); // LDA #00 // starting instruction after reset
+    memory.write(0x0001, 0xCC); //
+    memory.write(0x0002, 0x09); // ORA #A5
+    memory.write(0x0003, 0xA5); //
+
+    memory.write(0x00CC, 0x42); //
+    memory.write(0xCC09, 0x62);
+    memory.write(0x09CC, 0x26);
+
+    // Reset vector points to start of memory
+    memory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
+    memory.write(0xFFFB, 0x00); //      MSB
+}
+
+/*
     memory.write(0x0000, 0xA9); // LDA #00 // starting instruction after reset
     memory.write(0x0001, 0xCC); //
     memory.write(0x0002, 0x09); // ORA #A5
@@ -67,4 +82,4 @@ void loadProgram(memory::Memory memory)
     // Reset vector points to start of memory
     memory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
     memory.write(0xFFFB, 0x00); //      MSB
-}
+*/

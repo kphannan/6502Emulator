@@ -26,24 +26,44 @@ namespace m6502
         addressMode = cpu._addressModeUndefined;
     }
 
+    /**
+     * @brief Execute a single instruction cycle.
+     *
+     */
+    void CPU::Pipeline::execute()
+    {
+        std::cout << " execute instruction pipeline " << std::endl;
+
+        // for (int x = 0; x < numberOfInstructions; x++)
+        // {
+        // Pseudo instruction pipeline....
+        //  fetch opcode
+        //  decode opcode
+        //  fetch operand (use address mode)
+        //  perform operation
+        //  store result in destination
+        fetchOpCode();
+        AddressMode &addressMode = decodeAddressMode(opCode);
+        decodeSource();
+        decodeDestination();
+        decodeOperation();
+        fetchOperand(addressMode);
+        // }
+        // TODO evaluate the instruction
+    }
+
+    /**
+     * @brief Execute 'n' instruction cycles.
+     *
+     * @param numberOfInstructions the number of instruction cycles to execute.
+     */
     void CPU::Pipeline::execute(int numberOfInstructions)
     {
         std::cout << " execute instruction pipeline " << std::endl;
 
         for (int x = 0; x < numberOfInstructions; x++)
         {
-            // Pseudo instruction pipeline....
-            //  fetch opcode
-            //  decode opcode
-            //  fetch operand (use address mode)
-            //  perform operation
-            //  store result in destination
-            fetchOpCode();
-            AddressModeKind addressModeKind = decodeAddressMode(opCode);
-            decodeSource();
-            decodeDestination();
-            decodeOperation();
-            fetchOperand(addressModeKind);
+            execute();
         }
         // TODO evaluate the instruction
     }
@@ -58,7 +78,7 @@ namespace m6502
         std::cout.unsetf(std::ios::basefield);
     }
 
-    CPU::AddressModeKind CPU::Pipeline::decodeAddressMode(const OpCode opCode)
+    CPU::AddressMode &CPU::Pipeline::decodeAddressMode(const OpCode opCode)
     {
         std::cout << " Decode the addressingMode: ";
 
@@ -187,7 +207,7 @@ namespace m6502
                 case 0b111: // 7    b(2) c(1) a(7)
                     std::cout << "a(0,1,3,4,5,6,7) ";
                     std::cout << "immediate #" << std::endl;
-                    addressModeKind = AddressModeKind::IMMEDIATE;
+                    // addressModeKind = AddressModeKind::IMMEDIATE;
                     addressMode = cpu._addressModeImmediate;
                     // addressMode = new CPU::AddressModeImmediate();
                     // addressMode = new AddressMode::AddressModeImmediate();
@@ -246,7 +266,7 @@ namespace m6502
                 case 5:
                 case 6:
                 case 7:
-                    std::cout << "absoluute" << std::endl;
+                    std::cout << "absolute" << std::endl;
                     addressMode = cpu._addressModeAbsolute;
                     break;
                 default:
@@ -257,7 +277,7 @@ namespace m6502
                 break;
             case 1:
             case 2:
-                std::cout << "absoluute" << std::endl;
+                std::cout << "absolute" << std::endl;
                 addressMode = cpu._addressModeAbsolute;
                 break;
             case 3:
@@ -439,7 +459,7 @@ namespace m6502
         // showAddressMode(addressMode);
         // addressMode->execute();
 
-        return addressModeKind;
+        return *addressMode;
     }
 
     void CPU::Pipeline::decodeSource()
@@ -454,170 +474,24 @@ namespace m6502
     {
     }
 
-    void CPU::Pipeline::fetchOperand(const AddressModeKind addressModeKind)
+    void CPU::Pipeline::fetchOperand(AddressMode &mode)
     {
-        addressMode->execute();
-        int operand = -1;
+        mode.execute();
+        // int operand = -1;
 
         std::cout << " fetch operand ";
-        // operand = addressSpace.read(address++);
-        // model.registers.A = memory.read(address++);
-        // std::cout << " operand: " << operand << std::endl;
-        // std::cout << " implement fetch opcode based on the addressing mode of the instruction" << std::end;
-
-        /*
-        switch (addressModeKind)
-        {
-        case AddressModeKind::IMPLICIT: // Implicit
-        {
-            std::cout << "impl    OPC" << " not implemented" << std::endl;
-            break;
-        }
-        case AddressModeKind::ACCUMULATOR: // Accumulator         A
-        {
-            std::cout << "A       OPC A" << " not implemented" << std::endl;
-            break;
-        }
-        case AddressModeKind::IMMEDIATE: // Immediate           #$nn
-        {
-            std::cout << "#       OPC #$BB";
-            operand = cpu.addressSpace.read(cpu.model.registers.PC++);
-            // std::cout << "#       OPC #$" << std::cout.setf(std::ios::hex) << operand;
-
-            // std::cout.setf(std::ios::hex, std::ios::basefield);
-            // std::cout << "#       OPC #$" << std::setfill('0') << std::setw(2) << operand << "   ";
-            // std::cout.unsetf(std::ios::basefield);
-
-            break;
-        }
-        case AddressModeKind::ZERO_PAGE: // Zero Page           $nn        LO bits 4,5,6
-        {
-            // operand is a (byte) offset into zero page
-            std::cout << "zpg     OPC $LL" << std::endl;
-            operand = cpu.addressSpace.read(cpu.model.registers.PC & 0x00FF);
-            cpu.model.registers.PC++;
-            break;
-        }
-        case AddressModeKind::ZERO_PAGE_X: // Zero Page, X        $nn, X     LO bits 4,5,6
-        {
-            std::cout << "zpg,X   OPC $LL,X" << " not implemented" << std::endl;
-            // read from page zero
-            // address to read: operand + X register
-            // hardware::Byte baseAddress = 0x0043;
-            // long baseAddress = 0x0043;
-            hardware::Byte baseAddress = cpu.addressSpace.read(cpu.model.registers.PC++);
-            hardware::Address operandAddress = baseAddress + cpu.model.registers.X;
-            operand = cpu.addressSpace.read(operandAddress);
-            break;
-        }
-        case AddressModeKind::ZERO_PAGE_Y: // Zero Page, Y        $nn, Y     LO bits 4,5,6
-        {
-            std::cout << "zpg,Y   OPC $LL,Y" << " not implemented" << std::endl;
-            // read from page zero
-            // address to read: operand + X register
-            hardware::Byte baseAddress = cpu.addressSpace.read(cpu.model.registers.PC++);
-            hardware::Address operandAddress = baseAddress + cpu.model.registers.Y;
-            operand = cpu.addressSpace.read(operandAddress);
-            break;
-        }
-        case AddressModeKind::RELATIVE: // Relative            $nnnn
-        {
-            std::cout << "rel     OPC $BB" << " not implemented" << std::endl;
-            break;
-        }
-        case AddressModeKind::ABSOLUTE: // Absolute            $nnnn
-        {
-            std::cout << "abs     OPC $LLHH" << " not implemented" << std::endl;
-            break;
-        }
-        case AddressModeKind::ABSOLUTE_X: // Absolute, X         $nnnn, X
-        {
-            std::cout << "abs,X   OPC $LLHH,X" << " not implemented" << std::endl;
-            break;
-        }
-        case AddressModeKind::ABSOLUTE_Y: // Absolute, Y         $nnnn, Y
-        {
-            std::cout << "abs,Y   OPC $LLHH,Y" << " not implemented" << std::endl;
-            break;
-        }
-        case AddressModeKind::INDIRECT: // Indirect            ($nnnn)
-        {
-            std::cout << "ind     OPC ($LLHH)" << " not implemented" << std::endl;
-            break;
-        }
-        case AddressModeKind::INDEXED_INDIRECT_X: // X Indexed Indirect  ($nn, X)   LO bit 1
-        {
-            std::cout << "X,ind   OPC ($LL,X)" << " not implemented" << std::endl;
-            break;
-        }
-        case AddressModeKind::INDIRECT_INDEXED_Y: // Y Indirect Indexed  ($nn), Y   LO bit 1
-        {
-            std::cout << "ind,Y   OPC ($LL),Y" << " not implemented" << std::endl;
-            break;
-        }
-
-        default:
-        {
-            std::cout << "Unknown address mode" << std::endl;
-            break;
-        }
-        }
-        */
 
         std::cout.setf(std::ios::hex, std::ios::basefield);
-        std::cout << " : 0x" << (int)operand;
+        std::cout << " : 0x" << (int)cpu.decodePipeline().operand;
         std::cout.unsetf(std::ios::basefield);
-        std::cout << " " << operand << std::endl;
+        std::cout << " " << cpu.decodePipeline().operand << std::endl;
+        // cpu.model.registers.A = cpu.decodePipeline().operand; // TODO Temporary
     }
 
-    void CPU::Pipeline::showAddressMode(const AddressModeKind addressMode) const
+    // void CPU::Pipeline::showAddressMode(const AddressModeKind addressModeKind) const
+    void CPU::Pipeline::showAddressMode(const AddressMode &addressMode) const
     {
-        switch (addressMode)
-        {
-        case AddressModeKind::IMPLICIT: // Implicit
-            std::cout << "impl    OPC" << std::endl;
-            break;
-        case AddressModeKind::ACCUMULATOR: // Accumulator         A
-            std::cout << "A       OPC A" << std::endl;
-            break;
-        case AddressModeKind::IMMEDIATE: // Immediate           #$nn
-            std::cout << "#       OPC #$BB" << std::endl;
-            break;
-        case AddressModeKind::ZERO_PAGE: // Zero Page           $nn        LO bits 4,5,6
-            std::cout << "zpg     OPC $LL" << std::endl;
-            break;
-        case AddressModeKind::ZERO_PAGE_X: // Zero Page, X        $nn, X     LO bits 4,5,6
-            std::cout << "zpg,X   OPC $LL,X" << std::endl;
-            break;
-        case AddressModeKind::ZERO_PAGE_Y: // Zero Page, Y        $nn, Y     LO bits 4,5,6
-            std::cout << "zpg,Y   OPC $LL,Y" << std::endl;
-            break;
-        case AddressModeKind::RELATIVE: // Relative            $nnnn
-            std::cout << "rel     OPC $BB" << std::endl;
-            break;
-        case AddressModeKind::ABSOLUTE: // Absolute            $nnnn
-            std::cout << "abs     OPC $LLHH" << std::endl;
-            break;
-        case AddressModeKind::ABSOLUTE_X: // Absolute, X         $nnnn, X
-            std::cout << "abs,X   OPC $LLHH,X" << std::endl;
-            break;
-        case AddressModeKind::ABSOLUTE_Y: // Absolute, Y         $nnnn, Y
-            std::cout << "abs,Y   OPC $LLHH,Y" << std::endl;
-            break;
-        case AddressModeKind::INDIRECT: // Indirect            ($nnnn)
-            std::cout << "ind     OPC ($LLHH)" << std::endl;
-            break;
-        case AddressModeKind::INDEXED_INDIRECT_X: // X Indexed Indirect  ($nn, X)   LO bit 1
-            std::cout << "X,ind   OPC ($LL,X)" << std::endl;
-            break;
-        case AddressModeKind::INDIRECT_INDEXED_Y: // Y Indirect Indexed  ($nn), Y   LO bit 1
-            std::cout << "ind,Y   OPC ($LL),Y" << std::endl;
-            break;
-
-        default:
-            std::cout << "Unknown address mode" << std::endl;
-            break;
-        }
+        std::cout << addressMode.name() << "    " << addressMode.mnemonic() << std::endl;
     }
 
     void CPU::Pipeline::showPipeline() const
@@ -627,7 +501,7 @@ namespace m6502
         std::cout << " OpCode: " << (int)opCode.value << " ";
         std::cout.unsetf(std::ios::basefield);
 
-        showAddressMode(addressModeKind);
+        showAddressMode(*addressMode);
     }
 
     void CPU::Pipeline::reset(hardware::Address resetVector)

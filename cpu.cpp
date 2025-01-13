@@ -19,20 +19,20 @@ namespace m6502
         : addressSpace(memory)
     // : addressSpace(memory), pipeline(memory, this->model.registers.PC)
     {
-        _addressModeUndefined = new AddressModeUndefined();
-        _addressModeImplicit = new AddressModeImplicit();
-        _addressModeAccumulator = new AddressModeAccumulator();
-        _addressModeZeroPage = new AddressModeZeroPage();
-        _addressModeZeroPageIndexedX = new AddressModeZeroPageIndexedX();
-        _addressModeZeroPageIndexedY = new AddressModeZeroPageIndexedY();
-        _addressModeRelative = new AddressModeRelative();
-        _addressModeAbsolute = new AddressModeAbsolute();
-        _addressModeAbsoluteIndexedX = new AddressModeAbsoluteIndexedX();
-        _addressModeAbsoluteIndexedY = new AddressModeAbsoluteIndexedY();
-        _addressModeIndirect = new AddressModeIndirect();
-        _addressModeIndexedIndirectX = new AddressModeIndexedIndirectX();
-        _addressModeIndirectIndexedY = new AddressModeIndirectIndexedY();
-        _addressModeImmediate = new AddressModeImmediate();
+        _addressModeUndefined = new AddressModeUndefined(*this);
+        _addressModeImplicit = new AddressModeImplicit(*this);
+        _addressModeAccumulator = new AddressModeAccumulator(*this);
+        _addressModeZeroPage = new AddressModeZeroPage(*this);
+        _addressModeZeroPageIndexedX = new AddressModeZeroPageIndexedX(*this);
+        _addressModeZeroPageIndexedY = new AddressModeZeroPageIndexedY(*this);
+        _addressModeRelative = new AddressModeRelative(*this);
+        _addressModeAbsolute = new AddressModeAbsolute(*this);
+        _addressModeAbsoluteIndexedX = new AddressModeAbsoluteIndexedX(*this);
+        _addressModeAbsoluteIndexedY = new AddressModeAbsoluteIndexedY(*this);
+        _addressModeIndirect = new AddressModeIndirect(*this);
+        _addressModeIndexedIndirectX = new AddressModeIndexedIndirectX(*this);
+        _addressModeIndirectIndexedY = new AddressModeIndirectIndexedY(*this);
+        _addressModeImmediate = new AddressModeImmediate(*this);
 
         pipeline = new CPU::Pipeline(*this);
         reset();
@@ -55,23 +55,6 @@ namespace m6502
         std::cout << "PC: " << std::setfill('0') << std::setw(4) << (int)model.registers.PC << " reset vector" << std::endl;
         std::cout.unsetf(std::ios::basefield);
     }
-
-    // hardware::Address &CPU::PC()
-    // {
-    //     return model.registers.PC;
-    // }
-    // hardware::Byte &CPU::A()
-    // {
-    //     return cpu.model.registers.A;
-    // }
-    // hardware::Byte &CPU::X()
-    // {
-    //     return cpu.model.registers.X;
-    // }
-    // hardware::Byte &CPU::Y()
-    // {
-    //     return cpu.model.registers.Y;
-    // }
 
     void CPU::showRegisters()
     {

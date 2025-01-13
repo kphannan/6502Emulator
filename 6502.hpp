@@ -206,6 +206,8 @@ namespace m6502
         protected:
         public:
             // Fields
+            // TODO not good to be public
+            int operand; // struct/union/class (register,implied,Byte,Word)
         private:
             CPU &cpu;
             // The Address space connected to the CPU
@@ -214,12 +216,10 @@ namespace m6502
 
             OpCode opCode;
             // int opcode;
-            int operand; // struct/union/class (register,implied,Byte,Word)
-            AddressModeKind addressModeKind;
+            // AddressModeKind addressModeKind;
             AddressMode *addressMode;
 
         protected:
-        public:
             // Constructors
         private:
         protected:
@@ -235,20 +235,21 @@ namespace m6502
         private:
             // Read an opcode from the cuurrent memory address
             void fetchOpCode();
-            AddressModeKind decodeAddressMode(const OpCode instruction);
-            void showAddressMode(const AddressModeKind addressMode) const;
+            AddressMode &decodeAddressMode(const OpCode instruction);
+            void showAddressMode(const AddressMode &addressMode) const;
             void decodeSource();
             void decodeDestination();
             void decodeOperation();
 
             // Decode  the opcode and determine the addressing mode and read the operand
-            void fetchOperand(const AddressModeKind addressMode);
+            void fetchOperand(AddressMode &addressMode);
 
         protected:
         public:
             void reset(hardware::Address address);
             // Reset the pipeline, removing any instructions being decoded.
             void clear();
+            void execute();
             void execute(int numberOfSteps);
             void showPipeline() const;
             //  Registers
@@ -303,6 +304,8 @@ namespace m6502
     private:
     protected:
     public:
+        Pipeline &decodePipeline() { return *pipeline; }
+
         void reset();
         // void memoryBank(Memory *memory); // currently only support full address space.
         hardware::Address &PC();
