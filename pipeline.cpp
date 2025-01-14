@@ -5,6 +5,7 @@
 
 #include "6502.hpp"
 #include "AddressMode.hpp"
+#include "InstructionSet.hpp"
 
 namespace m6502
 {
@@ -24,6 +25,7 @@ namespace m6502
         : cpu(processor)
     {
         addressMode = cpu._addressModeUndefined;
+        cpuInstruction = cpu._instructionUndefined;
     }
 
     /**
@@ -34,22 +36,14 @@ namespace m6502
     {
         std::cout << " execute instruction pipeline " << std::endl;
 
-        // for (int x = 0; x < numberOfInstructions; x++)
-        // {
-        // Pseudo instruction pipeline....
-        //  fetch opcode
-        //  decode opcode
-        //  fetch operand (use address mode)
-        //  perform operation
-        //  store result in destination
         fetchOpCode();
         AddressMode &addressMode = decodeAddressMode(opCode);
         decodeSource();
         decodeDestination();
-        decodeOperation();
+        decodeOperation(opCode);
         fetchOperand(addressMode);
-        // }
-        // TODO evaluate the instruction
+        evaluate();
+        // cpu.decodePipeline().cpuInstruction->execute();
     }
 
     /**
@@ -70,6 +64,9 @@ namespace m6502
 
     void CPU::Pipeline::fetchOpCode()
     {
+        addressMode = cpu._addressModeUndefined;
+        cpuInstruction = cpu._instructionUndefined;
+
         opCode.value = cpu.addressSpace.read(cpu.model.registers.PC++);
         // instruction = opcode;
         std::cout.setf(std::ios::hex, std::ios::basefield);
@@ -85,34 +82,33 @@ namespace m6502
         // std::cout.setf(std::ios::hex, std::ios::basefield);
         // std::cout << " OpCode: " << std::setfill('0') << std::setw(2) << (int)opCode.value << std::endl;
         // // std::cout << " OpCode: " << std::setfill('0') << std::setw(2)
-        // //           << opCode.bits.c << std::endl;
+        // //           << opCode.memory.c << std::endl;
         // std::cout.unsetf(std::ios::basefield);
         // std::cout.setf(std::ios::oct, std::ios::basefield);
         std::cout << "         "
                   << " a: " << std::bitset<8>(opCode.value)
-                  << " a: " << std::bitset<3>(opCode.bits.a)
-                  << " b: " << std::bitset<3>(opCode.bits.b)
-                  << " c: " << std::bitset<2>(opCode.bits.c)
+                  << " a: " << std::bitset<3>(opCode.memory.a)
+                  << " b: " << std::bitset<3>(opCode.memory.b)
+                  << " c: " << std::bitset<2>(opCode.memory.c)
                   << std::endl;
         std::cout.unsetf(std::ios::basefield);
 
-        addressMode = cpu._addressModeUndefined;
         // Decode an instruction byte which is decomposed into bit fields within a byte
         // format: aaabbbcc where aaa, bbb, cc represent groups of 2 or 3 bits.  Each
         // letter represents a single bit.
-        switch (opCode.bits.b) // 3 bits
+        switch (opCode.memory.b) // 3 bits
         {
-        case 00:                   // b(0)
-            switch (opCode.bits.c) // 2 bits
+        case 00:                     // b(0)
+            switch (opCode.memory.c) // 2 bits
             {
             case 0:
-                switch (opCode.bits.a) // 3 bits
+                switch (opCode.memory.a) // 3 bits
                 {
                 case 0:
                 case 2:
                 case 3:
                     std::cout << "impl" << std::endl;
-                    addressMode = cpu._addressModeImplicit;
+                    addressMode = cpu._addressModeImplied;
                     break;
                 case 1:
                     std::cout << "abs" << std::endl;
@@ -134,7 +130,7 @@ namespace m6502
                 addressMode = cpu._addressModeIndexedIndirectX;
                 break;
             case 2:
-                switch (opCode.bits.b) // 3 bits
+                switch (opCode.memory.b) // 3 bits
                 {
                 case 0:
                 case 1:
@@ -157,11 +153,11 @@ namespace m6502
                 break;
             }
             break;
-        case 01:                   // b(1)
-            switch (opCode.bits.c) // 2 bits
+        case 01:                     // b(1)
+            switch (opCode.memory.c) // 2 bits
             {
             case 0:
-                switch (opCode.bits.a) // 2 bits
+                switch (opCode.memory.a) // 2 bits
                 {
                 case 0:
                 case 2:
@@ -186,17 +182,17 @@ namespace m6502
                 break;
             }
             break;
-        case 02:                   // b(2)
-            switch (opCode.bits.c) // 2 bits
+        case 02:                     // b(2)
+            switch (opCode.memory.c) // 2 bits
             {
             case 0: // b(2) c(0)
                 std::cout << "c(0) ";
                 std::cout << "impl" << std::endl;
-                addressMode = cpu._addressModeImplicit;
+                addressMode = cpu._addressModeImplied;
                 break;
             case 1: // b(2) c(1)
                 std::cout << "c(1) ";
-                switch ((unsigned)opCode.bits.a) // 3 bits
+                switch ((unsigned)opCode.memory.a) // 3 bits
                 {
                 case 0b000: // 0    b(2) c(1) a(0)
                 case 0b001: // 1    b(2) c(1) a(1)
@@ -218,14 +214,14 @@ namespace m6502
                     // n/a
                     break;
                 default: //    b(2) c(1) a(?)
-                    std::cout << "a(?): " << (unsigned)opCode.bits.a;
+                    std::cout << "a(?): " << (unsigned)opCode.memory.a;
                     // error
                     break;
                 }
                 break;
             case 2: //    b(2) c(2)
                 std::cout << "c(2) ";
-                switch (opCode.bits.a) // 3 bits
+                switch (opCode.memory.a) // 3 bits
                 {
                 case 0:
                 case 1:
@@ -250,11 +246,11 @@ namespace m6502
                 break;
             }
             break;
-        case 03:                   // b(3)
-            switch (opCode.bits.c) // 2 bits
+        case 03:                     // b(3)
+            switch (opCode.memory.c) // 2 bits
             {
             case 0:
-                switch (opCode.bits.a) // 3 bits
+                switch (opCode.memory.a) // 3 bits
                 {
                 case 0:
                     // n/a
@@ -288,8 +284,8 @@ namespace m6502
                 break;
             }
             break;
-        case 04:                   // b(4)
-            switch (opCode.bits.c) // 2 bits
+        case 04:                     // b(4)
+            switch (opCode.memory.c) // 2 bits
             {
             case 00:
                 std::cout << "rel" << std::endl;
@@ -305,11 +301,11 @@ namespace m6502
                 break;
             }
             break;
-        case 05:                   // b(5)
-            switch (opCode.bits.c) // 2 bits
+        case 05:                     // b(5)
+            switch (opCode.memory.c) // 2 bits
             {
-            case 0:                    // b(5) c(0)
-                switch (opCode.bits.a) // 3 bits
+            case 0:                      // b(5) c(0)
+                switch (opCode.memory.a) // 3 bits
                 {
                 case 0: // b(5) c(0) a(0)
                 case 1: // b(5) c(0) a(1)
@@ -334,8 +330,8 @@ namespace m6502
                 std::cout << "zp,X  zero page - indexed" << std::endl;
                 addressMode = cpu._addressModeZeroPageIndexedX;
                 break;
-            case 2:                    // b(5) c(2)
-                switch (opCode.bits.a) // 3 bits
+            case 2:                      // b(5) c(2)
+                switch (opCode.memory.a) // 3 bits
                 {
                 case 0: // b(5) c(2) a(0)
                 case 1: // b(5) c(2) a(1)
@@ -364,19 +360,19 @@ namespace m6502
                 break;
             }
             break;
-        case 06:                   // b(6)
-            switch (opCode.bits.c) // 2 bits
+        case 06:                     // b(6)
+            switch (opCode.memory.c) // 2 bits
             {
             case 00: // b(6) c(0)
                 std::cout << "impl" << std::endl;
-                addressMode = cpu._addressModeImplicit;
+                addressMode = cpu._addressModeImplied;
                 break;
             case 01: // b(6) c(1)
                 std::cout << "abs, y" << std::endl;
                 addressMode = cpu._addressModeAbsoluteIndexedY;
                 break;
-            case 02:                   // b(6) c(2)
-                switch (opCode.bits.a) // 3 bits
+            case 02:                     // b(6) c(2)
+                switch (opCode.memory.a) // 3 bits
                 {
                 case 0: // b(6) c(2) a(0)
                 case 1: // b(6) c(2) a(1)
@@ -399,11 +395,11 @@ namespace m6502
                 break;
             }
             break;
-        case 07:                   // b(7)
-            switch (opCode.bits.c) // 2 bits
+        case 07:                     // b(7)
+            switch (opCode.memory.c) // 2 bits
             {
-            case 00:                   // b(7) c(0)
-                switch (opCode.bits.a) // 3 bits
+            case 00:                     // b(7) c(0)
+                switch (opCode.memory.a) // 3 bits
                 {
                 case 0: // b(7) c(0) a(0)
                 case 1: // b(7) c(0) a(1)
@@ -426,8 +422,8 @@ namespace m6502
                 std::cout << "abs,X   absoluute indexed" << std::endl;
                 addressMode = cpu._addressModeAbsoluteIndexedX;
                 break;
-            case 02:                   // b(7) c(2)
-                switch (opCode.bits.a) // 3 bits
+            case 02:                     // b(7) c(2)
+                switch (opCode.memory.a) // 3 bits
                 {
                 case 0: // b(7) c(2) a(0)
                 case 1: // b(7) c(2) a(1)
@@ -470,8 +466,361 @@ namespace m6502
     {
     }
 
-    void CPU::Pipeline::decodeOperation()
+    void CPU::Pipeline::decodeOperation(const OpCode opcode)
     {
+        std::cout << " Decode the operation: ";
+
+        // std::cout.setf(std::ios::hex, std::ios::basefield);
+        // std::cout << " OpCode: " << std::setfill('0') << std::setw(2) << (int)opCode.value << std::endl;
+        // // std::cout << " OpCode: " << std::setfill('0') << std::setw(2)
+        // //           << opCode.memory.c << std::endl;
+        // std::cout.unsetf(std::ios::basefield);
+        // std::cout.setf(std::ios::oct, std::ios::basefield);
+        std::cout << "         "
+                  << "--: " << std::bitset<8>(opCode.value)
+                  << " a: " << std::bitset<3>(opCode.memory.a)
+                  << " b: " << std::bitset<3>(opCode.memory.b)
+                  << " c: " << std::bitset<2>(opCode.memory.c)
+                  << std::endl;
+
+        addressMode = cpu._addressModeUndefined;
+        // Decode an instruction byte which is decomposed into bit fields within a byte
+        // format: aaabbbcc where aaa, bbb, cc represent groups of 2 or 3 bits.  Each
+        // letter represents a single bit.
+        std::cout << "switch(c: " << std::bitset<2>(opCode.memory.c) << ")  ";
+        switch (opCode.memory.c) // 2 bits
+        {
+        case 0b00: // c(0)
+        {
+            // Instruction
+            switch (opCode.memory.a) // 3 bits
+            {
+            case 0b000: // c(0) a(0)
+            {
+                switch (opCode.memory.b) // 3 bits
+                {
+                case 0b000: // c(0) a(0) b(0)
+                            // BRK impl
+                case 0b010: // c(0) a(0) b(2)
+                            // PMP impl
+                case 0b100: // c(0) a(0) b(4)
+                            // BPL rel
+                case 0b110: // c(0) a(0) b(6)
+                            // CLC impl
+                case 0b001: // c(0) a(0) b(1)
+                case 0b011: // c(0) a(0) b(3)
+                case 0b101: // c(0) a(0) b(5)
+                case 0b111: // c(0) a(0) b(7)
+                    // Illegal
+                    break;
+                }
+            }
+            break;
+            case 0b001:                  // c(0) a(1) - BIT
+                switch (opCode.memory.b) // 3 bits
+                {
+                case 0b000: // c(0) a(1) b(0) - JSR abs
+                case 0b001: // c(0) a(1) b(1) - BIT zpg
+                case 0b010: // c(0) a(1) b(2) - PLP impl
+                case 0b011: // c(0) a(1) b(3) - BIT abs
+                case 0b100: // c(0) a(1) b(4) - BMI rel
+                case 0b110: // c(0) a(1) b(6) - SEC impl
+                case 0b101: // c(0) a(1) b(5) - illegal
+                case 0b111: // c(0) a(1) b(7) - illegal
+                    break;
+                }
+                break;
+            case 0b010:                  // c(0) a(2) - JMP
+                switch (opCode.memory.b) // 3 bits
+                {
+                case 0b000: // c(0) a(0) b(0)
+                            // RTI impl
+                case 0b010: // c(0) a(0) b(2)
+                            // PHA impl
+                case 0b011: // c(0) a(0) b(3)
+                            // JMP abs
+                case 0b100: // c(0) a(0) b(4)
+                            // BVC rel
+                case 0b110: // c(0) a(0) b(6)
+                            // CLI impl
+                case 0b001: // c(0) a(0) b(1)
+                case 0b101: // c(0) a(0) b(5)
+                case 0b111: // c(0) a(0) b(7)
+                    // Illegal
+                    break;
+                }
+                break;
+            case 0b011:                  // c(0) a(3) - JMP (abs)
+                switch (opCode.memory.b) // 3 bits
+                {
+                case 0b000: // c(0) a(0) b(0)
+                            // RTS impl
+                case 0b010: // c(0) a(0) b(2)
+                            // PLA impl
+                case 0b011: // c(0) a(0) b(3)
+                            // JMP ind
+                case 0b100: // c(0) a(0) b(4)
+                            // BVS rel
+                case 0b110: // c(0) a(0) b(6)
+                            // SEI impl
+                case 0b001: // c(0) a(0) b(1)
+                case 0b101: // c(0) a(0) b(5)
+                case 0b111: // c(0) a(0) b(7)
+                    // Illegal
+                    break;
+                }
+                break;
+            case 0b100: // c(0) a(4) - STY
+                // b(2) DEY, b(4) BCC, b(6) TYA
+                cpuInstruction = cpu._instructionStore;
+                break;
+            case 0b101: // c(0) a(5) - LDY
+                // b(2): TAY imp, b(4): BCS rel, b(6): CLV impl
+                cpuInstruction = cpu._instructionLoad;
+                break;
+            case 0b110: // c(0) a(6) - CPY
+                // b(2): INY imp, b(4): BNE rel, b(6): CLD impl
+                break;
+            case 0b111: // c(0) a(7) - CPX
+                break;
+            }
+
+            // Addressing Mode
+            switch (opCode.memory.b) // 3 bits
+            {
+            case 0b000: // c(0) b(0) - Immediate
+                // TODO more modes
+                switch (opCode.memory.a) // 3 bits
+                {
+                case 0b000: // b(0) a(0)
+                case 0b010: // b(0) a(2)
+                case 0b011: // b(0) a(3)
+                    addressMode = cpu._addressModeImmediate;
+                    break;
+                case 0b001: // b(0) a(1)
+                    addressMode = cpu._addressModeImplied;
+                    break;
+                case 0b101: // b(0) a(5)
+                case 0b110: // b(0) a(6)
+                case 0b111: // b(0) a(7)
+                    addressMode = cpu._addressModeImmediate;
+                    break;
+                case 0b100: // b(0) a(4)        // TODO verify this for illegal instruction
+                    break;
+                }
+                break;
+            case 0b001: // c(0) b(1) - ZeroPage
+                addressMode = cpu._addressModeZeroPage;
+                // TODO check illegal instructions at a(0,2,3)
+                break;
+            case 0b010: // c(0) b(2) - Implied
+                addressMode = cpu._addressModeImplied;
+                break;
+            case 0b011: // c(0) b(3) - Absolute
+                // TODO more modes
+                addressMode = cpu._addressModeAbsolute;
+                switch (opCode.memory.a) // 3 bits
+                {
+                case 0b000: // b(3) a(0)    // TODO  verify illegal instruction
+                case 0b001: // b(3) a(1)
+                case 0b010: // b(3) a(2)
+                case 0b011: // b(3) a(3)
+                case 0b100: // b(3) a(4)
+                case 0b101: // b(3) a(5)
+                case 0b110: // b(3) a(6)
+                case 0b111: // b(3) a(7)
+                    break;
+                }
+                break;
+            case 0b100: // c(0) b(4) - rel
+                addressMode = cpu._addressModeRelative;
+                break;
+            case 0b101:                  // c(0) b(5) - ZeroPage,X
+                switch (opCode.memory.a) // 3 bits
+                {
+                case 0b000: // b(3) a(0)    // TODO  verify illegal instruction
+                case 0b001: // b(3) a(1)
+                case 0b010: // b(3) a(2)
+                case 0b011: // b(3) a(3)
+                case 0b110: // b(3) a(6)
+                case 0b111: // b(3) a(7)
+                    break;
+                case 0b100: // b(3) a(4)
+                case 0b101: // b(3) a(5)
+                    addressMode = cpu._addressModeZeroPageIndexedX;
+                    break;
+                }
+                break;
+            case 0b110: // c(0) b(6) - Implied
+                addressMode = cpu._addressModeImplied;
+                break;
+            case 0b111:                  // c(0) b(7) - Absolute,X
+                switch (opCode.memory.a) // 3 bits
+                {
+                case 0b000: // b(3) a(0)    // TODO  verify illegal instruction
+                case 0b001: // b(3) a(1)
+                case 0b010: // b(3) a(2)
+                case 0b011: // b(3) a(3)
+                case 0b100: // b(3) a(4)
+                case 0b110: // b(3) a(6)
+                case 0b111: // b(3) a(7)
+                    break;
+                case 0b101: // b(3) a(5)
+                    addressMode = cpu._addressModeAbsoluteIndexedX;
+                    break;
+                }
+                break;
+            }
+            break;
+        }
+        case 0b01: // c(1)
+        {
+            std::cout << "switch(c(01) a: " << std::bitset<3>(opCode.memory.a) << ")" << std::endl;
+            // Instruction
+            switch (opCode.memory.a) // 3 bits
+            {
+            case 0b000:                                   // c(1) a(0) - ORA
+                cpuInstruction = cpu._instructionLogical; // TOOD need ORA
+                break;
+            case 0b001:                                   // c(1) a(1) - AND
+                cpuInstruction = cpu._instructionLogical; // TOOD need AND
+                break;
+            case 0b010:                                   // c(1) a(2) - EOR
+                cpuInstruction = cpu._instructionLogical; // TOOD need EOR
+                break;
+            case 0b011: // c(1) a(3) - ADC
+                break;
+            case 0b100: // c(1) a(4) - STA
+                // std::cout << "case 4 (" << std::bitset<3>(opCode.memory.a) << ")" << std::endl;
+                // b(2) is not an instruction
+                cpuInstruction = cpu._instructionStore;
+                break;
+            case 0b101: // c(1) a(5) - LDA
+                // std::cout << "case 5 (" << std::bitset<3>(opCode.memory.a) << ")" << std::endl;
+                cpuInstruction = cpu._instructionLoad; // TOOD need LDA
+                break;
+            case 0b110: // c(1) a(6) - CMP
+                break;
+            case 0b111: // c(1) a(7) - SBC
+                break;
+            }
+
+            // Addressing Mode
+            switch (opCode.memory.b) // 3 bits
+            {
+            case 0b000: // c(1) b(0) - ZeroPage,X
+                addressMode = cpu._addressModeZeroPageIndexedX;
+                break;
+            case 0b001: // c(1) b(1) - ZeroPage
+                addressMode = cpu._addressModeZeroPage;
+                break;
+            case 0b010: // c(1) b(2) - Immediate
+                addressMode = cpu._addressModeImmediate;
+                break;
+            case 0b011: // c(1) b(3) - Absolute
+                addressMode = cpu._addressModeAbsolute;
+                break;
+            case 0b100: // c(1) b(4) - (ZeroPage),Y
+                addressMode = cpu._addressModeZeroPageIndexedY;
+                break;
+            case 0b101: // c(1) b(5) - ZeroPage,X
+                addressMode = cpu._addressModeZeroPageIndexedY;
+                break;
+            case 0b110: // c(1) b(6) - Absolute,Y
+                addressMode = cpu._addressModeAbsoluteIndexedY;
+                break;
+            case 0b111: // c(1) b(7) - Absolute,X
+                addressMode = cpu._addressModeAbsoluteIndexedX;
+                break;
+            }
+            break;
+        }
+        case 0b10: // c(2)
+        {
+            // Instruction
+            switch (opCode.memory.a) // 3 bits
+            {
+            case 0b000: // c(2) a(0) - ASL
+                break;
+            case 0b001: // c(2) a(1) - ROL
+                break;
+            case 0b010: // c(2) a(2) - LSR
+                break;
+            case 0b011: // c(2) a(3) - ROR
+                break;
+            case 0b100: // c(2) a(4) - STX
+                cpuInstruction = cpu._instructionStore;
+                break;
+            case 0b101: // c(2) a(5) - LDX
+                cpuInstruction = cpu._instructionLoad;
+                break;
+            case 0b110: // c(2) a(6) - DEC
+                break;
+            case 0b111: // c(2) a(7) - INC
+                break;
+            }
+
+            // Addressing Mode
+            switch (opCode.memory.b) // 3 bits
+            {
+            case 0b000: // c(2) b(0) - Immediate
+                addressMode = cpu._addressModeImmediate;
+                break;
+            case 0b001: // c(2) b(1) - ZeroPage
+                addressMode = cpu._addressModeZeroPage;
+                break;
+            case 0b010: // c(2) b(2) - Accumulator
+                addressMode = cpu._addressModeAccumulator;
+                // TODO A b(0,1,2,3) impl b(4,5,6,7)
+                break;
+            case 0b011: // c(2) b(3) - Absolute
+                addressMode = cpu._addressModeAbsolute;
+                break;
+            // case 0b100: // c(2) b(4) - ZeroPage,X   (ZeroPage),Y
+            //     break;
+            case 0b101: // c(2) b(5) - ZeroPage,X
+                addressMode = cpu._addressModeZeroPageIndexedX;
+                // TODO zpgg,Y for a(4,5)
+                break;
+            // case 0b110: // c(2) b(6) - Absolute,Y
+            //     break;
+            case 0b111:                                         // c(2) b(7) - Absolute,X
+                addressMode = cpu._addressModeAbsoluteIndexedX; // TODO not for a(5), ?? for a(4)
+                break;
+            }
+            break;
+        }
+        case 0b11: // c(3)
+            break;
+        }
+
+        // No memory access opcode
+        if (addressMode == cpu._addressModeUndefined)
+        {
+            // 80(illegal), A0(ldy), C0(cpy), E0(cpx)
+            // LSB(0)
+            // no instruction matched yet.
+            switch (opCode.branch.x)
+            {
+            case 0b00: // flag : negative (BPL, BMI)
+                break;
+            case 0b01: // flag : overflow (BVC, BVS)
+                break;
+            case 0b10: // flag : carry (BCC, BCS)
+                break;
+            case 0b11: // flag : zero (BNE, BEQ)
+                break;
+            }
+        }
+
+        // remaining opcodes LSB of 0, 8, A
+        // stack - PHP, PLP, PHA, PLA
+        // TAY. TYA,
+        // DEY, INY, INX
+        // CLC, SEC, CLI, SEI, CLV, CLD, SET
+
+        cpuInstruction->execute();
+        std::cout.unsetf(std::ios::basefield);
     }
 
     void CPU::Pipeline::fetchOperand(AddressMode &mode)
@@ -485,10 +834,23 @@ namespace m6502
         std::cout << " : 0x" << (int)cpu.decodePipeline().operand;
         std::cout.unsetf(std::ios::basefield);
         std::cout << " " << cpu.decodePipeline().operand << std::endl;
-        // cpu.model.registers.A = cpu.decodePipeline().operand; // TODO Temporary
     }
 
-    // void CPU::Pipeline::showAddressMode(const AddressModeKind addressModeKind) const
+    void CPU::Pipeline::evaluate()
+    {
+        // std::cout << " evaluate instruction ";
+        // cpu.decodePipeline().operand;
+        // cpu.decodePipeline().cpuInstruction->evaluate();
+        cpu.decodePipeline().cpuInstruction->execute();
+        // mode.execute();
+        // // int operand = -1;
+
+        // std::cout.setf(std::ios::hex, std::ios::basefield);
+        // std::cout << " : 0x" << (int)cpu.decodePipeline().operand;
+        // std::cout.unsetf(std::ios::basefield);
+        // std::cout << " " << cpu.decodePipeline().operand << std::endl;
+    }
+
     void CPU::Pipeline::showAddressMode(const AddressMode &addressMode) const
     {
         std::cout << addressMode.name() << "    " << addressMode.mnemonic() << std::endl;
@@ -498,7 +860,7 @@ namespace m6502
     {
         std::cout.setf(std::ios::hex, std::ios::basefield);
         // std::cout << " opcode: " << std::setfill('0') << std::setw(2) << instruction << std::endl;
-        std::cout << " OpCode: " << (int)opCode.value << " ";
+        std::cout << " OpCode: " << (int)opCode.value << " : " << cpuInstruction->mnemonic() << "~";
         std::cout.unsetf(std::ios::basefield);
 
         showAddressMode(*addressMode);

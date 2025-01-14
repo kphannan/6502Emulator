@@ -5,6 +5,7 @@
 
 #include "6502.hpp"
 #include "AddressMode.hpp"
+#include "InstructionSet.hpp"
 
 namespace m6502
 {
@@ -19,8 +20,9 @@ namespace m6502
         : addressSpace(memory)
     // : addressSpace(memory), pipeline(memory, this->model.registers.PC)
     {
+        // ===== Addressing Modes =====
         _addressModeUndefined = new AddressModeUndefined(*this);
-        _addressModeImplicit = new AddressModeImplicit(*this);
+        _addressModeImplied = new AddressModeImplied(*this);
         _addressModeAccumulator = new AddressModeAccumulator(*this);
         _addressModeZeroPage = new AddressModeZeroPage(*this);
         _addressModeZeroPageIndexedX = new AddressModeZeroPageIndexedX(*this);
@@ -34,7 +36,91 @@ namespace m6502
         _addressModeIndirectIndexedY = new AddressModeIndirectIndexedY(*this);
         _addressModeImmediate = new AddressModeImmediate(*this);
 
+        // ===== Instructions =====
+        _instructionUndefined = new Instruction(*this, "Illegal Instruction", "bad");
+
+        // ===== Transfer Instructions
+        // ----- Load
+        // _instructionLoad = new InstructionLoad(*this, "load instruction", "load");
+        _instructionLoad = new InstructionLoad(*this);
+        // --- LDA
+        // --- LDX
+        // --- LDY
+        //
+
+        // ----- Store
+        _instructionStore = new InstructionStore(*this);
+        // --- STA
+        // --- STX
+        // --- STY
+
+        // ----- Interregister transfer
+        // --- TAX
+        // --- TAY
+        // --- TSX
+        // --- TXA
+        // --- TXS
+        // --- TYA
+
+        // ===== Stack Instructions
+        // --- PHA
+        // --- PHP
+        // --- PLA
+        // --- PLP
+        // ===== Decrement & Increment
+        // --- DEC
+        // --- DEX
+        // --- DEY
+        // --- INC
+        // --- INX
+        // --- INY
+        // ===== Arithmetic Instructions
+        // --- ADC
+        // --- SBC
+        // ===== Logical Instructions
+        _instructionLogical = new InstructionLogical(*this);
+        // --- AND
+        // --- EOR
+        // --- ORA
+        // ===== Shift & Rotate Instructions
+        // --- ASL
+        // --- LSR
+        // --- ROL
+        // --- ROR
+        // ===== Flag Instructions
+        // --- CLC
+        // --- CLD
+        // --- CLI
+        // --- CLV
+        // --- SEC
+        // --- SED
+        // --- SEI
+        // ===== Comparison Instructions
+        // --- CMP
+        // --- CPX
+        // --- CPY
+        // ===== Conditional Branch Instructions
+        // --- BCC
+        // --- BCS
+        // --- BEQ
+        // --- BMI
+        // --- BNE
+        // --- BPL
+        // --- BVC
+        // --- BVS
+        // ===== Jumps & Subroutines Instructions
+        // --- JUMP
+        // --- JSR
+        // --- RTS
+        // ===== Interrupts Instructions
+        // --- BRK
+        // --- RTI
+        // ===== Other Instructions
+        // --- BIT
+        // --- NOP
+
         pipeline = new CPU::Pipeline(*this);
+
         reset();
     }
 

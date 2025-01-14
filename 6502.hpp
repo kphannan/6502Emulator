@@ -12,6 +12,28 @@
 namespace m6502
 {
 
+    // Identifies the source & destination of an operation
+    enum class SourceDestination
+    {
+        // Register
+        A,  // Accumulator
+        X,  // X Index
+        Y,  // Y Index
+        S,  // Stack  Pointer
+        PC, // Program Counter
+            // Status Register
+        FLAG_N, // negative
+        FLAG_V, // overflow
+        FLAG_B, // break
+        FLAG_D, // decimal
+        FLAG_I, // interrupt disable
+        FLAG_Z, // zero
+        FLAG_C, // carry
+                // Memory
+        MEMORY  // Location in the address space (use addressing mode)
+    };
+
+    // http://www.6502.org/users/obelisk/6502/registers.html
     typedef struct GeneralPurposeRegisters
     {
         hardware::Byte A; // Accumulator
@@ -22,6 +44,24 @@ namespace m6502
         hardware::Byte S; // Stack Pointer
 
         hardware::Address PC; // Program Counter
+
+        // Processor Status
+        // union
+        // {
+        //     hardware::Byte value;
+        //     struct ProcessorStatusRegister
+        //     {
+        //         int N : 1;   // Negative
+        //         int V : 1;   // Overflow
+        //         int one : 1; // Constant '1'
+        //         int B : 1;   // BRK command  1 = BRK, 0 = IRQB
+        //         int D : 1;   // Decimal Mode 1 = true
+        //         int I : 1;   // IRQB disable 1 = disable
+        //         int Z : 1;   // Zero 1 = true
+        //         int C : 1;   // Carry 1 = true
+        //     } Flags;
+        // } P;
+
     } REGISTERS;
 
     /*
@@ -143,7 +183,7 @@ namespace m6502
         // ----- Forward Declarations of Inner classes
         // --- Address Modes
         class AddressMode; // base
-        class AddressModeImplicit;
+        class AddressModeImplied;
         class AddressModeAccumulator;
         class AddressModeZeroPage;
         class AddressModeZeroPageIndexedX;
@@ -157,19 +197,115 @@ namespace m6502
         class AddressModeIndirectIndexedY;
         class AddressModeImmediate;
 
+        // --- Instruction
+        class Instruction; // base
+        class InstructionIllegal;
+
+        // ===== Transfer Instructions
+        // ----- Load
+        class InstructionLoad;
+        // --- LDA *
+        // --- LDX *
+        // --- LDY *
+        //
+
+        // ----- Store
+        class InstructionStore;
+        // --- STA *
+        // --- STX *
+        // --- STY *
+
+        // ----- Interregister transfer
+        // --- TAX
+        // --- TAY
+        // --- TSX
+        // --- TXA
+        // --- TXS
+        // --- TYA
+
+        // ===== Stack Instructions
+        // --- PHA
+        // --- PHP
+        // --- PLA
+        // --- PLP
+        // ===== Decrement & Increment
+        // --- DEC *
+        // --- DEX
+        // --- DEY
+        // --- INC *
+        // --- INX
+        // --- INY
+        // ===== Arithmetic Instructions
+        // --- ADC *
+        // --- SBC *
+        // ===== Logical Instructions
+        class InstructionLogical;
+        // --- AND *
+        // --- EOR *
+        // --- ORA *
+        // ===== Shift & Rotate Instructions
+        // --- ASL *
+        // --- LSR *
+        // --- ROL *
+        // --- ROR *
+        // ===== Flag Instructions
+        // --- CLC
+        // --- CLD
+        // --- CLI
+        // --- CLV
+        // --- SEC
+        // --- SED
+        // --- SEI
+        // ===== Comparison Instructions
+        // --- CMP *
+        // --- CPX *
+        // --- CPY *
+        // ===== Conditional Branch Instructions (fmt: zzy10000)
+        // --- BCC
+        // --- BCS
+        // --- BEQ
+        // --- BMI
+        // --- BNE
+        // --- BPL
+        // --- BVC
+        // --- BVS
+        // ===== Jumps & Subroutines Instructions
+        // --- JUMP *
+        // --- JSR
+        // --- RTS
+        // ===== Interrupts Instructions
+        // --- BRK
+        // --- RTI
+        // ===== Other Instructions
+        // --- BIT *
+        // --- NOP
+
     protected:
     private:
         // TODO maybe split to instruction set class
         union OpCode
         {
+            // raw opcode byte
             hardware::Byte value;
-            struct foo
+
+            // format of memory access (r/w) instructions
+            struct MemoryAccess
             {
                 unsigned c : 2; // 1..0
                 unsigned b : 3; // 4..2
                 unsigned a : 3; // 7..5
-                int z : 1;
-            } bits;
+                int s : 1;
+            } memory;
+
+            // Branching on flag bits follow this format
+            struct BranchFormat
+            {
+                unsigned z : 4; // 3..0
+                unsigned o : 1; // 4..4
+                unsigned y : 1; // 5..5
+                unsigned x : 2; // 7..6
+                int s : 1;
+            } branch;
         };
 
         // Addressing Modes
@@ -208,6 +344,9 @@ namespace m6502
             // Fields
             // TODO not good to be public
             int operand; // struct/union/class (register,implied,Byte,Word)
+            Instruction *cpuInstruction;
+            AddressMode *addressMode;
+
         private:
             CPU &cpu;
             // The Address space connected to the CPU
@@ -217,7 +356,6 @@ namespace m6502
             OpCode opCode;
             // int opcode;
             // AddressModeKind addressModeKind;
-            AddressMode *addressMode;
 
         protected:
             // Constructors
@@ -239,10 +377,11 @@ namespace m6502
             void showAddressMode(const AddressMode &addressMode) const;
             void decodeSource();
             void decodeDestination();
-            void decodeOperation();
+            void decodeOperation(const OpCode instruction);
 
             // Decode  the opcode and determine the addressing mode and read the operand
             void fetchOperand(AddressMode &addressMode);
+            void evaluate();
 
         protected:
         public:
@@ -277,19 +416,25 @@ namespace m6502
 
         // -----
         CPU::AddressMode *_addressModeUndefined;
-        CPU::AddressMode *_addressModeImplicit;
+        CPU::AddressMode *_addressModeImplied;
         CPU::AddressMode *_addressModeAccumulator;
         CPU::AddressMode *_addressModeZeroPage;
         CPU::AddressMode *_addressModeZeroPageIndexedX;
         CPU::AddressMode *_addressModeZeroPageIndexedY;
         CPU::AddressMode *_addressModeRelative;
-        CPU::AddressMode *_addressModeAbsolute;
+        CPU::AddressModeAbsolute *_addressModeAbsolute;
         CPU::AddressMode *_addressModeAbsoluteIndexedX;
         CPU::AddressMode *_addressModeAbsoluteIndexedY;
         CPU::AddressMode *_addressModeIndirect;
         CPU::AddressMode *_addressModeIndexedIndirectX;
         CPU::AddressMode *_addressModeIndirectIndexedY;
-        CPU::AddressMode *_addressModeImmediate;
+        CPU::AddressModeImmediate *_addressModeImmediate;
+
+        // TODO get the actual operations
+        CPU::Instruction *_instructionUndefined;
+        CPU::InstructionLoad *_instructionLoad;
+        CPU::InstructionStore *_instructionStore;
+        CPU::InstructionLogical *_instructionLogical;
 
     protected:
     public:
