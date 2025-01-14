@@ -93,13 +93,13 @@ namespace m6502
     };
 
     //        IMPLICIT,           // Implicit
-    class CPU::AddressModeImplicit : public CPU::AddressMode
+    class CPU::AddressModeImplied : public CPU::AddressMode
     {
         // Constructors
     private:
     protected:
     public:
-        AddressModeImplicit(CPU &cpu) : AddressMode(cpu, "Implicit", "") {};
+        AddressModeImplied(CPU &cpu) : AddressMode(cpu, "Implicit", "") {};
         // Fields
     private:
     protected:
