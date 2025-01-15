@@ -31,7 +31,13 @@ FetchContent_MakeAvailable(googletest)
 # TODO 3: Add an executable called Tutorial to the project
 # Hint: Be sure to specify the source file as tutorial.cxx
 # add the executable
-add_executable(EMU app.cpp memory.cpp cpu.cpp pipeline.cpp)
+
+# Glob files
+file(GLOB_RECURSE SRC_FILES lib/src/main/src/*.cpp)
+
+add_executable(EMU app.cpp ${SRC_FILES})
+
+# add_executable(EMU app.cpp memory.cpp cpu.cpp pipeline.cpp)
 
 # TODO 9: Use target_include_directories to include ${PROJECT_BINARY_DIR}
 target_include_directories(EMU PUBLIC
@@ -43,7 +49,7 @@ enable_testing()
 
 add_executable(
     unit_test
-    hello_test.cc memoryTest.cpp memory.cpp
+    hello_test.cc ${SRC_FILES}
 )
 target_link_libraries(
     unit_test
