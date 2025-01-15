@@ -37,7 +37,8 @@ file(GLOB_RECURSE SRC_FILES lib/src/main/src/*.cpp)
 
 add_executable(EMU app.cpp ${SRC_FILES})
 
-# add_executable(EMU app.cpp memory.cpp cpu.cpp pipeline.cpp)
+# target_compile_features( EMU PRIVATE cxx_std_23)
+target_include_directories(EMU PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}lib/src/main/include)
 
 # TODO 9: Use target_include_directories to include ${PROJECT_BINARY_DIR}
 target_include_directories(EMU PUBLIC
