@@ -300,6 +300,7 @@ namespace m6502
     public:
         virtual void execute()
         {
+            // value = read( $nnnn + X)
             AddressMode::execute();
             std::cout << "Not yet implemented" << std::endl;
         };
@@ -326,6 +327,7 @@ namespace m6502
     public:
         virtual void execute()
         {
+            // value = read( $nnnn + Y)
             AddressMode::execute();
             std::cout << "Not yet implemented" << std::endl;
         };
@@ -378,6 +380,7 @@ namespace m6502
     public:
         virtual void execute()
         {
+            // value = read( $nn + X )
             AddressMode::execute();
             std::cout << "Not yet implemented" << std::endl;
         };
@@ -405,6 +408,8 @@ namespace m6502
         virtual void execute()
         {
             AddressMode::execute();
+            // read( read( $nn ) | (read( $nn + 1) << 8) + Y )
+            // indirect pointer (PC | (PC+1)<<8) + Y
             std::cout << "Not yet implemented" << std::endl;
         };
         // Operators
