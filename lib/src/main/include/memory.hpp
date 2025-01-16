@@ -60,11 +60,13 @@ namespace memory
         void clear();
 
         // const char *name() const;
-        char *name();
+        char *name() { return bankName; };
 
         hardware::Address lowAddress() const;
         hardware::Address highAddress() const;
         hardware::Word memorySize() const;
+
+        void showMemory(const hardware::Address from, const int count) const;
 
         // Operators
     private:

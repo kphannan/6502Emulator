@@ -13,6 +13,8 @@ namespace m6502
 
     class CPU;
 
+    // 6502 has 56 instructions
+
     class CPU::Instruction
     {
         // Types

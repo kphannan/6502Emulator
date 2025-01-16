@@ -128,18 +128,21 @@ namespace m6502
 
     void CPU::reset()
     {
-        model.registers.A = 0xAB;
-        model.registers.X = 0xCD;
-        model.registers.Y = 0xE5;
-        model.registers.S = 0xFF;
-        model.P = 0b10100101; // TODO reset it properly...
+        model.registers.A = 0x00;
+        model.registers.X = 0x00;
+        model.registers.Y = 0x00;
+        model.registers.S = 0x00;
+        model.P = 0b00100000; // TODO reset it properly...
+
+        // std::cout.setf(std::ios::hex, std::ios::basefield);
+        // std::cout << std::endl;
+        // std::cout << "----- Cpu(RESET) -----" << std::endl;
 
         // Reset the CPU / decode pipeline from the reset vector
         pipeline->reset(std::to_underlying(HardwareVector::RESET));
 
-        std::cout.setf(std::ios::hex, std::ios::basefield);
-        std::cout << "PC: " << std::setfill('0') << std::setw(4) << (int)model.registers.PC << " reset vector" << std::endl;
-        std::cout.unsetf(std::ios::basefield);
+        // std::cout << "PC: " << std::setfill('0') << std::setw(4) << (int)model.registers.PC << " reset vector" << std::endl;
+        // std::cout.unsetf(std::ios::basefield);
     }
 
     void CPU::showRegisters()

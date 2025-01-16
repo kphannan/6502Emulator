@@ -82,4 +82,32 @@ namespace memory
         EXPECT_EQ(0x9FFF, memory->highAddress());
     }
 
+    // ===== Memory Access =====
+
+    TEST_F(MemoryTest, AccessDefaulutMemoryAtBounds)
+    {
+        // Memory *memory = new Memory("0x8000-0x9fff", 0x8000, 0x9FFF);
+        // EXPECT_TRUE(NULL != memory);
+        // EXPECT_STREQ("0x8000-0x9fff", memory->name());
+        EXPECT_EQ(0x00, memory->read(0x0000));
+        EXPECT_EQ(0x00, memory->read(0xFFFF));
+    }
+
+    TEST_F(MemoryTest, AccessMemoryNotStartingAtZeroMemoryAtBounds)
+    {
+        Memory *memory = new Memory("0x8000-0x9fff", 0x8000, 0x9FFF);
+        // EXPECT_TRUE(NULL != memory);
+        // EXPECT_STREQ("0x8000-0x9fff", memory->name());
+        EXPECT_EQ(0x00, memory->read(0x8000));
+        EXPECT_EQ(0x00, memory->read(0x9FFF));
+    }
+
+    // TEST_F(MemoryTest, AccessMemoryNotStartingAtZeroMemoryBelowLowerBound)
+    // {
+    //     Memory *memory = new Memory("0x8000-0x9fff", 0x8000, 0x9FFF);
+    //     // EXPECT_TRUE(NULL != memory);
+    //     // EXPECT_STREQ("0x8000-0x9fff", memory->name());
+    //     EXPECT_EQ(0xFF, memory->read(0x0000));
+    //     EXPECT_EQ(0xFF, memory->read(0xFFFF));
+    // }
 }

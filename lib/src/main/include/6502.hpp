@@ -453,10 +453,24 @@ namespace m6502
 
         void reset();
         // void memoryBank(Memory *memory); // currently only support full address space.
-        hardware::Address &PC();
-        hardware::Byte &A();
-        hardware::Byte &X();
-        hardware::Byte &Y();
+        hardware::Address &PC() { return model.registers.PC; };
+        hardware::Byte &A() { return model.registers.A; };
+        hardware::Byte &X() { return model.registers.X; };
+        hardware::Byte &Y() { return model.registers.Y; };
+        hardware::Byte &S() { return model.registers.S; };
+
+        // Processor status byte
+        hardware::Byte &P() { return model.P; };
+
+        // Processor status flags
+        bool isB() { return model.flags.B == 1; }; // BRK
+        bool isC() { return model.flags.C == 1; }; // Carry
+        bool isD() { return model.flags.D == 1; }; // Decimal mode
+        bool isI() { return model.flags.I == 1; }; // IRQ disable
+        bool isN() { return model.flags.N == 1; }; // Negative
+        bool isV() { return model.flags.V == 1; }; // Overflow
+        bool isZ() { return model.flags.Z == 1; }; // Zero
+
         void showRegisters();
 
         void execute(hardware::Address address);

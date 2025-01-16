@@ -59,13 +59,14 @@ file(GLOB_RECURSE SRC_UNIT_FILES lib/src/test/src/*.c*)
 
 add_executable(
     unit_test
-    lib/src/test/src/hello_test.cc ${SRC_FILES} ${SRC_UNIT_FILES}
+    lib/src/test/src/hello_test.cc ${SRC_UNIT_FILES}
 )
 target_include_directories(unit_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/main/include)
 
 # target_include_directories(unit_test INTERFACE $<BUILD_INTERFACE:}lib/src/main/include >)
 target_link_libraries(
     unit_test
+    ${PROJECT_LIB}
     GTest::gtest_main
 )
 

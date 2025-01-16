@@ -869,12 +869,19 @@ namespace m6502
     void CPU::Pipeline::reset(hardware::Address resetVector)
     {
         clear();
+
+        // std::cout << "----- pipeline -----" << std::endl;
+        // std::cout.setf(std::ios::hex, std::ios::basefield);
+        // std::cout << std::setfill('0') << std::setw(4) << "RESET vector: " << (int)resetVector << " -> load PC with value found at the reset vector" << std::endl;
+
         cpu.model.registers.PC = cpu.addressSpace.readWord(resetVector); // jump to address
 
-        std::cout.setf(std::ios::hex, std::ios::basefield);
-        std::cout << "RESET - Load PC " << std::setfill('0') << std::setw(4) << (int)cpu.model.registers.PC << " from reset vector " << (int)resetVector << std::endl;
+        // std::cout << "   - Load PC "
+        //           << std::setfill('0') << std::setw(4) << (int)cpu.model.registers.PC
+        //           << " from reset vector "
+        //           << std::setfill('0') << std::setw(4) << (int)resetVector << std::endl;
         // std::cout << "PC: " << std::setfill('0') << std::setw(4) << (int)model.registers.PC << " reset vector" << std::endl;
-        std::cout.unsetf(std::ios::basefield);
+        // std::cout.unsetf(std::ios::basefield);
     }
 
     void CPU::Pipeline::clear()
