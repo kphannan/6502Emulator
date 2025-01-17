@@ -123,14 +123,14 @@ namespace m6502
     // Bit definitions of the Processor Status Register (P)
     typedef struct ProcessorStatusRegister
     {
-        int N : 1;   // Negative
-        int V : 1;   // Overflow
-        int one : 1; // Constant '1'
-        int B : 1;   // BRK command  1 = BRK, 0 = IRQB
-        int D : 1;   // Decimal Mode 1 = true
-        int I : 1;   // IRQB disable 1 = disable
-        int Z : 1;   // Zero 1 = true
-        int C : 1;   // Carry 1 = true
+        int N : 1;   // 7: Negative
+        int V : 1;   // 6: Overflow
+        int one : 1; // 5: Constant '1'
+        int B : 1;   // 4: BRK command  1 = BRK, 0 = IRQB
+        int D : 1;   // 3: Decimal Mode 1 = true
+        int I : 1;   // 2: IRQB disable 1 = disable
+        int Z : 1;   // 1: Zero 1 = true
+        int C : 1;   // 0: Carry 1 = true
     } STATUS_FLAGS;
 
     typedef struct ProgrammingModel
@@ -205,7 +205,9 @@ namespace m6502
         // ----- Load
         class InstructionLoad;
         // --- LDA *
+        class InstructionLoadA;
         // --- LDX *
+        class InstructionLoadX;
         // --- LDY *
         //
 
@@ -416,23 +418,26 @@ namespace m6502
 
         // -----
         CPU::AddressMode *_addressModeUndefined;
-        CPU::AddressMode *_addressModeImplied;
-        CPU::AddressMode *_addressModeAccumulator;
-        CPU::AddressMode *_addressModeZeroPage;
-        CPU::AddressMode *_addressModeZeroPageIndexedX;
-        CPU::AddressMode *_addressModeZeroPageIndexedY;
-        CPU::AddressMode *_addressModeRelative;
+        CPU::AddressModeImplied *_addressModeImplied;
+        CPU::AddressModeAccumulator *_addressModeAccumulator;
+        CPU::AddressModeZeroPage *_addressModeZeroPage;
+        CPU::AddressModeZeroPageIndexedX *_addressModeZeroPageIndexedX;
+        CPU::AddressModeZeroPageIndexedY *_addressModeZeroPageIndexedY;
+        CPU::AddressModeRelative *_addressModeRelative;
         CPU::AddressModeAbsolute *_addressModeAbsolute;
-        CPU::AddressMode *_addressModeAbsoluteIndexedX;
-        CPU::AddressMode *_addressModeAbsoluteIndexedY;
-        CPU::AddressMode *_addressModeIndirect;
-        CPU::AddressMode *_addressModeIndexedIndirectX;
-        CPU::AddressMode *_addressModeIndirectIndexedY;
+        CPU::AddressModeAbsoluteIndexedX *_addressModeAbsoluteIndexedX;
+        CPU::AddressModeAbsoluteIndexedY *_addressModeAbsoluteIndexedY;
+        CPU::AddressModeIndirect *_addressModeIndirect;
+        CPU::AddressModeIndexedIndirectX *_addressModeIndexedIndirectX;
+        CPU::AddressModeIndirectIndexedY *_addressModeIndirectIndexedY;
         CPU::AddressModeImmediate *_addressModeImmediate;
 
         // TODO get the actual operations
         CPU::Instruction *_instructionUndefined;
         CPU::InstructionLoad *_instructionLoad;
+        CPU::InstructionLoadA *_instructionLoadA;
+        CPU::InstructionLoadX *_instructionLoadX;
+        CPU::InstructionLoad *_instructionLoadY; // TODO
         CPU::InstructionStore *_instructionStore;
         CPU::InstructionLogical *_instructionLogical;
 
@@ -459,17 +464,88 @@ namespace m6502
         hardware::Byte &Y() { return model.registers.Y; };
         hardware::Byte &S() { return model.registers.S; };
 
+        void A(hardware::Byte value)
+        {
+            model.registers.A = value;
+            setZ(value == 0);
+            setN((value & 0b10000000) != 0); // 2s compliment bit 7 is sign bit
+        };
+
+        void X(hardware::Byte value)
+        {
+            model.registers.X = value;
+            setZ(value == 0);
+            setN((value & 0b10000000) != 0); // 2s compliment bit 7 is sign bit
+        };
+
+        void Y(hardware::Byte value)
+        {
+            model.registers.Y = value;
+            setZ(value == 0);
+            setN((value & 0b10000000) != 0); // 2s compliment bit 7 is sign bit
+        };
+
+        void S(hardware::Byte value)
+        {
+            model.registers.S = value;
+            model.flags.Z = value == 0;
+            model.flags.N = value < 0;
+        };
+
         // Processor status byte
         hardware::Byte &P() { return model.P; };
 
         // Processor status flags
-        bool isB() { return model.flags.B == 1; }; // BRK
-        bool isC() { return model.flags.C == 1; }; // Carry
-        bool isD() { return model.flags.D == 1; }; // Decimal mode
-        bool isI() { return model.flags.I == 1; }; // IRQ disable
-        bool isN() { return model.flags.N == 1; }; // Negative
-        bool isV() { return model.flags.V == 1; }; // Overflow
-        bool isZ() { return model.flags.Z == 1; }; // Zero
+        bool isB() { return model.P & 1 << 4; }; // BRK
+        bool isC() { return model.P & 1 << 0; }; // Carry
+        bool isD() { return model.P & 1 << 3; }; // Decimal mode
+        bool isI() { return model.P & 1 << 2; }; // IRQ disable
+        bool isN() { return model.P & 1 << 7; }; // Negative
+        bool isV() { return model.P & 1 << 6; }; // Overflow
+        bool isZ() { return model.P & 1 << 1; }; // Zero
+        // bool isB() { return model.flags.B == 1; }; // BRK
+        // bool isC() { return model.flags.C == 1; }; // Carry
+        // bool isD() { return model.flags.D == 1; }; // Decimal mode
+        // bool isI() { return model.flags.I == 1; }; // IRQ disable
+        // bool isN() { return model.flags.N == 1; }; // Negative
+        // bool isV() { return model.flags.V == 1; }; // Overflow
+        // bool isZ() { return model.flags.Z == 1; }; // Zero
+
+        void setB(bool value) { value == 1 ? setBit(model.P, 4) : clearBit(model.P, 4); }; // BRK
+        void setC(bool value) { value == 1 ? setBit(model.P, 0) : clearBit(model.P, 0); }; // Carry
+        void setD(bool value) { value == 1 ? setBit(model.P, 3) : clearBit(model.P, 3); }; // Decimal mode
+        void setI(bool value) { value == 1 ? setBit(model.P, 2) : clearBit(model.P, 2); }; // IRQ disable
+        void setN(bool value) { value == 1 ? setBit(model.P, 7) : clearBit(model.P, 7); }; // Negative
+        void setV(bool value) { value == 1 ? setBit(model.P, 6) : clearBit(model.P, 6); }; // Overflow
+        void setZ(bool value) { value == 1 ? setBit(model.P, 1) : clearBit(model.P, 1); }; // Zero
+
+        void setB() { setBit(model.P, 4); }; // BRK
+        void setC() { setBit(model.P, 0); }; // Carry
+        void setD() { setBit(model.P, 3); }; // Decimal mode
+        void setI() { setBit(model.P, 2); }; // IRQ disable
+        void setN() { setBit(model.P, 7); }; // Negative
+        void setV() { setBit(model.P, 6); }; // Overflow
+        void setZ() { setBit(model.P, 1); }; // Zero
+
+        void clearB() { clearBit(model.P, 4); }; // BRK
+        void clearC() { clearBit(model.P, 0); }; // Carry
+        void clearD() { clearBit(model.P, 3); }; // Decimal mode
+        void clearI() { clearBit(model.P, 2); }; // IRQ disable
+        void clearN() { clearBit(model.P, 7); }; // Negative
+        void clearV() { clearBit(model.P, 6); }; // Overflow
+        void clearZ() { clearBit(model.P, 1); }; // Zero
+
+        void setBit(hardware::Byte &value, int bit)
+        {
+            // bit value 0 to 7
+            value |= 1 << bit;
+        }
+
+        void clearBit(hardware::Byte &value, int bit)
+        {
+            // bit value 0 to 7
+            value &= ~(1 << bit);
+        }
 
         void showRegisters();
 

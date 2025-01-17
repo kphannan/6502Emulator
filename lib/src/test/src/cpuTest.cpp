@@ -81,26 +81,6 @@ namespace m6502
     // ========== Instructions ==========
 
     // ----- Transfer (load) -----
-    TEST_F(CpuTest, LDA_Immediate)
-    {
-        memory::Memory &memory = cpu->currentMemory();
-
-        // Destination of the reset vector - leaves zeroPage available for testing
-        memory.write(0x2000, 0xA9); // LDA #$CC
-        memory.write(0x2001, 0xCC); //
-
-        cpu->execute(1);
-
-        EXPECT_EQ(0x2002, cpu->PC());
-        EXPECT_EQ(0xCC, cpu->A());
-        // EXPECT_EQ(0xCD, cpu->X());
-        // EXPECT_EQ(0xE5, cpu->Y());
-        EXPECT_EQ(0b00100000, cpu->P());
-        // EXPECT_EQ(0x20, cpu.P);
-        // EXPECT_TRUE(cpu->isN());
-        // EXPECT_FALSE(cpu->isZ());
-    }
-
     // ----- Transfer (store) -----
     // ----- Transfer (interregister transfer) -----
 

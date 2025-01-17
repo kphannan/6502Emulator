@@ -85,7 +85,7 @@ namespace m6502
     private:
     protected:
     public:
-        virtual void execute() { std::cout << "Not yet implemented" << std::endl; };
+        virtual void execute() { std::cout << "AddressMode(Undefined): Not yet implemented" << std::endl; };
         // Operators
     private:
     protected:
@@ -111,7 +111,7 @@ namespace m6502
         virtual void execute()
         {
             AddressMode::execute();
-            std::cout << "Not yet implemented" << std::endl;
+            std::cout << "AddressMode(Implied): Not yet implemented" << std::endl;
         };
         // Operators
     private:
@@ -138,7 +138,7 @@ namespace m6502
         virtual void execute()
         {
             AddressMode::execute();
-            std::cout << "Not yet implemented" << std::endl;
+            std::cout << "AddressMode(Accumulator): Not yet implemented" << std::endl;
         };
         // Operators
     private:
@@ -165,7 +165,7 @@ namespace m6502
         {
             AddressMode::execute();
             hardware::Address zpOffset = cpu.addressSpace.read(cpu.model.registers.PC++);
-            cpu.decodePipeline().operand = cpu.addressSpace.read(zpOffset);
+            cpu.decodePipeline().operand = cpu.addressSpace.read(0x0000 + zpOffset);
         };
         // Operators
     private:
@@ -245,7 +245,7 @@ namespace m6502
         virtual void execute()
         {
             AddressMode::execute();
-            std::cout << "Not yet implemented" << std::endl;
+            std::cout << "AddressMode(Relative): Not yet implemented" << std::endl;
         };
         // Operators
     private:
@@ -271,11 +271,10 @@ namespace m6502
         virtual void execute()
         {
             AddressMode::execute();
-            // std::cout << "Not yet implemented" << std::endl;
+            // std::cout << "AddressMode(Absolute): Not yet implemented" << std::endl;
             hardware::Address absolute = cpu.addressSpace.readWord(cpu.model.registers.PC);
-            cpu.decodePipeline().operand = absolute;
+            cpu.decodePipeline().operand = cpu.addressSpace.read(absolute);
             cpu.model.registers.PC += 2;
-            cpu.model.registers.A = cpu.addressSpace.read(cpu.decodePipeline().operand); // TODO Temporary
         };
         // Operators
     private:
@@ -302,7 +301,10 @@ namespace m6502
         {
             // value = read( $nnnn + X)
             AddressMode::execute();
-            std::cout << "Not yet implemented" << std::endl;
+            hardware::Address absolute = cpu.addressSpace.readWord(cpu.model.registers.PC);
+            cpu.decodePipeline().operand = cpu.addressSpace.read(absolute + cpu.model.registers.X);
+            cpu.model.registers.PC += 2;
+//            std::cout << "AddressMode(AbsoluteX): Not yet implemented" << std::endl;
         };
         // Operators
     private:
@@ -329,7 +331,7 @@ namespace m6502
         {
             // value = read( $nnnn + Y)
             AddressMode::execute();
-            std::cout << "Not yet implemented" << std::endl;
+            std::cout << "AddressMode(AbsoluteY): Not yet implemented" << std::endl;
         };
         // Operators
     private:
@@ -355,7 +357,7 @@ namespace m6502
         virtual void execute()
         {
             AddressMode::execute();
-            std::cout << "Not yet implemented" << std::endl;
+            std::cout << "AddressMode(Indirect): Not yet implemented" << std::endl;
         };
         // Operators
     private:
@@ -382,7 +384,7 @@ namespace m6502
         {
             // value = read( $nn + X )
             AddressMode::execute();
-            std::cout << "Not yet implemented" << std::endl;
+            std::cout << "AddressMode(IndexedIndirectX): Not yet implemented" << std::endl;
         };
         // Operators
     private:
@@ -410,7 +412,7 @@ namespace m6502
             AddressMode::execute();
             // read( read( $nn ) | (read( $nn + 1) << 8) + Y )
             // indirect pointer (PC | (PC+1)<<8) + Y
-            std::cout << "Not yet implemented" << std::endl;
+            std::cout << "AddressMode(IndirectIIndexedY): Not yet implemented" << std::endl;
         };
         // Operators
     private:
@@ -446,7 +448,6 @@ namespace m6502
         {
             AddressMode::execute();
             cpu.decodePipeline().operand = cpu.addressSpace.read(cpu.model.registers.PC++);
-            cpu.model.registers.A = cpu.decodePipeline().operand; // TODO Temporary
         };
         // Operators
     private:

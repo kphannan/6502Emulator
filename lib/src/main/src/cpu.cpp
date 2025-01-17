@@ -41,11 +41,14 @@ namespace m6502
 
         // ===== Transfer Instructions
         // ----- Load
-        // _instructionLoad = new InstructionLoad(*this, "load instruction", "load");
-        _instructionLoad = new InstructionLoad(*this);
+        _instructionLoad = new InstructionLoad(*this, "load instruction", "load");
+        // _instructionLoad = new InstructionLoad(*this);
         // --- LDA
+        _instructionLoadA = new InstructionLoadA(*this);
         // --- LDX
+        _instructionLoadX = new InstructionLoadX(*this);
         // --- LDY
+        _instructionLoadY = new InstructionLoadX(*this); // TODO  fix
         //
 
         // ----- Store

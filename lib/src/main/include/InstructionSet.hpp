@@ -59,15 +59,35 @@ namespace m6502
     {
         // Constructors
     public:
-        InstructionLoad(CPU &cpu) : Instruction(cpu, "Load instruction", "load") {}
-        // InstructionLoad(CPU &cpu, const char *name, const char *mnemonic) {}
+        // InstructionLoad(CPU &cpu) : Instruction(cpu, "Load instruction", "load") {};
+        InstructionLoad(CPU &cpu, const char *name, const char *mnemonic) : Instruction(cpu, name, mnemonic) {};
 
         // methods
     public:
-        virtual void execute() { Instruction::execute(); };
+        virtual void execute();
     };
     // --- LDA
+    class CPU::InstructionLoadA : public CPU::InstructionLoad
+    {
+        // Constructors
+    public:
+        InstructionLoadA(CPU &cpu) : InstructionLoad(cpu, "Load Accumulator", "LDA") {};
+
+        // methods
+    public:
+        virtual void execute();
+    };
     // --- LDX
+    class CPU::InstructionLoadX : public CPU::InstructionLoad
+    {
+        // Constructors
+    public:
+        InstructionLoadX(CPU &cpu) : InstructionLoad(cpu, "Load X index", "LDX") {};
+
+        // methods
+    public:
+        virtual void execute();
+    };
     // --- LDY
     //
 

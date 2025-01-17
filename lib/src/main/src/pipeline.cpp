@@ -34,7 +34,7 @@ namespace m6502
      */
     void CPU::Pipeline::execute()
     {
-        std::cout << " execute instruction pipeline " << std::endl;
+        std::cout << ">>>>> pipeline: single instruction cycle <<<<<" << std::endl;
 
         fetchOpCode();
         AddressMode &addressMode = decodeAddressMode(opCode);
@@ -44,6 +44,7 @@ namespace m6502
         fetchOperand(addressMode);
         evaluate();
         // cpu.decodePipeline().cpuInstruction->execute();
+        std::cout << "<<<<< ---------------------------------- >>>>>" << std::endl;
     }
 
     /**
@@ -53,7 +54,7 @@ namespace m6502
      */
     void CPU::Pipeline::execute(int numberOfInstructions)
     {
-        std::cout << " execute instruction pipeline " << std::endl;
+        // std::cout << " pipeliine: execute 'n' instruction " << std::endl;
 
         for (int x = 0; x < numberOfInstructions; x++)
         {
@@ -64,14 +65,14 @@ namespace m6502
 
     void CPU::Pipeline::fetchOpCode()
     {
+        // Reset pipeline from any prior instruction
         addressMode = cpu._addressModeUndefined;
         cpuInstruction = cpu._instructionUndefined;
 
         opCode.value = cpu.addressSpace.read(cpu.model.registers.PC++);
         // instruction = opcode;
         std::cout.setf(std::ios::hex, std::ios::basefield);
-        // std::cout << " opcode: " << std::setfill('0') << std::setw(2) << instruction << std::endl;
-        std::cout << " OpCode< " << (int)opCode.value << std::endl;
+        std::cout << std::setfill('0') << std::setw(2) << " OpCode< " << (int)opCode.value << std::endl;
         std::cout.unsetf(std::ios::basefield);
     }
 
@@ -96,9 +97,10 @@ namespace m6502
         // Decode an instruction byte which is decomposed into bit fields within a byte
         // format: aaabbbcc where aaa, bbb, cc represent groups of 2 or 3 bits.  Each
         // letter represents a single bit.
+        std::cout << "AddressMode: switch(b: " << std::bitset<3>(opCode.memory.b) << ") >";
         switch (opCode.memory.b) // 3 bits
         {
-        case 00:                     // b(0)
+        case 0x000:                  // b(0)
             switch (opCode.memory.c) // 2 bits
             {
             case 0:
@@ -130,7 +132,7 @@ namespace m6502
                 addressMode = cpu._addressModeIndexedIndirectX;
                 break;
             case 2:
-                switch (opCode.memory.b) // 3 bits
+                switch (opCode.memory.a) // 3 bits
                 {
                 case 0:
                 case 1:
@@ -153,10 +155,12 @@ namespace m6502
                 break;
             }
             break;
-        case 01:                     // b(1)
+        case 0x001: // b(1)
+            std::cout << " switch(c: " << std::bitset<2>(opCode.memory.c) << ")" << std::endl;
             switch (opCode.memory.c) // 2 bits
             {
             case 0:
+                std::cout << " switch(a: " << std::bitset<3>(opCode.memory.a) << ")" << std::endl;
                 switch (opCode.memory.a) // 2 bits
                 {
                 case 0:
@@ -170,12 +174,14 @@ namespace m6502
                 case 6:
                 case 7:
                     std::cout << "zero page" << std::endl;
+                    addressMode = cpu._addressModeZeroPage;
                     break;
                 }
                 break;
             case 1:
             case 2:
                 std::cout << "zero page" << std::endl;
+                addressMode = cpu._addressModeZeroPage;
                 break;
             case 3:
                 // n/a
@@ -301,7 +307,8 @@ namespace m6502
                 break;
             }
             break;
-        case 05:                     // b(5)
+        case 05: // b(5)
+            std::cout << "switch(c: " << std::bitset<2>(opCode.memory.c) << ")" << std::endl;
             switch (opCode.memory.c) // 2 bits
             {
             case 0:                      // b(5) c(0)
@@ -454,6 +461,9 @@ namespace m6502
 
         // showAddressMode(addressMode);
         // addressMode->execute();
+        std::cout << " addrMode: " << addressMode->mnemonic() << std::endl;
+
+        std::cout << "><><><><><><><><><" << std::endl;
 
         return *addressMode;
     }
@@ -476,7 +486,7 @@ namespace m6502
         // //           << opCode.memory.c << std::endl;
         // std::cout.unsetf(std::ios::basefield);
         // std::cout.setf(std::ios::oct, std::ios::basefield);
-        std::cout << "         "
+        std::cout << ".."
                   << "--: " << std::bitset<8>(opCode.value)
                   << " a: " << std::bitset<3>(opCode.memory.a)
                   << " b: " << std::bitset<3>(opCode.memory.b)
@@ -487,7 +497,7 @@ namespace m6502
         // Decode an instruction byte which is decomposed into bit fields within a byte
         // format: aaabbbcc where aaa, bbb, cc represent groups of 2 or 3 bits.  Each
         // letter represents a single bit.
-        std::cout << "switch(c: " << std::bitset<2>(opCode.memory.c) << ")  ";
+        std::cout << "Instruction: switch(c: " << std::bitset<2>(opCode.memory.c) << ") > ";
         switch (opCode.memory.c) // 2 bits
         {
         case 0b00: // c(0)
@@ -675,7 +685,7 @@ namespace m6502
         }
         case 0b01: // c(1)
         {
-            std::cout << "switch(c(01) a: " << std::bitset<3>(opCode.memory.a) << ")" << std::endl;
+            std::cout << "switch(a: " << std::bitset<3>(opCode.memory.a) << ")" << std::endl;
             // Instruction
             switch (opCode.memory.a) // 3 bits
             {
@@ -697,7 +707,7 @@ namespace m6502
                 break;
             case 0b101: // c(1) a(5) - LDA
                 // std::cout << "case 5 (" << std::bitset<3>(opCode.memory.a) << ")" << std::endl;
-                cpuInstruction = cpu._instructionLoad; // TOOD need LDA
+                cpuInstruction = cpu._instructionLoadA; // TOOD need LDA
                 break;
             case 0b110: // c(1) a(6) - CMP
                 break;
@@ -706,6 +716,7 @@ namespace m6502
             }
 
             // Addressing Mode
+            std::cout << "Address Mode: switch(b: " << std::bitset<3>(opCode.memory.b) << ") ";
             switch (opCode.memory.b) // 3 bits
             {
             case 0b000: // c(1) b(0) - ZeroPage,X
@@ -752,7 +763,7 @@ namespace m6502
                 cpuInstruction = cpu._instructionStore;
                 break;
             case 0b101: // c(2) a(5) - LDX
-                cpuInstruction = cpu._instructionLoad;
+                cpuInstruction = cpu._instructionLoadX;
                 break;
             case 0b110: // c(2) a(6) - DEC
                 break;
@@ -819,16 +830,27 @@ namespace m6502
         // DEY, INY, INX
         // CLC, SEC, CLI, SEI, CLV, CLD, SET
 
-        cpuInstruction->execute();
+        // cpuInstruction->execute();
+
+        std::cout << std::endl
+                  << "==== parsed: " << cpuInstruction->mnemonic() << " " << addressMode->mnemonic() << std::endl;
+
         std::cout.unsetf(std::ios::basefield);
     }
 
     void CPU::Pipeline::fetchOperand(AddressMode &mode)
     {
-        mode.execute();
+        std::cout << "fetchOperand: "
+                  << " mode( " << mode.mnemonic() << " )"
+                  << " addressMode( " << addressMode->mnemonic() << " )";
+        // mode.execute();
+        addressMode->execute();
+
         // int operand = -1;
 
-        std::cout << " fetch operand ";
+        std::cout << " fetch operand "
+                  << std::endl;
+        ;
 
         std::cout.setf(std::ios::hex, std::ios::basefield);
         std::cout << " : 0x" << (int)cpu.decodePipeline().operand;
@@ -838,9 +860,17 @@ namespace m6502
 
     void CPU::Pipeline::evaluate()
     {
-        // std::cout << " evaluate instruction ";
+        std::cout << " evaluate instruction ";
         // cpu.decodePipeline().operand;
         // cpu.decodePipeline().cpuInstruction->evaluate();
+        std::cout
+            << cpu.decodePipeline().cpuInstruction->mnemonic()
+            << "  "
+            << cpu.decodePipeline().addressMode->mnemonic()
+            << " ; "
+            << cpu.decodePipeline().operand
+            << std::endl;
+
         cpu.decodePipeline().cpuInstruction->execute();
         // mode.execute();
         // // int operand = -1;
@@ -860,7 +890,11 @@ namespace m6502
     {
         std::cout.setf(std::ios::hex, std::ios::basefield);
         // std::cout << " opcode: " << std::setfill('0') << std::setw(2) << instruction << std::endl;
-        std::cout << " OpCode: " << (int)opCode.value << " : " << cpuInstruction->mnemonic() << "~";
+        std::cout << "Pipeline decode:: OpCode: "
+                  << (int)opCode.value
+                  << " : "
+                  << cpuInstruction->mnemonic()
+                  << " ~ ";
         std::cout.unsetf(std::ios::basefield);
 
         showAddressMode(*addressMode);
