@@ -146,9 +146,6 @@ namespace m6502
         };
     } PROGRAMMING_MODEL;
 
-    // Default memory spans the whole address space
-    // MEMORY *memory;
-
     // Addressing Modes
     // Implicit
     // Accumulator         A
@@ -364,7 +361,6 @@ namespace m6502
             /** Configure the instruction pipeline with the address space and program counter. */
             // Pipeline(memory::Memory &memory, hardware::Address &address);
             Pipeline(CPU &cpu);
-            // Pipeline(memory::Memory &memory);
 
             // ~Pipeline();
         protected:
@@ -449,19 +445,17 @@ namespace m6502
         CPU();
         CPU(memory::Memory &memory);
 
-    protected:
-    private:
         // ----- Methods -----
     public:
         Pipeline &decodePipeline() { return *pipeline; }
 
         void reset();
 
-        // Access to registers
-        hardware::Address &PC() { return model.registers.PC; };
+        // Access to registers (pipeline only)
         hardware::Byte &A() { return model.registers.A; };
         hardware::Byte &X() { return model.registers.X; };
         hardware::Byte &Y() { return model.registers.Y; };
+        hardware::Address &PC() { return model.registers.PC; };
         hardware::Address &S() { return model.registers.S; };
 
         void A(hardware::Byte value)
@@ -493,68 +487,82 @@ namespace m6502
         // Processor status byte
         hardware::Byte &P() { return model.P; };
 
+        // Organize these constants better
+        const uint8_t NegativeBit = 7;
+        const uint8_t OverflowBit = 6;
+        const uint8_t BrkBit = 4;
+        const uint8_t DecimalModeBit = 3;
+        const uint8_t IrqDisableBit = 2;
+        const uint8_t ZeroBit = 1;
+        const uint8_t CarryBit = 0;
+
         // Processor status flags
-        bool isB() { return model.P & 1 << 4; }; // BRK
-        bool isC() { return model.P & 1 << 0; }; // Carry
-        bool isD() { return model.P & 1 << 3; }; // Decimal mode
-        bool isI() { return model.P & 1 << 2; }; // IRQ disable
-        bool isN() { return model.P & 1 << 7; }; // Negative
-        bool isV() { return model.P & 1 << 6; }; // Overflow
-        bool isZ() { return model.P & 1 << 1; }; // Zero
-        // bool isB() { return model.flags.B == 1; }; // BRK
-        // bool isC() { return model.flags.C == 1; }; // Carry
-        // bool isD() { return model.flags.D == 1; }; // Decimal mode
-        // bool isI() { return model.flags.I == 1; }; // IRQ disable
-        // bool isN() { return model.flags.N == 1; }; // Negative
-        // bool isV() { return model.flags.V == 1; }; // Overflow
-        // bool isZ() { return model.flags.Z == 1; }; // Zero
+        bool isB() { return model.P & 1 << BrkBit; };         // BRK
+        bool isC() { return model.P & 1 << CarryBit; };       // Carry
+        bool isD() { return model.P & 1 << DecimalModeBit; }; // Decimal mode
+        bool isI() { return model.P & 1 << IrqDisableBit; };  // IRQ disable
+        bool isN() { return model.P & 1 << NegativeBit; };    // Negative
+        bool isV() { return model.P & 1 << OverflowBit; };    // Overflow
+        bool isZ() { return model.P & 1 << ZeroBit; };        // Zero
 
-        void setB(bool value) { value == 1 ? setBit(model.P, 4) : clearBit(model.P, 4); }; // BRK
-        void setC(bool value) { value == 1 ? setBit(model.P, 0) : clearBit(model.P, 0); }; // Carry
-        void setD(bool value) { value == 1 ? setBit(model.P, 3) : clearBit(model.P, 3); }; // Decimal mode
-        void setI(bool value) { value == 1 ? setBit(model.P, 2) : clearBit(model.P, 2); }; // IRQ disable
-        void setN(bool value) { value == 1 ? setBit(model.P, 7) : clearBit(model.P, 7); }; // Negative
-        void setV(bool value) { value == 1 ? setBit(model.P, 6) : clearBit(model.P, 6); }; // Overflow
-        void setZ(bool value) { value == 1 ? setBit(model.P, 1) : clearBit(model.P, 1); }; // Zero
+        void setB() { setBit(model.P, BrkBit); };
+        void setC() { setBit(model.P, CarryBit); };
+        void setD() { setBit(model.P, DecimalModeBit); };
+        void setI() { setBit(model.P, IrqDisableBit); };
+        void setN() { setBit(model.P, NegativeBit); };
+        void setV() { setBit(model.P, OverflowBit); };
+        void setZ() { setBit(model.P, ZeroBit); };
 
-        void setB() { setBit(model.P, 4); }; // BRK
-        void setC() { setBit(model.P, 0); }; // Carry
-        void setD() { setBit(model.P, 3); }; // Decimal mode
-        void setI() { setBit(model.P, 2); }; // IRQ disable
-        void setN() { setBit(model.P, 7); }; // Negative
-        void setV() { setBit(model.P, 6); }; // Overflow
-        void setZ() { setBit(model.P, 1); }; // Zero
+        void clearB() { clearBit(model.P, BrkBit); };
+        void clearC() { clearBit(model.P, CarryBit); };
+        void clearD() { clearBit(model.P, DecimalModeBit); };
+        void clearI() { clearBit(model.P, IrqDisableBit); };
+        void clearN() { clearBit(model.P, NegativeBit); };
+        void clearV() { clearBit(model.P, OverflowBit); };
+        void clearZ() { clearBit(model.P, ZeroBit); };
 
-        void clearB() { clearBit(model.P, 4); }; // BRK
-        void clearC() { clearBit(model.P, 0); }; // Carry
-        void clearD() { clearBit(model.P, 3); }; // Decimal mode
-        void clearI() { clearBit(model.P, 2); }; // IRQ disable
-        void clearN() { clearBit(model.P, 7); }; // Negative
-        void clearV() { clearBit(model.P, 6); }; // Overflow
-        void clearZ() { clearBit(model.P, 1); }; // Zero
+        void showRegisters();
+
+        void executeFromAddress(hardware::Address address, uint32_t stepCount = 1);
+        void execute(int numberOfInstructions = -1);
+
+        memory::Memory &currentMemory() { return addressSpace; }
+        // void CPU::memoryBank(memory::Memory &memory);
+
+    protected:
+    private:
+        void statusFlagCheck(int bit)
+        {
+            if (!(bit >= 0 && bit <= 7))
+            {
+                throw std::out_of_range("Status bit invalid");
+            }
+        }
 
         void setBit(hardware::Byte &value, int bit)
         {
+            statusFlagCheck(bit);
+
             // bit value 0 to 7
             value |= 1 << bit;
         }
 
         void clearBit(hardware::Byte &value, int bit)
         {
+            statusFlagCheck(bit);
+
             // bit value 0 to 7
             value &= ~(1 << bit);
         }
 
-        void showRegisters();
-
-        void executeFromAddress(hardware::Address address, uint32_t stepCount = 1);
-        void execute(int numberOfInstructions = -1);
-        // void execute();
-
-        memory::Memory &currentMemory();
-
-    protected:
-    private:
+        // maybe remove these and only use set/clear methods with no args
+        void setB(bool value) { value == 1 ? setBit(model.P, BrkBit) : clearBit(model.P, BrkBit); };
+        void setC(bool value) { value == 1 ? setBit(model.P, CarryBit) : clearBit(model.P, CarryBit); };
+        void setD(bool value) { value == 1 ? setBit(model.P, DecimalModeBit) : clearBit(model.P, DecimalModeBit); };
+        void setI(bool value) { value == 1 ? setBit(model.P, IrqDisableBit) : clearBit(model.P, IrqDisableBit); };
+        void setN(bool value) { value == 1 ? setBit(model.P, NegativeBit) : clearBit(model.P, NegativeBit); };
+        void setV(bool value) { value == 1 ? setBit(model.P, OverflowBit) : clearBit(model.P, OverflowBit); };
+        void setZ(bool value) { value == 1 ? setBit(model.P, ZeroBit) : clearBit(model.P, ZeroBit); };
     };
 
 }

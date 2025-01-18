@@ -178,28 +178,8 @@ namespace m6502
 
         pipeline->showPipeline();
     }
-    //    std::cout << " A: " << std:format( "  A: {} ", model.registers.A ) << " Accumulator" << std::endl;
-    //     std::cout << " X: " << std:format( "  X: {} ", model.registers.X ) << " Index register X" << std::endl;
-    //     std::cout << " Y: " << std:format( "  Y: {} ", model.registers.Y ) << " Index register Y" << std::endl;
-    //     std::cout << " S: " << std:format( "  S: {} ", model.registers.S ) << " Stack pointer" << std::endl;
-    //     std::cout << "PC: " << std:format( " PC: {} ", model.registers.PC ) << " Program Counter" << std::endl;
-
-    // void CPU::memoryBank(Memory &memory)
-    // {
-    //     this->memory = memory;
-    // }
-
-    memory::Memory &CPU::currentMemory()
-    {
-        return addressSpace;
-    }
 
     // ===== Execute Instructions =====
-
-    // void CPU::execute()
-    // {
-    //     execute(-1);
-    // }
 
     void CPU::executeFromAddress(hardware::Address address, uint32_t stepCount)
     {
