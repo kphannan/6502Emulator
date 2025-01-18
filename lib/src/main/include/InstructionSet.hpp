@@ -89,6 +89,16 @@ namespace m6502
         virtual void execute();
     };
     // --- LDY
+    class CPU::InstructionLoadY : public CPU::InstructionLoad
+    {
+        // Constructors
+    public:
+        InstructionLoadY(CPU &cpu) : InstructionLoad(cpu, "Load Y index", "LDY") {};
+
+        // methods
+    public:
+        virtual void execute();
+    };
     //
 
     // ----- Store

@@ -15,6 +15,7 @@ project(${PROJECT_NAME} VERSION 0.0.1
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # TODO 8: Use configure_file to configure and copy TutorialConfig.h.in to
 # TutorialConfig.h

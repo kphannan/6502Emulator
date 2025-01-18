@@ -586,7 +586,7 @@ namespace m6502
                 break;
             case 0b101: // c(0) a(5) - LDY
                 // b(2): TAY imp, b(4): BCS rel, b(6): CLV impl
-                cpuInstruction = cpu._instructionLoad;
+                cpuInstruction = cpu._instructionLoadY;
                 break;
             case 0b110: // c(0) a(6) - CPY
                 // b(2): INY imp, b(4): BNE rel, b(6): CLD impl
@@ -719,23 +719,23 @@ namespace m6502
             std::cout << "Address Mode: switch(b: " << std::bitset<3>(opCode.memory.b) << ") ";
             switch (opCode.memory.b) // 3 bits
             {
-            case 0b000: // c(1) b(0) - ZeroPage,X
-                addressMode = cpu._addressModeZeroPageIndexedX;
+            case 0b000: // c(1) b(0) - (ZeroPage,X)
+                    addressMode = cpu._addressModeIndexedIndirectX;
                 break;
             case 0b001: // c(1) b(1) - ZeroPage
                 addressMode = cpu._addressModeZeroPage;
                 break;
-            case 0b010: // c(1) b(2) - Immediate
+            case 0b010: // c(1) b(2) - #Immediate
                 addressMode = cpu._addressModeImmediate;
                 break;
             case 0b011: // c(1) b(3) - Absolute
                 addressMode = cpu._addressModeAbsolute;
                 break;
             case 0b100: // c(1) b(4) - (ZeroPage),Y
-                addressMode = cpu._addressModeZeroPageIndexedY;
+                addressMode = cpu._addressModeIndirectIndexedY;
                 break;
-            case 0b101: // c(1) b(5) - ZeroPage,X
-                addressMode = cpu._addressModeZeroPageIndexedY;
+            case 0b101: // c(1) b(5) - (ZeroPage,X)
+                addressMode = cpu._addressModeZeroPageIndexedX;   // ???  AddressModeIndexedIndirectX
                 break;
             case 0b110: // c(1) b(6) - Absolute,Y
                 addressMode = cpu._addressModeAbsoluteIndexedY;

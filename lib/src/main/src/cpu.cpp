@@ -48,7 +48,7 @@ namespace m6502
         // --- LDX
         _instructionLoadX = new InstructionLoadX(*this);
         // --- LDY
-        _instructionLoadY = new InstructionLoadX(*this); // TODO  fix
+        _instructionLoadY = new InstructionLoadY(*this);
         //
 
         // ----- Store

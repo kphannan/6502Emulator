@@ -55,16 +55,42 @@ void loadProgram(memory::Memory &memory)
     // cpu::Address = std::to_underlying(cpu::HardwareVector::RESET);
     // int address = std::to_underlying(m6502::HardwareVector::RESET);
 
+    memory.write(0x2000, 0xA0); // LDY #$10         ; Offset into table
+    memory.write(0x2001, 0x10); //
+    memory.write(0x2002, 0xB1); // LDA ($70),Y      ; Indirect table address
+    memory.write(0x2003, 0x70); //
+
+    // Lookup table of addresses
+    memory.write(0x0070, 0x43); // Entry 0, $LL Address lookup table
+    memory.write(0x0071, 0x35); //          $HH
+
+    memory.write(0x3553, 0x23); // Data
+    /*
+    // LDA ($20,X)
+    memory.write(0x2000, 0xA2); // LDX #$10
+    memory.write(0x2001, 0x10);
+    memory.write(0x2002, 0xA1); // LDA ($nn,X)
+    memory.write(0x2003, 0x20); //
+    // memory.write(0x2004, 0xFA); //
+
+    memory.write(0x0030, 0xEF); // The data value to load
+
+    memory.write(0x0020, 0xEF); // Indirect address LL
+    memory.write(0x0021, 0xBE); // HH
+
+    memory.write(0xBEFF, 0xC3); // The data value to load
+    */
+    /*
     // LDX #$08
     // LDA $FADE,X
-    memory.write(0x2000, 0xA2); // LDX #$08
+    memory.write(0x2000, 0xA0); // LDX #$08
     memory.write(0x2001, 0x08);
-    memory.write(0x2002, 0xBD); // LDA $FADE,X
+    memory.write(0x2002, 0xB9); // LDA $FADE,Y
     memory.write(0x2003, 0xDE); //
     memory.write(0x2004, 0xFA); //
 
     memory.write(0xFAE6, 0xA9); // The data value to load
-
+    */
     /*
     // LDA $FADE
     memory.write(0x2000, 0xAD); // LDA $FADE
@@ -89,7 +115,7 @@ void loadProgram(memory::Memory &memory)
     // memory.write(0x2000, 0xA5); // LDA #00 // starting instruction after reset
     // memory.write(0x2001, 0x23); //
 
-    memory.write(0x0023, 0x42); //
+    // memory.write(0x0023, 0x42); //
 
     // Reset vector points to start of memory
     memory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET

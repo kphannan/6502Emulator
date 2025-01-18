@@ -16,16 +16,16 @@ namespace m6502
         // Instruction code chart
         // https://www.masswerk.at/6502/6502_instruction_set.html
         IMPLICIT,           // Implicit
-        ACCUMULATOR,        // Accumulator         A
-        IMMEDIATE,          // Immediate           #$nn
-        ZERO_PAGE,          // Zero Page           $nn        LO bits 4,5,6
-        ZERO_PAGE_X,        // Zero Page, X        $nn, X     LO bits 4,5,6
-        ZERO_PAGE_Y,        // Zero Page, Y        $nn, Y     LO bits 4,5,6
-        RELATIVE,           // Relative            $nnnn
+        ACCUMULATOR,        // Accumulator         A                            4.6 Accumulator
+        IMMEDIATE,          // Immediate           #$nn                         4.7 Immediate
+        ZERO_PAGE,          // Zero Page           $nn        LO bits 4,5,6     4.11 Zero Page
+        ZERO_PAGE_X,        // Zero Page, X        $nn, X     LO bits 4,5,6     4.13 Zero Page Indexed with X
+        ZERO_PAGE_Y,        // Zero Page, Y        $nn, Y     LO bits 4,5,6     4.14 Zero Page Indexed with Y
+        RELATIVE,           // Relative            $nn                          4.9 Program Counter Relative
         ABSOLUTE,           // Absolute            $nnnn
-        ABSOLUTE_X,         // Absolute, X         $nnnn, X
-        ABSOLUTE_Y,         // Absolute, Y         $nnnn, Y
-        INDIRECT,           // Indirect            ($nnnn)
+        ABSOLUTE_X,         // Absolute, X         $nnnn, X                     4.3 AbsoluteIndexed with X
+        ABSOLUTE_Y,         // Absolute, Y         $nnnn, Y                     4.4 AbsoluteIndexed with Y
+        INDIRECT,           // Indirect            ($nnnn)                      4.5 Absolute Indirect
         INDEXED_INDIRECT_X, // X Indexed Indirect  ($nn, X)   LO bit 1
         INDIRECT_INDEXED_Y  // Y Indirect Indexed  ($nn), Y   LO bit 1
     */
@@ -70,6 +70,7 @@ namespace m6502
     };
 
     //        IMPLICIT,           // Implicit
+
     class AddressModeUndefined : public CPU::AddressMode
     {
         // Constructors
@@ -93,6 +94,7 @@ namespace m6502
     };
 
     //        IMPLICIT,           // Implicit
+
     class CPU::AddressModeImplied : public CPU::AddressMode
     {
         // Constructors
@@ -120,6 +122,7 @@ namespace m6502
     };
 
     //        ACCUMULATOR,        // Accumulator         A
+
     class CPU::AddressModeAccumulator : public CPU::AddressMode
     {
         // Constructors
@@ -146,6 +149,7 @@ namespace m6502
     public:
     };
     //        ZERO_PAGE,          // Zero Page           $nn        LO bits 4,5,6
+
     class CPU::AddressModeZeroPage : public CPU::AddressMode
     {
         // Constructors
@@ -172,7 +176,8 @@ namespace m6502
     protected:
     public:
     };
-    //        ZERO_PAGE_X,        // Zero Page, X        $nn, X     LO bits 4,5,6
+    //        ZERO_PAGE_X,        // Zero Page, X        $nn,X      LO bits 4,5,6
+
     class CPU::AddressModeZeroPageIndexedX : public CPU::AddressMode
     {
         // Constructors
@@ -193,13 +198,17 @@ namespace m6502
             AddressMode::execute();
             hardware::Address zpOffset = cpu.addressSpace.read(cpu.model.registers.PC++);
             cpu.decodePipeline().operand = cpu.addressSpace.read(zpOffset + cpu.model.registers.X);
+
+            // hardware::Address absolute = cpu.addressSpace.readWord(zpOffset + cpu.model.registers.X);
+            // cpu.decodePipeline().operand = cpu.addressSpace.read(absolute);
         };
         // Operators
     private:
     protected:
     public:
     };
-    //        ZERO_PAGE_Y,        // Zero Page, Y        $nn, Y     LO bits 4,5,6
+    //        ZERO_PAGE_Y,        // Zero Page, Y        $nn,Y      LO bits 4,5,6
+
     class CPU::AddressModeZeroPageIndexedY : public CPU::AddressMode
     {
         // Constructors
@@ -226,7 +235,8 @@ namespace m6502
     protected:
     public:
     };
-    //        RELATIVE,           // Relative            $nnnn
+    //        RELATIVE,           // Relative            $nn
+
     class CPU::AddressModeRelative : public CPU::AddressMode
     {
         // Constructors
@@ -253,6 +263,7 @@ namespace m6502
     public:
     };
     //        ABSOLUTE,           // Absolute            $nnnn
+
     class CPU::AddressModeAbsolute : public CPU::AddressMode
     {
         // Constructors
@@ -271,7 +282,6 @@ namespace m6502
         virtual void execute()
         {
             AddressMode::execute();
-            // std::cout << "AddressMode(Absolute): Not yet implemented" << std::endl;
             hardware::Address absolute = cpu.addressSpace.readWord(cpu.model.registers.PC);
             cpu.decodePipeline().operand = cpu.addressSpace.read(absolute);
             cpu.model.registers.PC += 2;
@@ -281,7 +291,8 @@ namespace m6502
     protected:
     public:
     };
-    //        ABSOLUTE_X,         // Absolute, X         $nnnn, X
+    //        ABSOLUTE_X,         // Absolute, X         $nnnn,X
+
     class CPU::AddressModeAbsoluteIndexedX : public CPU::AddressMode
     {
         // Constructors
@@ -304,14 +315,14 @@ namespace m6502
             hardware::Address absolute = cpu.addressSpace.readWord(cpu.model.registers.PC);
             cpu.decodePipeline().operand = cpu.addressSpace.read(absolute + cpu.model.registers.X);
             cpu.model.registers.PC += 2;
-//            std::cout << "AddressMode(AbsoluteX): Not yet implemented" << std::endl;
         };
         // Operators
     private:
     protected:
     public:
     };
-    //        ABSOLUTE_Y,         // Absolute, Y         $nnnn, Y
+    //        ABSOLUTE_Y,         // Absolute, Y         $nnnn,Y
+
     class CPU::AddressModeAbsoluteIndexedY : public CPU::AddressMode
     {
         // Constructors
@@ -331,7 +342,9 @@ namespace m6502
         {
             // value = read( $nnnn + Y)
             AddressMode::execute();
-            std::cout << "AddressMode(AbsoluteY): Not yet implemented" << std::endl;
+            hardware::Address absolute = cpu.addressSpace.readWord(cpu.model.registers.PC);
+            cpu.decodePipeline().operand = cpu.addressSpace.read(absolute + cpu.model.registers.Y);
+            cpu.model.registers.PC += 2;
         };
         // Operators
     private:
@@ -339,6 +352,7 @@ namespace m6502
     public:
     };
     //        INDIRECT,           // Indirect            ($nnnn)
+
     class CPU::AddressModeIndirect : public CPU::AddressMode
     {
         // Constructors
@@ -357,21 +371,24 @@ namespace m6502
         virtual void execute()
         {
             AddressMode::execute();
-            std::cout << "AddressMode(Indirect): Not yet implemented" << std::endl;
+            hardware::Address indirectAddress = cpu.addressSpace.readWord(cpu.model.registers.PC++);
+
+            cpu.decodePipeline().operand = cpu.addressSpace.readWord(indirectAddress);
         };
         // Operators
     private:
     protected:
     public:
     };
-    //        INDEXED_INDIRECT_X, // X Indexed Indirect  ($nn, X)   LO bit 1
+    //        INDEXED_INDIRECT_X, // X Indexed Indirect  ($nn,X)    LO bit 1
+
     class CPU::AddressModeIndexedIndirectX : public CPU::AddressMode
     {
         // Constructors
     private:
     protected:
     public:
-        AddressModeIndexedIndirectX(CPU &cpu) : AddressMode(cpu, "X Indexed Indirect", "($nn, X)") {};
+        AddressModeIndexedIndirectX(CPU &cpu) : AddressMode(cpu, "X Indexed Indirect", "($nn,X)") {};
         // Fields
     private:
     protected:
@@ -384,14 +401,20 @@ namespace m6502
         {
             // value = read( $nn + X )
             AddressMode::execute();
-            std::cout << "AddressMode(IndexedIndirectX): Not yet implemented" << std::endl;
+            // std::cout << "AddressMode(IndexedIndirectX): Not yet implemented" << std::endl;
+            hardware::Address zeroPageAddress = cpu.addressSpace.read(cpu.model.registers.PC++);
+            hardware::Address address = cpu.addressSpace.readWord(zeroPageAddress + cpu.model.registers.X);
+            cpu.decodePipeline().operand = cpu.addressSpace.read(address);
+            //  + cpu.model.registers.X
+            // cpu.model.registers.PC++;
         };
         // Operators
     private:
     protected:
     public:
     };
-    //        INDIRECT_INDEXED_Y  // Y Indirect Indexed  ($nn), Y   LO bit 1
+    //        INDIRECT_INDEXED_Y  // Y Indirect Indexed  ($nn),Y    LO bit 1
+
     class CPU::AddressModeIndirectIndexedY : public CPU::AddressMode
     {
         // Constructors
@@ -412,7 +435,12 @@ namespace m6502
             AddressMode::execute();
             // read( read( $nn ) | (read( $nn + 1) << 8) + Y )
             // indirect pointer (PC | (PC+1)<<8) + Y
-            std::cout << "AddressMode(IndirectIIndexedY): Not yet implemented" << std::endl;
+            // value = read( $nn + X )
+            AddressMode::execute();
+            hardware::Address zpOffset = cpu.addressSpace.read(cpu.model.registers.PC++);
+            hardware::Address address = cpu.addressSpace.readWord(zpOffset);
+            address += cpu.model.registers.Y;
+            cpu.decodePipeline().operand = cpu.addressSpace.read(address);
         };
         // Operators
     private:

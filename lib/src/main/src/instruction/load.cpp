@@ -73,6 +73,9 @@ namespace m6502
     // Absolute,Y    LDX $4400,Y   $BE  3   4+
     //
     // + add 1 cycle if page boundary crossed
+
+    // Addressing Modes
+    // ----- Immediate #$BB
     void CPU::InstructionLoadX::execute()
     {
         Instruction::execute();
@@ -81,6 +84,19 @@ namespace m6502
         // dst: X register
         cpu.X(cpu.decodePipeline().operand);
     }
+
+    // ----- Implied
+    // ----- Accumulator
+    // ----- ZeroPage $LL
+    // ----- ZeroPage,X $LL,X
+    // ----- ZeroPage,Y $LL,Y
+    // ----- Relative $BB
+    // ----- Absolute $LLHH
+    // ----- AbsoluteX $LLHH,X
+    // ----- AbsoluteY $LLHH,Y
+    // ----- Indirect ($LLHH)
+    // ----- Indexed Indirect X ($LL,X)
+    // ----- Indirect Indexed Y ($LL),Y
 
     //----------------------------------------
     // LDY (LoaD Y register)
@@ -95,5 +111,29 @@ namespace m6502
     // Absolute,X    LDY $4400,X   $BC  3   4+
     //
     // + add 1 cycle if page boundary crossed
+
+    // Addressing Modes
+    // ----- Immediate #$BB
+    void CPU::InstructionLoadY::execute()
+    {
+        Instruction::execute();
+        // TODO define a src and dst that is set during opcode decode
+        // src: memory - addressMode
+        // dst: X register
+        cpu.Y(cpu.decodePipeline().operand);
+    }
+
+    // ----- Implied
+    // ----- Accumulator
+    // ----- ZeroPage $LL
+    // ----- ZeroPage,X $LL,X
+    // ----- ZeroPage,Y $LL,Y
+    // ----- Relative $BB
+    // ----- Absolute $LLHH
+    // ----- AbsoluteX $LLHH,X
+    // ----- AbsoluteY $LLHH,Y
+    // ----- Indirect ($LLHH)
+    // ----- Indexed Indirect X ($LL,X)
+    // ----- Indirect Indexed Y ($LL),Y
 
 }

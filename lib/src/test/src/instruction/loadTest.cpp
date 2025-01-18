@@ -96,12 +96,12 @@ namespace m6502
 
         // Destination of the reset vector - leaves zeroPage available for testing
         memory.write(0x2000, 0xA9); // LDA #$21
-        memory.write(0x2001, 0x21); //
+        memory.write(0x2001, 0x07); //
 
         cpu->execute(1);
 
         EXPECT_EQ(0x2002, cpu->PC());
-        EXPECT_EQ(0x21, cpu->A());
+        EXPECT_EQ(0x07, cpu->A());
         EXPECT_EQ(0b00100000, cpu->P());
     }
 
@@ -146,14 +146,14 @@ namespace m6502
 
         // Destination of the reset vector - leaves zeroPage available for testing
         memory.write(0x2000, 0xA5); // LDA $32
-        memory.write(0x2001, 0x32); //
+        memory.write(0x2001, 0x80); //
 
-        memory.write(0x0032, 0x27); // The data value to load
+        memory.write(0x0080, 0x34); // The data value to load
 
         cpu->execute(1);
 
         EXPECT_EQ(0x2002, cpu->PC());
-        EXPECT_EQ(0x27, cpu->A());
+        EXPECT_EQ(0x34, cpu->A());
         EXPECT_EQ(0b00100000, cpu->P());
     }
 
@@ -181,17 +181,17 @@ namespace m6502
 
         // Destination of the reset vector - leaves zeroPage available for testing
         memory.write(0x2000, 0xA2); // LDX $10
-        memory.write(0x2001, 0x10);
-        memory.write(0x2002, 0xA1); // LDA $0F
-        memory.write(0x2003, 0x05); //
+        memory.write(0x2001, 0x02);
+        memory.write(0x2002, 0xB5); // LDA $0F,X
+        memory.write(0x2003, 0x80); //
 
-        memory.write(0x0015, 0x72); // The data value to load
+        memory.write(0x0082, 0x64); // The data value to load
 
         cpu->execute(2);
 
         EXPECT_EQ(0x2004, cpu->PC());
-        EXPECT_EQ(0x72, cpu->A());
-        EXPECT_EQ(0x10, cpu->X());
+        EXPECT_EQ(0x64, cpu->A());
+        EXPECT_EQ(0x02, cpu->X());
         EXPECT_EQ(0b00100000, cpu->P());
     }
 
@@ -204,15 +204,15 @@ namespace m6502
 
         // Destination of the reset vector - leaves zeroPage available for testing
         memory.write(0x2000, 0xAD); // LDA $FADE
-        memory.write(0x2001, 0xDE);
-        memory.write(0x2002, 0xFA);
+        memory.write(0x2001, 0x10);
+        memory.write(0x2002, 0x30);
 
-        memory.write(0xFADE, 0x62); // The data value to load
+        memory.write(0x3010, 0x34); // The data value to load
 
         cpu->execute(1);
 
         EXPECT_EQ(0x2003, cpu->PC());
-        EXPECT_EQ(0x62, cpu->A());
+        EXPECT_EQ(0x34, cpu->A());
         EXPECT_EQ(0b00100000, cpu->P());
     }
     // ----- AbsoluteX $LLHH,X
@@ -222,24 +222,98 @@ namespace m6502
 
         // Destination of the reset vector - leaves zeroPage available for testing
         memory.write(0x2000, 0xA2); // LDX #$08
-        memory.write(0x2001, 0x08);
+        memory.write(0x2001, 0x12);
         memory.write(0x2002, 0xBD); // LDA $FADE,X
-        memory.write(0x2003, 0xDE); //
-        memory.write(0x2004, 0xFA); //
+        memory.write(0x2003, 0x20); //
+        memory.write(0x2004, 0x31); //
 
-        memory.write(0xFAE6, 0xA9); // The data value to load
+        memory.write(0x3132, 0x78); // The data value to load
 
         cpu->execute(2);
 
         EXPECT_EQ(0x2005, cpu->PC());
-        EXPECT_EQ(0xA9, cpu->A());
-        EXPECT_EQ(0x08, cpu->X());
-        EXPECT_EQ(0b10100000, cpu->P());
+        EXPECT_EQ(0x78, cpu->A());
+        EXPECT_EQ(0x12, cpu->X());
+        EXPECT_EQ(0b00100000, cpu->P());
     }
     // ----- AbsoluteY $LLHH,Y
+    TEST_F(InstructionLoadTest, LDA_AbsoluteIndexedY)
+    {
+        memory::Memory &memory = cpu->currentMemory();
+
+        // Destination of the reset vector - leaves zeroPage available for testing
+        memory.write(0x2000, 0xA0); // LDY #$10
+        memory.write(0x2001, 0x10);
+        memory.write(0x2002, 0xB9); // LDA $FADE,Y
+        memory.write(0x2003, 0xDE); //
+        memory.write(0x2004, 0xFA); //
+
+        memory.write(0xFAEE, 0xC3); // The data value to load
+
+        cpu->execute(2);
+
+        EXPECT_EQ(0x2005, cpu->PC());
+        EXPECT_EQ(0xC3, cpu->A());
+        EXPECT_EQ(0x10, cpu->Y());
+        EXPECT_EQ(0b10100000, cpu->P());
+    }
     // ..... Indirect ($LLHH)
     // ----- Indexed Indirect X ($LL,X)
+    TEST_F(InstructionLoadTest, LDA_IndexedIndirectX)
+    {
+        memory::Memory &memory = cpu->currentMemory();
+
+        // Destination of the reset vector - leaves zeroPage available for testing
+        memory.write(0x2000, 0xA2); // LDX #$05
+        memory.write(0x2001, 0x05); // Base of lookup table in page zero
+        memory.write(0x2002, 0xA1); // LDA ($70,X)
+        memory.write(0x2003, 0x70); // offset from base address
+
+        // Lookup table of addresses
+        memory.write(0x0075, 0x23); // Entry 0, $LL Address lookup table
+        memory.write(0x0076, 0x30); //          $HH
+
+        memory.write(0x3023, 0xA5); // Data
+
+        // memory.write(0x0010, 0x01); // Entry 0, $LL Address lookup table
+        // memory.write(0x0010, 0x02); //          $HH
+        // // ......
+        // memory.write(0x0030, 0xEF); // Entry 8, $LL  - Address to the desired byte
+        // memory.write(0x0031, 0xBE); //          $HH
+
+        // memory.write(0xBEEF, 0xC3); // The data value to load
+
+        cpu->execute(2);
+
+        EXPECT_EQ(0x2004, cpu->PC());
+        EXPECT_EQ(0xA5, cpu->A());
+        EXPECT_EQ(0x05, cpu->X());
+        EXPECT_EQ(0b10100000, cpu->P());
+    }
     // ----- Indirect Indexed Y ($LL),Y
+    TEST_F(InstructionLoadTest, LDA_IndexedIndirectY)
+    {
+        memory::Memory &memory = cpu->currentMemory();
+
+        // Destination of the reset vector - leaves zeroPage available for testing
+        memory.write(0x2000, 0xA0); // LDY #$10         ; Offset into table
+        memory.write(0x2001, 0x10); //
+        memory.write(0x2002, 0xB1); // LDA ($70),Y      ; Indirect table address
+        memory.write(0x2003, 0x70); //
+
+        // Lookup table of addresses
+        memory.write(0x0070, 0x43); // Entry 0, $LL Address lookup table
+        memory.write(0x0071, 0x35); //          $HH
+
+        memory.write(0x3553, 0x23); // Data
+
+        cpu->execute(2);
+
+        EXPECT_EQ(0x2004, cpu->PC());
+        EXPECT_EQ(0x23, cpu->A());
+        EXPECT_EQ(0x10, cpu->Y());
+        EXPECT_EQ(0b00100000, cpu->P());
+    }
 
     //----------------------------------------
     // LDX (LoaD X register)
@@ -328,6 +402,50 @@ namespace m6502
     // + add 1 cycle if page boundary crossed
 
     // ----- Immediate #$BB
+    TEST_F(InstructionLoadTest, LDY_ImmediateZero)
+    {
+        memory::Memory &memory = cpu->currentMemory();
+
+        // Destination of the reset vector - leaves zeroPage available for testing
+        memory.write(0x2000, 0xA0); // LDY #$00
+        memory.write(0x2001, 0x00); //
+
+        cpu->execute(1);
+
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0x00, cpu->Y());
+        EXPECT_EQ(0b00100010, cpu->P());
+    }
+
+    TEST_F(InstructionLoadTest, LDY_ImmediatePositive)
+    {
+        memory::Memory &memory = cpu->currentMemory();
+
+        // Destination of the reset vector - leaves zeroPage available for testing
+        memory.write(0x2000, 0xA0); // LDY #$21
+        memory.write(0x2001, 0x25); //
+
+        cpu->execute(1);
+
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0x25, cpu->Y());
+        EXPECT_EQ(0b00100000, cpu->P());
+    }
+
+    TEST_F(InstructionLoadTest, LDY_ImmediateNegative)
+    {
+        memory::Memory &memory = cpu->currentMemory();
+
+        // Destination of the reset vector - leaves zeroPage available for testing
+        memory.write(0x2000, 0xA0); // LDY #$F0
+        memory.write(0x2001, 0xF0); //
+
+        cpu->execute(1);
+
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0xF0, cpu->Y());
+        EXPECT_EQ(0b10100000, cpu->P());
+    }
     // ..... Implied
     // ..... Accumulator
     // ----- ZeroPage $LL

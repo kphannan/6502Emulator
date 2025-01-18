@@ -209,6 +209,7 @@ namespace m6502
         // --- LDX *
         class InstructionLoadX;
         // --- LDY *
+        class InstructionLoadY;
         //
 
         // ----- Store
@@ -437,7 +438,7 @@ namespace m6502
         CPU::InstructionLoad *_instructionLoad;
         CPU::InstructionLoadA *_instructionLoadA;
         CPU::InstructionLoadX *_instructionLoadX;
-        CPU::InstructionLoad *_instructionLoadY; // TODO
+        CPU::InstructionLoadY *_instructionLoadY;
         CPU::InstructionStore *_instructionStore;
         CPU::InstructionLogical *_instructionLogical;
 
