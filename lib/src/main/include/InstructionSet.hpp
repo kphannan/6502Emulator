@@ -27,7 +27,7 @@ namespace m6502
     private:
         // Constructors
     public:
-        Instruction(CPU &cpu, const char *name, const char *mnemonic) : cpu(cpu), modeName(name), modeMnemonic(mnemonic) {};
+        Instruction(CPU &cpu, const char *name, const char *mnemonic) : cpu(cpu), modeName(name), modeMnemonic(mnemonic) {}
 
     protected:
     private:
@@ -43,7 +43,7 @@ namespace m6502
     public:
         const char *name() const { return modeName; };
         const char *mnemonic() const { return modeMnemonic; };
-        virtual void execute() { std::cout << name() << " ; " << mnemonic() << " " << cpu.decodePipeline().addressMode->mnemonic() << std::endl; };
+        virtual void execute() { std::cout << name() << " ; " << mnemonic() << " " << cpu.decodePipeline().addressMode->mnemonic() << std::endl; }
 
     protected:
     private:
@@ -82,7 +82,7 @@ namespace m6502
     {
         // Constructors
     public:
-        InstructionLoadX(CPU &cpu) : InstructionLoad(cpu, "Load X index", "LDX") {};
+        InstructionLoadX(CPU &cpu) : InstructionLoad(cpu, "Load X index", "LDX") {}
 
         // methods
     public:
@@ -93,7 +93,7 @@ namespace m6502
     {
         // Constructors
     public:
-        InstructionLoadY(CPU &cpu) : InstructionLoad(cpu, "Load Y index", "LDY") {};
+        InstructionLoadY(CPU &cpu) : InstructionLoad(cpu, "Load Y index", "LDY") {}
 
         // methods
     public:
@@ -149,7 +149,7 @@ namespace m6502
 
         // methods
     public:
-        virtual void execute() { Instruction::execute(); };
+        virtual void execute() { Instruction::execute(); }
     };
     // --- AND
     // --- EOR
