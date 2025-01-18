@@ -41,7 +41,7 @@ namespace m6502
         hardware::Byte Y; // Index register Y
         hardware::Byte X; // Index register  X
 
-        hardware::Byte S; // Stack Pointer
+        hardware::Address S; // Stack Pointer
 
         hardware::Address PC; // Program Counter
 
@@ -405,6 +405,8 @@ namespace m6502
     public:
         // ----- Constants -----
     public:
+        const hardware::Address StackPointerDefault = 0x01FF;
+
     protected:
     private:
         // ----- Attributes -----
@@ -454,12 +456,13 @@ namespace m6502
         Pipeline &decodePipeline() { return *pipeline; }
 
         void reset();
-        // void memoryBank(Memory *memory); // currently only support full address space.
+
+        // Access to registers
         hardware::Address &PC() { return model.registers.PC; };
         hardware::Byte &A() { return model.registers.A; };
         hardware::Byte &X() { return model.registers.X; };
         hardware::Byte &Y() { return model.registers.Y; };
-        hardware::Byte &S() { return model.registers.S; };
+        hardware::Address &S() { return model.registers.S; };
 
         void A(hardware::Byte value)
         {
@@ -482,11 +485,9 @@ namespace m6502
             setN((value & 0b10000000) != 0); // 2s compliment bit 7 is sign bit
         };
 
-        void S(hardware::Byte value)
+        void S(hardware::Address value)
         {
             model.registers.S = value;
-            model.flags.Z = value == 0;
-            model.flags.N = value < 0;
         };
 
         // Processor status byte

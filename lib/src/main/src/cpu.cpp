@@ -134,7 +134,7 @@ namespace m6502
         model.registers.A = 0x00;
         model.registers.X = 0x00;
         model.registers.Y = 0x00;
-        model.registers.S = 0x00;
+        model.registers.S = StackPointerDefault;
         model.P = 0b00100000; // TODO reset it properly...
 
         // std::cout.setf(std::ios::hex, std::ios::basefield);

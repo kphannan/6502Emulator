@@ -298,7 +298,7 @@ namespace m6502
     // ----- Stack Pointer
     TEST_F(CpuRegisterTest, StackPointerInitialization)
     {
-        EXPECT_EQ(0x00, cpu->S()); // TODO should be $1FF
+        EXPECT_EQ(0x01FF, cpu->S());
     }
 
 }
