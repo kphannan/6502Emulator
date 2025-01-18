@@ -44,7 +44,12 @@ namespace m6502
     public:
         const char *name() const { return modeName; };
         const char *mnemonic() const { return modeMnemonic; };
-        virtual void execute() { std::cout << name() << " ; " << mnemonic() << " " << cpu.decodePipeline().addressMode->mnemonic() << std::endl; }
+        const char *targetName(InstructionTarget target);
+        virtual void execute(InstructionTarget dst, InstructionTarget src)
+        {
+            std::cout << name() << " ; " << mnemonic() << " " << cpu.decodePipeline().addressMode->mnemonic() << std::endl;
+            std::cout << targetName(dst) << " from " << targetName(src) << std::endl;
+        }
 
     protected:
     private:
@@ -66,7 +71,7 @@ namespace m6502
 
         // methods
     public:
-        virtual void execute();
+        virtual void execute(InstructionTarget dst, InstructionTarget src);
     };
 
     // --- LDA
@@ -78,7 +83,7 @@ namespace m6502
 
         // methods
     public:
-        virtual void execute() override;
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
     };
 
     // --- LDX
@@ -90,7 +95,7 @@ namespace m6502
 
         // methods
     public:
-        virtual void execute() override;
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
     };
 
     // --- LDY
@@ -102,7 +107,7 @@ namespace m6502
 
         // methods
     public:
-        virtual void execute() override;
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
     };
 
     // ----- Store
@@ -115,7 +120,7 @@ namespace m6502
 
         // methods
     public:
-        virtual void execute() override { Instruction::execute(); };
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
     };
     // --- STA
     // --- STX
@@ -153,7 +158,7 @@ namespace m6502
 
         // methods
     public:
-        virtual void execute() override { Instruction::execute(); }
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override { Instruction::execute(dst, src); }
     };
     // --- AND
     // --- EOR

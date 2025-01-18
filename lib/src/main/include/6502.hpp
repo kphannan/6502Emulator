@@ -15,6 +15,7 @@ namespace m6502
     // Identifies the source & destination of an operation
     enum class InstructionTarget
     {
+        Undefined,
         // Register
         A,  // Accumulator
         X,  // X Index
@@ -306,6 +307,9 @@ namespace m6502
             int operand; // struct/union/class (register,implied,Byte,Word)
             Instruction *cpuInstruction;
             AddressMode *addressMode;
+
+            InstructionTarget src;
+            InstructionTarget dst;
 
         protected:
         private:

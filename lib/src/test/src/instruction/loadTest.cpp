@@ -83,6 +83,8 @@ namespace m6502
         EXPECT_EQ(0x2002, cpu->PC());
         EXPECT_EQ(0x00, cpu->A());
         EXPECT_EQ(0b00100010, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionLoadTest, LDA_ImmediatePositive)
@@ -95,6 +97,8 @@ namespace m6502
         EXPECT_EQ(0x2002, cpu->PC());
         EXPECT_EQ(0x07, cpu->A());
         EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionLoadTest, LDA_ImmediateNegative)
@@ -107,6 +111,8 @@ namespace m6502
         EXPECT_EQ(0x2002, cpu->PC());
         EXPECT_EQ(0xFF, cpu->A());
         EXPECT_EQ(0b10100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
     // ..... Implied
@@ -124,6 +130,8 @@ namespace m6502
         EXPECT_EQ(0x2002, cpu->PC());
         EXPECT_EQ(0x00, cpu->A());
         EXPECT_EQ(0b00100010, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionLoadTest, LDA_ZeroPagePositive)
@@ -138,6 +146,8 @@ namespace m6502
         EXPECT_EQ(0x2002, cpu->PC());
         EXPECT_EQ(0x34, cpu->A());
         EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionLoadTest, LDA_ZeroPageNegative)
@@ -152,6 +162,8 @@ namespace m6502
         EXPECT_EQ(0x2002, cpu->PC());
         EXPECT_EQ(0xFF, cpu->A());
         EXPECT_EQ(0b10100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
     // ----- ZeroPage,X $LL,X
@@ -170,6 +182,8 @@ namespace m6502
         EXPECT_EQ(0x64, cpu->A());
         EXPECT_EQ(0x02, cpu->X());
         EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
     // ..... ZeroPage,Y $LL,Y
@@ -188,6 +202,8 @@ namespace m6502
         EXPECT_EQ(0x2003, cpu->PC());
         EXPECT_EQ(0x34, cpu->A());
         EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
     // ----- AbsoluteX $LLHH,X
@@ -207,6 +223,8 @@ namespace m6502
         EXPECT_EQ(0x78, cpu->A());
         EXPECT_EQ(0x12, cpu->X());
         EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
     // ----- AbsoluteY $LLHH,Y
     TEST_F(InstructionLoadTest, LDA_AbsoluteIndexedY)
@@ -225,6 +243,8 @@ namespace m6502
         EXPECT_EQ(0xC3, cpu->A());
         EXPECT_EQ(0x10, cpu->Y());
         EXPECT_EQ(0b10100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
     // ..... Indirect ($LLHH)
@@ -248,6 +268,8 @@ namespace m6502
         EXPECT_EQ(0xA5, cpu->A());
         EXPECT_EQ(0x05, cpu->X());
         EXPECT_EQ(0b10100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
     // ----- Indirect Indexed Y ($LL),Y
     TEST_F(InstructionLoadTest, LDA_IndexedIndirectY)
@@ -269,6 +291,8 @@ namespace m6502
         EXPECT_EQ(0x23, cpu->A());
         EXPECT_EQ(0x10, cpu->Y());
         EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
     //----------------------------------------
@@ -297,6 +321,8 @@ namespace m6502
         EXPECT_EQ(0x2002, cpu->PC());
         EXPECT_EQ(0x00, cpu->X());
         EXPECT_EQ(0b00100010, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionLoadTest, LDX_ImmediatePositive)
@@ -310,6 +336,8 @@ namespace m6502
         EXPECT_EQ(0x2002, cpu->PC());
         EXPECT_EQ(0x21, cpu->X());
         EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionLoadTest, LDX_ImmediateNegative)
@@ -323,6 +351,8 @@ namespace m6502
         EXPECT_EQ(0x2002, cpu->PC());
         EXPECT_EQ(0xF0, cpu->X());
         EXPECT_EQ(0b10100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().dst);
     }
     // ..... Implied
     // ..... Accumulator
@@ -363,6 +393,8 @@ namespace m6502
         EXPECT_EQ(0x2002, cpu->PC());
         EXPECT_EQ(0x00, cpu->Y());
         EXPECT_EQ(0b00100010, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionLoadTest, LDY_ImmediatePositive)
@@ -376,6 +408,8 @@ namespace m6502
         EXPECT_EQ(0x2002, cpu->PC());
         EXPECT_EQ(0x25, cpu->Y());
         EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionLoadTest, LDY_ImmediateNegative)
@@ -389,6 +423,8 @@ namespace m6502
         EXPECT_EQ(0x2002, cpu->PC());
         EXPECT_EQ(0xF0, cpu->Y());
         EXPECT_EQ(0b10100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().dst);
     }
     // ..... Implied
     // ..... Accumulator
