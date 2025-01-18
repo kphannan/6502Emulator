@@ -18,7 +18,7 @@ namespace m6502
 
     CPU::CPU(memory::Memory &memory)
         : addressSpace(memory)
-    // : addressSpace(memory), pipeline(memory, this->model.registers.PC)
+    // : addressSpace(memory), pipeline(memory, this->registers.PC)
     {
         // ===== Addressing Modes =====
         _addressModeUndefined = new AddressModeUndefined(*this);
@@ -131,11 +131,11 @@ namespace m6502
 
     void CPU::reset()
     {
-        model.registers.A = 0x00;
-        model.registers.X = 0x00;
-        model.registers.Y = 0x00;
-        model.registers.S = StackPointerDefault;
-        model.P = 0b00100000; // TODO reset it properly...
+        registers.A = 0x00;
+        registers.X = 0x00;
+        registers.Y = 0x00;
+        registers.S = StackPointerDefault;
+        registers.P = 0b00100000; // TODO reset it properly...
 
         // std::cout.setf(std::ios::hex, std::ios::basefield);
         // std::cout << std::endl;
@@ -144,7 +144,7 @@ namespace m6502
         // Reset the CPU / decode pipeline from the reset vector
         pipeline->reset(std::to_underlying(HardwareVector::RESET));
 
-        // std::cout << "PC: " << std::setfill('0') << std::setw(4) << (int)model.registers.PC << " reset vector" << std::endl;
+        // std::cout << "PC: " << std::setfill('0') << std::setw(4) << (int)registers.PC << " reset vector" << std::endl;
         // std::cout.unsetf(std::ios::basefield);
     }
 
@@ -153,22 +153,22 @@ namespace m6502
         // TODO output stream does not treat a Word the same as an int so the format is off
         std::cout.setf(std::ios::hex, std::ios::basefield);
         std::cout << "6502 Registers" << std::endl;
-        std::cout << "         A: " << std::setfill('0') << std::setw(2) << (int)(model.registers.A) << " Accumulator" << std::endl;
-        std::cout << "         X: " << std::setfill('0') << std::setw(2) << (int)(model.registers.X) << " Index register X" << std::endl;
-        std::cout << "         Y: " << std::setfill('0') << std::setw(2) << (int)(model.registers.Y) << " Index register Y" << std::endl;
-        std::cout << "         S: " << std::setfill('0') << std::setw(2) << (int)(model.registers.S) << " Stack pointer" << std::endl;
-        std::cout << "        PC: " << std::setfill('0') << std::setw(4) << (int)(model.registers.PC) << " Program Counter" << std::endl;
+        std::cout << "         A: " << std::setfill('0') << std::setw(2) << (int)(registers.A) << " Accumulator" << std::endl;
+        std::cout << "         X: " << std::setfill('0') << std::setw(2) << (int)(registers.X) << " Index register X" << std::endl;
+        std::cout << "         Y: " << std::setfill('0') << std::setw(2) << (int)(registers.Y) << " Index register Y" << std::endl;
+        std::cout << "         S: " << std::setfill('0') << std::setw(2) << (int)(registers.S) << " Stack pointer" << std::endl;
+        std::cout << "        PC: " << std::setfill('0') << std::setw(4) << (int)(registers.PC) << " Program Counter" << std::endl;
         std::cout << "         P: N V 1 B D I Z C  CPU Status Register" << std::endl
                   << "            "
                   << std::setw(1)
-                  << std::bitset<1>(model.flags.N) << " "
-                  << std::bitset<1>(model.flags.V) << " "
-                  << std::bitset<1>(model.flags.one) << " "
-                  << std::bitset<1>(model.flags.B) << " "
-                  << std::bitset<1>(model.flags.D) << " "
-                  << std::bitset<1>(model.flags.I) << " "
-                  << std::bitset<1>(model.flags.Z) << " "
-                  << std::bitset<1>(model.flags.C) << " "
+                  << (isN() ? 1 : 0) << " "
+                  << (isV() ? 1 : 0) << " "
+                  << 1 << " "
+                  << (isB() ? 1 : 0) << " "
+                  << (isD() ? 1 : 0) << " "
+                  << (isI() ? 1 : 0) << " "
+                  << (isZ() ? 1 : 0) << " "
+                  << (isC() ? 1 : 0) << " "
                   << std::endl
                   << std::resetiosflags(std::ios::basefield) << std::setiosflags(std::ios::oct)
                   //   << setf(std::ios::binary)
@@ -184,7 +184,7 @@ namespace m6502
     void CPU::executeFromAddress(hardware::Address address, uint32_t stepCount)
     {
         // set PC and execute 1 instruction
-        model.registers.PC = address;
+        registers.PC = address;
         execute(stepCount);
     }
 

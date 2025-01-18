@@ -13,7 +13,7 @@ namespace m6502
 {
 
     // Identifies the source & destination of an operation
-    enum class SourceDestination
+    enum class InstructionTarget
     {
         // Register
         A,  // Accumulator
@@ -39,28 +39,13 @@ namespace m6502
         hardware::Byte A; // Accumulator
 
         hardware::Byte Y; // Index register Y
-        hardware::Byte X; // Index register  X
+        hardware::Byte X; // Index register X
+
+        hardware::Byte P; // Processor status register
 
         hardware::Address S; // Stack Pointer
 
         hardware::Address PC; // Program Counter
-
-        // Processor Status
-        // union
-        // {
-        //     hardware::Byte value;
-        //     struct ProcessorStatusRegister
-        //     {
-        //         int N : 1;   // Negative
-        //         int V : 1;   // Overflow
-        //         int one : 1; // Constant '1'
-        //         int B : 1;   // BRK command  1 = BRK, 0 = IRQB
-        //         int D : 1;   // Decimal Mode 1 = true
-        //         int I : 1;   // IRQB disable 1 = disable
-        //         int Z : 1;   // Zero 1 = true
-        //         int C : 1;   // Carry 1 = true
-        //     } Flags;
-        // } P;
 
     } REGISTERS;
 
@@ -119,32 +104,6 @@ namespace m6502
         instructions. Moreover, there are branch instructions to conditionally divert
         the control flow depending on the respective state of the Z, N, C or V flag.
     */
-
-    // Bit definitions of the Processor Status Register (P)
-    typedef struct ProcessorStatusRegister
-    {
-        int N : 1;   // 7: Negative
-        int V : 1;   // 6: Overflow
-        int one : 1; // 5: Constant '1'
-        int B : 1;   // 4: BRK command  1 = BRK, 0 = IRQB
-        int D : 1;   // 3: Decimal Mode 1 = true
-        int I : 1;   // 2: IRQB disable 1 = disable
-        int Z : 1;   // 1: Zero 1 = true
-        int C : 1;   // 0: Carry 1 = true
-    } STATUS_FLAGS;
-
-    typedef struct ProgrammingModel
-    {
-        // General Purpose  Registers
-        REGISTERS registers;
-
-        // Processor Status Register, accessible as a byte or indiviidual bits.
-        union
-        {
-            hardware::Byte P;
-            STATUS_FLAGS flags;
-        };
-    } PROGRAMMING_MODEL;
 
     // Addressing Modes
     // Implicit
@@ -409,7 +368,8 @@ namespace m6502
     public:
     protected:
     private:
-        PROGRAMMING_MODEL model;
+        // PROGRAMMING_MODEL model;
+        REGISTERS registers;
         memory::Memory &addressSpace; // make a reference
 
         hardware::Byte instruction;
@@ -452,40 +412,40 @@ namespace m6502
         void reset();
 
         // Access to registers (pipeline only)
-        hardware::Byte &A() { return model.registers.A; };
-        hardware::Byte &X() { return model.registers.X; };
-        hardware::Byte &Y() { return model.registers.Y; };
-        hardware::Address &PC() { return model.registers.PC; };
-        hardware::Address &S() { return model.registers.S; };
+        hardware::Byte &A() { return registers.A; };
+        hardware::Byte &X() { return registers.X; };
+        hardware::Byte &Y() { return registers.Y; };
+        hardware::Address &PC() { return registers.PC; };
+        hardware::Address &S() { return registers.S; };
 
         void A(hardware::Byte value)
         {
-            model.registers.A = value;
+            registers.A = value;
             setZ(value == 0);
             setN((value & 0b10000000) != 0); // 2s compliment bit 7 is sign bit
         };
 
         void X(hardware::Byte value)
         {
-            model.registers.X = value;
+            registers.X = value;
             setZ(value == 0);
             setN((value & 0b10000000) != 0); // 2s compliment bit 7 is sign bit
         };
 
         void Y(hardware::Byte value)
         {
-            model.registers.Y = value;
+            registers.Y = value;
             setZ(value == 0);
             setN((value & 0b10000000) != 0); // 2s compliment bit 7 is sign bit
         };
 
         void S(hardware::Address value)
         {
-            model.registers.S = value;
+            registers.S = value;
         };
 
         // Processor status byte
-        hardware::Byte &P() { return model.P; };
+        hardware::Byte &P() { return registers.P; };
 
         // Organize these constants better
         const uint8_t NegativeBit = 7;
@@ -497,29 +457,29 @@ namespace m6502
         const uint8_t CarryBit = 0;
 
         // Processor status flags
-        bool isB() { return model.P & 1 << BrkBit; };         // BRK
-        bool isC() { return model.P & 1 << CarryBit; };       // Carry
-        bool isD() { return model.P & 1 << DecimalModeBit; }; // Decimal mode
-        bool isI() { return model.P & 1 << IrqDisableBit; };  // IRQ disable
-        bool isN() { return model.P & 1 << NegativeBit; };    // Negative
-        bool isV() { return model.P & 1 << OverflowBit; };    // Overflow
-        bool isZ() { return model.P & 1 << ZeroBit; };        // Zero
+        bool isB() { return registers.P & 1 << BrkBit; };         // BRK
+        bool isC() { return registers.P & 1 << CarryBit; };       // Carry
+        bool isD() { return registers.P & 1 << DecimalModeBit; }; // Decimal mode
+        bool isI() { return registers.P & 1 << IrqDisableBit; };  // IRQ disable
+        bool isN() { return registers.P & 1 << NegativeBit; };    // Negative
+        bool isV() { return registers.P & 1 << OverflowBit; };    // Overflow
+        bool isZ() { return registers.P & 1 << ZeroBit; };        // Zero
 
-        void setB() { setBit(model.P, BrkBit); };
-        void setC() { setBit(model.P, CarryBit); };
-        void setD() { setBit(model.P, DecimalModeBit); };
-        void setI() { setBit(model.P, IrqDisableBit); };
-        void setN() { setBit(model.P, NegativeBit); };
-        void setV() { setBit(model.P, OverflowBit); };
-        void setZ() { setBit(model.P, ZeroBit); };
+        void setB() { setBit(registers.P, BrkBit); };
+        void setC() { setBit(registers.P, CarryBit); };
+        void setD() { setBit(registers.P, DecimalModeBit); };
+        void setI() { setBit(registers.P, IrqDisableBit); };
+        void setN() { setBit(registers.P, NegativeBit); };
+        void setV() { setBit(registers.P, OverflowBit); };
+        void setZ() { setBit(registers.P, ZeroBit); };
 
-        void clearB() { clearBit(model.P, BrkBit); };
-        void clearC() { clearBit(model.P, CarryBit); };
-        void clearD() { clearBit(model.P, DecimalModeBit); };
-        void clearI() { clearBit(model.P, IrqDisableBit); };
-        void clearN() { clearBit(model.P, NegativeBit); };
-        void clearV() { clearBit(model.P, OverflowBit); };
-        void clearZ() { clearBit(model.P, ZeroBit); };
+        void clearB() { clearBit(registers.P, BrkBit); };
+        void clearC() { clearBit(registers.P, CarryBit); };
+        void clearD() { clearBit(registers.P, DecimalModeBit); };
+        void clearI() { clearBit(registers.P, IrqDisableBit); };
+        void clearN() { clearBit(registers.P, NegativeBit); };
+        void clearV() { clearBit(registers.P, OverflowBit); };
+        void clearZ() { clearBit(registers.P, ZeroBit); };
 
         void showRegisters();
 
@@ -556,13 +516,13 @@ namespace m6502
         }
 
         // maybe remove these and only use set/clear methods with no args
-        void setB(bool value) { value == 1 ? setBit(model.P, BrkBit) : clearBit(model.P, BrkBit); };
-        void setC(bool value) { value == 1 ? setBit(model.P, CarryBit) : clearBit(model.P, CarryBit); };
-        void setD(bool value) { value == 1 ? setBit(model.P, DecimalModeBit) : clearBit(model.P, DecimalModeBit); };
-        void setI(bool value) { value == 1 ? setBit(model.P, IrqDisableBit) : clearBit(model.P, IrqDisableBit); };
-        void setN(bool value) { value == 1 ? setBit(model.P, NegativeBit) : clearBit(model.P, NegativeBit); };
-        void setV(bool value) { value == 1 ? setBit(model.P, OverflowBit) : clearBit(model.P, OverflowBit); };
-        void setZ(bool value) { value == 1 ? setBit(model.P, ZeroBit) : clearBit(model.P, ZeroBit); };
+        void setB(bool value) { value == 1 ? setBit(registers.P, BrkBit) : clearBit(registers.P, BrkBit); };
+        void setC(bool value) { value == 1 ? setBit(registers.P, CarryBit) : clearBit(registers.P, CarryBit); };
+        void setD(bool value) { value == 1 ? setBit(registers.P, DecimalModeBit) : clearBit(registers.P, DecimalModeBit); };
+        void setI(bool value) { value == 1 ? setBit(registers.P, IrqDisableBit) : clearBit(registers.P, IrqDisableBit); };
+        void setN(bool value) { value == 1 ? setBit(registers.P, NegativeBit) : clearBit(registers.P, NegativeBit); };
+        void setV(bool value) { value == 1 ? setBit(registers.P, OverflowBit) : clearBit(registers.P, OverflowBit); };
+        void setZ(bool value) { value == 1 ? setBit(registers.P, ZeroBit) : clearBit(registers.P, ZeroBit); };
     };
 
 }
