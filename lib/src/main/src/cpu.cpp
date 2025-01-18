@@ -196,14 +196,16 @@ namespace m6502
 
     // ===== Execute Instructions =====
 
-    void CPU::execute()
-    {
-        execute(-1);
-    }
+    // void CPU::execute()
+    // {
+    //     execute(-1);
+    // }
 
-    void CPU::execute(hardware::Address address)
+    void CPU::executeFromAddress(hardware::Address address, uint32_t stepCount)
     {
         // set PC and execute 1 instruction
+        model.registers.PC = address;
+        execute(stepCount);
     }
 
     void CPU::execute(int numberOfInstructions)

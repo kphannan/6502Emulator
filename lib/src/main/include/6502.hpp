@@ -345,25 +345,21 @@ namespace m6502
         protected:
         public:
             // Fields
+        public:
             // TODO not good to be public
             int operand; // struct/union/class (register,implied,Byte,Word)
             Instruction *cpuInstruction;
             AddressMode *addressMode;
 
+        protected:
         private:
             CPU &cpu;
-            // The Address space connected to the CPU
-            // memory::Memory &addressSpace;
-            // hardware::Address &address; // Same as program counter
 
             OpCode opCode;
             // int opcode;
             // AddressModeKind addressModeKind;
 
-        protected:
             // Constructors
-        private:
-        protected:
         public:
             /** Configure the instruction pipeline with the address space and program counter. */
             // Pipeline(memory::Memory &memory, hardware::Address &address);
@@ -371,8 +367,18 @@ namespace m6502
             // Pipeline(memory::Memory &memory);
 
             // ~Pipeline();
-
+        protected:
+        private:
             // Methods
+        public:
+            void reset(hardware::Address address);
+            // Reset the pipeline, removing any instructions being decoded.
+            void clear();
+            void execute();
+            void execute(int numberOfSteps);
+            void showPipeline() const;
+
+        protected:
         private:
             // Read an opcode from the cuurrent memory address
             void fetchOpCode();
@@ -386,30 +392,24 @@ namespace m6502
             void fetchOperand(AddressMode &addressMode);
             void evaluate();
 
-        protected:
-        public:
-            void reset(hardware::Address address);
-            // Reset the pipeline, removing any instructions being decoded.
-            void clear();
-            void execute();
-            void execute(int numberOfSteps);
-            void showPipeline() const;
             //  Registers
 
             // Operators
-        private:
-        protected:
         public:
+        protected:
+        private:
         };
         // End of Pipeline inner class
 
     protected:
     public:
         // ----- Constants -----
-    private:
-    protected:
     public:
+    protected:
+    private:
         // ----- Attributes -----
+    public:
+    protected:
     private:
         PROGRAMMING_MODEL model;
         memory::Memory &addressSpace; // make a reference
@@ -442,18 +442,14 @@ namespace m6502
         CPU::InstructionStore *_instructionStore;
         CPU::InstructionLogical *_instructionLogical;
 
-    protected:
-    public:
         // ----- Constructors -----
-    private:
-    protected:
     public:
         CPU();
         CPU(memory::Memory &memory);
 
-        // ----- Methods -----
-    private:
     protected:
+    private:
+        // ----- Methods -----
     public:
         Pipeline &decodePipeline() { return *pipeline; }
 
@@ -550,11 +546,14 @@ namespace m6502
 
         void showRegisters();
 
-        void execute(hardware::Address address);
-        void execute(int numberOfInstructions);
-        void execute();
+        void executeFromAddress(hardware::Address address, uint32_t stepCount = 1);
+        void execute(int numberOfInstructions = -1);
+        // void execute();
 
         memory::Memory &currentMemory();
+
+    protected:
+    private:
     };
 
 }

@@ -11,12 +11,9 @@ namespace m6502
     class CpuTest : public testing::Test
     {
     public:
-        // memory::Memory *tMemory = new memory::Memory("Kilroy");
         memory::Memory *tMemory = new memory::Memory("UnitTestMemory");
         memory::Memory testMemory = *tMemory;
-        // memory::Memory testMemory("UnitTestMemory");
 
-        // CPU cpuX(testMemory);
         CPU *cpu;
 
     protected:
@@ -43,7 +40,7 @@ namespace m6502
     {
         CPU defaultCpu;
         memory::Memory &memory = defaultCpu.currentMemory();
-        // EXPECT_TRUE(NULL != memory);
+
         // --- Make sure there is a full memory by default
         EXPECT_STREQ("DefaultMemory", memory.name());
         EXPECT_EQ(0xFFFF, memory.memorySize());
@@ -52,7 +49,6 @@ namespace m6502
         EXPECT_EQ(0xFFFF, memory.highAddress());
 
         EXPECT_EQ(0x2000, cpu->PC());
-        // TODO these register values are not properly initialized yet... Change these test values.
         EXPECT_EQ(0x00, cpu->A());
         EXPECT_EQ(0x00, cpu->X());
         EXPECT_EQ(0x00, cpu->Y());
@@ -61,7 +57,7 @@ namespace m6502
     TEST_F(CpuTest, ConstructTestFixture)
     {
         memory::Memory &memory = cpu->currentMemory();
-        // EXPECT_TRUE(NULL != memory);
+
         // --- Make sure there is a full memory by default
         EXPECT_STREQ("UnitTestMemory", memory.name());
         EXPECT_EQ(0xFFFF, memory.memorySize());
@@ -70,7 +66,6 @@ namespace m6502
         EXPECT_EQ(0xFFFF, memory.highAddress());
 
         EXPECT_EQ(0x2000, cpu->PC());
-        // TODO these register values are not properly initialized yet... Change these test values.
         EXPECT_EQ(0x00, cpu->A());
         EXPECT_EQ(0x00, cpu->X());
         EXPECT_EQ(0x00, cpu->Y());

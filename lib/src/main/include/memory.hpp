@@ -14,14 +14,14 @@ namespace memory
     class Memory
     {
         // Constants
-    private:
     public:
+    protected:
     private:
         // static const char *DEFAULT_BANK_NAME = "DefaultMemory";
 
         // Fields
-    private:
     public:
+    protected:
     private:
         char bankName[32 + 1];
         const hardware::Address lowerBound;
@@ -30,11 +30,7 @@ namespace memory
 
         hardware::Byte *contents;
 
-    protected:
-    public:
         // Constructors
-    private:
-    protected:
     public:
         // --- Constructors
         // default memory that encompases the entire address space
@@ -46,15 +42,15 @@ namespace memory
         // named subset of the address space
         Memory(const char *name, const hardware::Address lowLimit, const hardware::Address upperLimit);
 
-        ~Memory();
+        // ~Memory();
 
-        // Methods
-    private:
     protected:
+    private:
+        // Methods
     public:
         // Read a single byte from memory
         hardware::Byte read(const hardware::Address address) const;
-        hardware::Word readWord(const hardware::Address memory) const;
+        hardware::Word readWord(const hardware::Address address) const;
         hardware::Byte write(const hardware::Address address, hardware::Byte value);
 
         void clear();
@@ -62,16 +58,21 @@ namespace memory
         // const char *name() const;
         char *name() { return bankName; };
 
-        hardware::Address lowAddress() const;
-        hardware::Address highAddress() const;
-        hardware::Word memorySize() const;
+        // Get the starting address of the memory bank
+        hardware::Address lowAddress() const { return lowerBound; }
+        // Get the ending address of the memory bank
+        hardware::Address highAddress() const { return upperBound; }
+        // Get the number of bytes in the memory bank
+        hardware::Word memorySize() const { return byteCount; }
 
         void showMemory(const hardware::Address from, const int count) const;
 
-        // Operators
-    private:
     protected:
+    private:
+        // Operators
     public:
+    protected:
+    private:
     };
 
 }

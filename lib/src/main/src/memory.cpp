@@ -42,10 +42,10 @@ namespace memory
     }
 
     // --- destructor
-    Memory::~Memory()
-    {
-        // delete contents;
-    }
+    // Memory::~Memory()
+    // {
+    //     // delete contents;
+    // }
 
     // ===== Methods =====
 
@@ -56,17 +56,9 @@ namespace memory
         memset(contents, 0, byteCount);
     }
 
-    // get the name of the mory bank
-    // const char *name() const
-    // char *Memory::name()
-    // {
-    //     return this->bankName;
-    // }
-
     // read a byte from memory
     hardware::Byte Memory::read(const hardware::Word address) const
     {
-        // TODO shift requested address by the lower memory bound
         // addres - lowerBound;
         // hardware::Word
         if ((lowerBound <= address && address <= upperBound))
@@ -116,24 +108,6 @@ namespace memory
     hardware::Byte Memory::write(const hardware::Word address, hardware::Byte value)
     {
         return contents[address] = value;
-    }
-
-    // Get the starting address of the memory bank
-    hardware::Word Memory::lowAddress() const
-    {
-        return lowerBound;
-    }
-
-    // Get the ending address of the memory bank
-    hardware::Word Memory::highAddress() const
-    {
-        return upperBound;
-    }
-
-    // Get the number of bytes in the memory bank
-    hardware::Word Memory::memorySize() const
-    {
-        return byteCount;
     }
 
     void Memory::showMemory(const hardware::Address from, const int count) const

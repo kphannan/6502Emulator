@@ -32,12 +32,13 @@ namespace m6502
     protected:
     private:
         // Fields
+    public:
+    protected:
+        CPU &cpu;
+
     private:
         const char *modeName;
         const char *modeMnemonic;
-
-    protected:
-        CPU &cpu;
 
         // Methods
     public:
@@ -53,7 +54,8 @@ namespace m6502
     private:
     };
 
-    // ===== Transfer Instructions
+    // ===== Transfer Instructions =====
+
     // ----- Load
     class CPU::InstructionLoad : public Instruction
     {
@@ -66,6 +68,7 @@ namespace m6502
     public:
         virtual void execute();
     };
+
     // --- LDA
     class CPU::InstructionLoadA : public CPU::InstructionLoad
     {
@@ -75,8 +78,9 @@ namespace m6502
 
         // methods
     public:
-        virtual void execute();
+        virtual void execute() override;
     };
+
     // --- LDX
     class CPU::InstructionLoadX : public CPU::InstructionLoad
     {
@@ -86,8 +90,9 @@ namespace m6502
 
         // methods
     public:
-        virtual void execute();
+        virtual void execute() override;
     };
+
     // --- LDY
     class CPU::InstructionLoadY : public CPU::InstructionLoad
     {
@@ -97,9 +102,8 @@ namespace m6502
 
         // methods
     public:
-        virtual void execute();
+        virtual void execute() override;
     };
-    //
 
     // ----- Store
     class CPU::InstructionStore : public Instruction
@@ -111,7 +115,7 @@ namespace m6502
 
         // methods
     public:
-        virtual void execute() { Instruction::execute(); };
+        virtual void execute() override { Instruction::execute(); };
     };
     // --- STA
     // --- STX
@@ -149,7 +153,7 @@ namespace m6502
 
         // methods
     public:
-        virtual void execute() { Instruction::execute(); }
+        virtual void execute() override { Instruction::execute(); }
     };
     // --- AND
     // --- EOR

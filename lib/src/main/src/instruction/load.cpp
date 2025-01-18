@@ -57,7 +57,7 @@ namespace m6502
         // TODO define a src and dst that is set during opcode decode
         // src: memory - addressMode
         // dst: A register
-        cpu.A(cpu.decodePipeline().operand);
+        cpu.A(cpu.decodePipeline().operand); // TODO use the result of the addressing mode
     }
 
     //----------------------------------------
@@ -82,7 +82,7 @@ namespace m6502
         // TODO define a src and dst that is set during opcode decode
         // src: memory - addressMode
         // dst: X register
-        cpu.X(cpu.decodePipeline().operand);
+        cpu.X(cpu.decodePipeline().operand); // TODO use the result of the addressing mode
     }
 
     // ----- Implied
@@ -120,7 +120,7 @@ namespace m6502
         // TODO define a src and dst that is set during opcode decode
         // src: memory - addressMode
         // dst: X register
-        cpu.Y(cpu.decodePipeline().operand);
+        cpu.Y(cpu.decodePipeline().operand); // TODO use the result of the addressing mode
     }
 
     // ----- Implied
