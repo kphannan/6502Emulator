@@ -39,11 +39,15 @@ int main(int argc, char **argv)
     memory.showMemory(0x2000, 0x20);
     memory.showMemory(0xFAD0, 16);
 
+    processor.A(0xC3);
+    processor.X(0x38);
+    processor.Y(0x10);
+
     // std::cout << memory.name() << std::endl;
     // std::cout << processor.currentMemory().name() << std::endl;
     processor.showRegisters();
 
-    processor.execute(2);
+    processor.execute(1);
 
     processor.showRegisters();
 
@@ -55,16 +59,33 @@ void loadProgram(memory::Memory &memory)
     // cpu::Address = std::to_underlying(cpu::HardwareVector::RESET);
     // int address = std::to_underlying(m6502::HardwareVector::RESET);
 
-    memory.write(0x2000, 0xA0); // LDY #$10         ; Offset into table
-    memory.write(0x2001, 0x10); //
-    memory.write(0x2002, 0xB1); // LDA ($70),Y      ; Indirect table address
-    memory.write(0x2003, 0x70); //
+    memory.write(0x2000, 0xA0); // LDY #$10
+    memory.write(0x2001, 0x10);
+    memory.write(0x2000, 0x96); // STX $08,Y
+    memory.write(0x2001, 0x08);
 
-    // Lookup table of addresses
-    memory.write(0x0070, 0x43); // Entry 0, $LL Address lookup table
-    memory.write(0x0071, 0x35); //          $HH
+    // memory.write(0x2000, 0xA9); // LDA #$10
+    // memory.write(0x2001, 0x10);
+    // memory.write(0x2002, 0xA0); // LDY #$10
+    // memory.write(0x2003, 0x10);
+    // memory.write(0x2004, 0x99); // STA $FADE,Y
+    // memory.write(0x2005, 0xDE);
+    // memory.write(0x2006, 0xFA);
+    // testMemory.write(0x000F, 0x00); // The data value to load
 
-    memory.write(0x3553, 0x23); // Data
+    // cpu->A(0x32);
+    // cpu->executeFromAddress(0x2002, 1);
+
+    // memory.write(0x2000, 0xA0); // LDY #$10         ; Offset into table
+    // memory.write(0x2001, 0x10); //
+    // memory.write(0x2002, 0xB1); // LDA ($70),Y      ; Indirect table address
+    // memory.write(0x2003, 0x70); //
+
+    // // Lookup table of addresses
+    // memory.write(0x0070, 0x43); // Entry 0, $LL Address lookup table
+    // memory.write(0x0071, 0x35); //          $HH
+
+    // memory.write(0x3553, 0x23); // Data
     /*
     // LDA ($20,X)
     memory.write(0x2000, 0xA2); // LDX #$10

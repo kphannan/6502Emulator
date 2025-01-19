@@ -54,369 +54,399 @@ namespace m6502
     // ========== Instructions ==========
 
     // ----- Transfer (load) -----
-    // LDA (LoaD Accumulator)
+    // ----- Transfer (store) -----
+    //----------------------------------------
+    // STA (STore Accumulator)
     //
-    // Affects Flags: N Z
+    // Affects Flags: none
     //
     // MODE           SYNTAX       HEX LEN TIM
-    // Immediate     LDA #$44      $A9  2   2
-    // Zero Page     LDA $44       $A5  2   3
-    // Zero Page,X   LDA $44,X     $B5  2   4
-    // Absolute      LDA $4400     $AD  3   4
-    // Absolute,X    LDA $4400,X   $BD  3   4+
-    // Absolute,Y    LDA $4400,Y   $B9  3   4+
-    // Indirect,X    LDA ($44,X)   $A1  2   6
-    // Indirect,Y    LDA ($44),Y   $B1  2   5+
-    //
-    // + add 1 cycle if page boundary crossed
+    // Zero Page     STA $44       $85  2   3
+    // Zero Page,X   STA $44,X     $95  2   4
+    // Absolute      STA $4400     $8D  3   4
+    // Absolute,X    STA $4400,X   $9D  3   5
+    // Absolute,Y    STA $4400,Y   $99  3   5
+    // Indirect,X    STA ($44,X)   $81  2   6
+    // Indirect,Y    STA ($44),Y   $91  2   6
+    //----------------------------------------
 
     // ----- Addressing Modes -----
-    // ----- Immediate #$BB
-    // TEST_F(InstructionStoreTest, STA_ImmediateZero)
-    // {
-    //     // Destination of the reset vector - leaves zeroPage available for testing
-    //     testMemory.write(0x2000, 0xA9); // LDA #$00
-    //     testMemory.write(0x2001, 0x00);
-
-    //     cpu->executeFromAddress(0x2000, 1);
-
-    //     EXPECT_EQ(0x2002, cpu->PC());
-    //     EXPECT_EQ(0x00, cpu->A());
-    //     EXPECT_EQ(0b00100010, cpu->P());
-    //     EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
-    //     EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
-    // }
-
+    // ..... Immediate #$BB
     // ..... Implied
     // ..... Accumulator
     // ----- ZeroPage $LL
     TEST_F(InstructionStoreTest, STA_ZeroPageZero)
     {
-        testMemory.write(0x2000, 0xA9); // LDA #$0F
-        testMemory.write(0x2001, 0x0F);
         testMemory.write(0x2002, 0x85); // STA #$08
         testMemory.write(0x2003, 0x08);
+        cpu->A(0x00);
 
-        // testMemory.write(0x000F, 0x00); // The data value to load
+        // Hard set a wrong value
+        testMemory.write(0x0007, 0x44); // The data value to load
+        testMemory.write(0x0008, 0x11); // The data value to load
+        testMemory.write(0x0009, 0x44); // The data value to load
 
-        cpu->A(0x32);
         cpu->executeFromAddress(0x2002, 1);
 
         EXPECT_EQ(0x2004, cpu->PC());
-        EXPECT_EQ(0x32, cpu->A());
+        EXPECT_EQ(0x00, cpu->A());
         EXPECT_EQ(0b00100010, cpu->P());
+        EXPECT_EQ(0x00, testMemory.read(0x0008));
         EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
     }
 
-    // TEST_F(InstructionStoreTest, STA_ZeroPagePositive)
-    // {
-    //     testMemory.write(0x2000, 0xA5); // LDA $80
-    //     testMemory.write(0x2001, 0x80);
+    TEST_F(InstructionStoreTest, STA_ZeroPagePositive)
+    {
+        // testMemory.write(0x2000, 0xA5); // LDA $80
+        // testMemory.write(0x2001, 0x80);
 
-    //     testMemory.write(0x0080, 0x34); // The data value to load
+        // testMemory.write(0x2000, 0xA9); // LDA #$0F
+        // testMemory.write(0x2001, 0x34);
+        testMemory.write(0x2002, 0x85); // STA #$08
+        testMemory.write(0x2003, 0x10);
+        cpu->A(0x33);
 
-    //     cpu->executeFromAddress(0x2000, 1);
+        cpu->executeFromAddress(0x2002, 1);
 
-    //     EXPECT_EQ(0x2002, cpu->PC());
-    //     EXPECT_EQ(0x34, cpu->A());
-    //     EXPECT_EQ(0b00100000, cpu->P());
-    //     EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
-    //     EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
-    // }
+        EXPECT_EQ(0x2004, cpu->PC());
+        EXPECT_EQ(0x33, cpu->A());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(0x33, testMemory.read(0x0010));
+        // EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+        // EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+    }
 
-    // TEST_F(InstructionStoreTest, STA_ZeroPageNegative)
-    // {
-    //     testMemory.write(0x2000, 0xA5); // LDA #$E0
-    //     testMemory.write(0x2001, 0xE0);
+    TEST_F(InstructionStoreTest, STA_ZeroPageNegative)
+    {
+        testMemory.write(0x2000, 0x85); // STA #$E0
+        testMemory.write(0x2001, 0xE0);
+        cpu->A(0xFF);
 
-    //     testMemory.write(0x00E0, 0xFF); // The data value to load
+        testMemory.write(0x00E0, 0x99); // The data value to load
 
-    //     cpu->executeFromAddress(0x2000, 1);
+        cpu->executeFromAddress(0x2000, 1);
 
-    //     EXPECT_EQ(0x2002, cpu->PC());
-    //     EXPECT_EQ(0xFF, cpu->A());
-    //     EXPECT_EQ(0b10100000, cpu->P());
-    //     EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
-    //     EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
-    // }
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0xFF, cpu->A());
+        EXPECT_EQ(0b10100000, cpu->P());
+        EXPECT_EQ(0xFF, testMemory.read(0x00E0));
+        // EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+        // EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+    }
 
     // ----- ZeroPage,X $LL,X
-    // TEST_F(InstructionStoreTest, STA_ZeroPageIndexedX)
-    // {
-    //     testMemory.write(0x2000, 0xA2); // LDX $02
-    //     testMemory.write(0x2001, 0x02);
-    //     testMemory.write(0x2002, 0xB5); // LDA $80,X
-    //     testMemory.write(0x2003, 0x80);
+    TEST_F(InstructionStoreTest, STA_ZeroPageIndexedX)
+    {
+        testMemory.write(0x2000, 0xA2); // LDX $02
+        testMemory.write(0x2001, 0x02);
+        testMemory.write(0x2002, 0x95); // STA $80,X
+        testMemory.write(0x2003, 0x80);
+        cpu->A(0x64);
 
-    //     testMemory.write(0x0082, 0x64); // The data value to load
+        testMemory.write(0x0082, 0x55); // put something wrong at the destination
 
-    //     cpu->executeFromAddress(0x2000, 2);
+        cpu->executeFromAddress(0x2000, 2);
 
-    //     EXPECT_EQ(0x2004, cpu->PC());
-    //     EXPECT_EQ(0x64, cpu->A());
-    //     EXPECT_EQ(0x02, cpu->X());
-    //     EXPECT_EQ(0b00100000, cpu->P());
-    //     EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
-    //     EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
-    // }
+        EXPECT_EQ(0x2004, cpu->PC());
+        EXPECT_EQ(0x64, cpu->A());
+        EXPECT_EQ(0x02, cpu->X());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(0x64, testMemory.read(0x0082));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+    }
 
     // ..... ZeroPage,Y $LL,Y
     // ..... Relative $BB
     // ----- Absolute $LLHH
-    // TEST_F(InstructionStoreTest, STA_Absolute)
-    // {
-    //     testMemory.write(0x2000, 0xAD); // LDA $3010
-    //     testMemory.write(0x2001, 0x10);
-    //     testMemory.write(0x2002, 0x30);
+    TEST_F(InstructionStoreTest, STA_Absolute)
+    {
+        testMemory.write(0x2000, 0x8D); // STA $3010
+        testMemory.write(0x2001, 0x10);
+        testMemory.write(0x2002, 0x30);
+        cpu->A(0x64);
 
-    //     testMemory.write(0x3010, 0x34); // The data value to load
+        testMemory.write(0x3010, 0x34); // Known bad non-zero value
 
-    //     cpu->executeFromAddress(0x2000, 1);
+        cpu->executeFromAddress(0x2000, 1);
 
-    //     EXPECT_EQ(0x2003, cpu->PC());
-    //     EXPECT_EQ(0x34, cpu->A());
-    //     EXPECT_EQ(0b00100000, cpu->P());
-    //     EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
-    //     EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
-    // }
+        EXPECT_EQ(0x2003, cpu->PC());
+        EXPECT_EQ(0x64, cpu->A());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(0x64, testMemory.read(0x3010));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+    }
 
     // ----- AbsoluteX $LLHH,X
-    // TEST_F(InstructionStoreTest, STA_AbsoluteIndexedX)
-    // {
-    //     testMemory.write(0x2000, 0xA2); // LDX #$12
-    //     testMemory.write(0x2001, 0x12);
-    //     testMemory.write(0x2002, 0xBD); // LDA $3102,X
-    //     testMemory.write(0x2003, 0x20);
-    //     testMemory.write(0x2004, 0x31);
+    TEST_F(InstructionStoreTest, STA_AbsoluteIndexedX)
+    {
+        testMemory.write(0x2000, 0xA2); // LDX #$12
+        testMemory.write(0x2001, 0x12);
+        testMemory.write(0x2002, 0x9D); // STA $3102,X
+        testMemory.write(0x2003, 0x20);
+        testMemory.write(0x2004, 0x31);
+        cpu->A(0x78);
 
-    //     testMemory.write(0x3132, 0x78); // The data value to load
+        testMemory.write(0x3132, 0x44); // Known bad non-zero value
 
-    //     cpu->executeFromAddress(0x2000, 2);
+        cpu->executeFromAddress(0x2000, 2);
 
-    //     EXPECT_EQ(0x2005, cpu->PC());
-    //     EXPECT_EQ(0x78, cpu->A());
-    //     EXPECT_EQ(0x12, cpu->X());
-    //     EXPECT_EQ(0b00100000, cpu->P());
-    //     EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
-    //     EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
-    // }
+        EXPECT_EQ(0x2005, cpu->PC());
+        EXPECT_EQ(0x78, cpu->A());
+        EXPECT_EQ(0x12, cpu->X());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(0x78, testMemory.read(0x3132));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+    }
     // ----- AbsoluteY $LLHH,Y
-    // TEST_F(InstructionStoreTest, STA_AbsoluteIndexedY)
-    // {
-    //     testMemory.write(0x2000, 0xA0); // LDY #$10
-    //     testMemory.write(0x2001, 0x10);
-    //     testMemory.write(0x2002, 0xB9); // LDA $FADE,Y
-    //     testMemory.write(0x2003, 0xDE);
-    //     testMemory.write(0x2004, 0xFA);
+    TEST_F(InstructionStoreTest, STA_AbsoluteIndexedY)
+    {
+        testMemory.write(0x2000, 0xA0); // LDY #$10
+        testMemory.write(0x2001, 0x10);
+        testMemory.write(0x2002, 0x99); // STA $FADE,Y
+        testMemory.write(0x2003, 0xDE);
+        testMemory.write(0x2004, 0xFA);
+        cpu->A(0xC3);
 
-    //     testMemory.write(0xFAEE, 0xC3); // The data value to load
+        testMemory.write(0xFAEE, 0xCC); // Known bad non-zero value
 
-    //     cpu->executeFromAddress(0x2000, 2);
+        cpu->executeFromAddress(0x2000, 2);
 
-    //     EXPECT_EQ(0x2005, cpu->PC());
-    //     EXPECT_EQ(0xC3, cpu->A());
-    //     EXPECT_EQ(0x10, cpu->Y());
-    //     EXPECT_EQ(0b10100000, cpu->P());
-    //     EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
-    //     EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
-    // }
+        EXPECT_EQ(0x2005, cpu->PC());
+        EXPECT_EQ(0xC3, cpu->A());
+        EXPECT_EQ(0x10, cpu->Y());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(0xC3, testMemory.read(0xFAEE));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+    }
 
     // ..... Indirect ($LLHH)
     // ----- Indexed Indirect X ($LL,X)
-    // TEST_F(InstructionStoreTest, STA_IndexedIndirectX)
-    // {
-    //     testMemory.write(0x2000, 0xA2); // LDX #$05
-    //     testMemory.write(0x2001, 0x05); // Base of lookup table in page zero
-    //     testMemory.write(0x2002, 0xA1); // LDA ($70,X)
-    //     testMemory.write(0x2003, 0x70); // offset from base address
+    TEST_F(InstructionStoreTest, STA_IndexedIndirectX)
+    {
+        testMemory.write(0x2000, 0xA2); // LDX #$05
+        testMemory.write(0x2001, 0x05); // Base of lookup table in page zero
+        testMemory.write(0x2002, 0x81); // STA ($70,X)
+        testMemory.write(0x2003, 0x70); // offset from base address
+        cpu->A(0xA5);
 
-    //     // Lookup table of addresses
-    //     testMemory.write(0x0075, 0x23); // Entry 0, $LL Address lookup table
-    //     testMemory.write(0x0076, 0x30); //          $HH
+        // Lookup table of addresses
+        testMemory.write(0x0075, 0x23); // Entry 0, $LL Address lookup table
+        testMemory.write(0x0076, 0x30); //          $HH
 
-    //     testMemory.write(0x3023, 0xA5); // Data
+        testMemory.write(0x3023, 0xA4); // Data
 
-    //     cpu->executeFromAddress(0x2000, 2);
+        cpu->executeFromAddress(0x2000, 2);
 
-    //     EXPECT_EQ(0x2004, cpu->PC());
-    //     EXPECT_EQ(0xA5, cpu->A());
-    //     EXPECT_EQ(0x05, cpu->X());
-    //     EXPECT_EQ(0b10100000, cpu->P());
-    //     EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
-    //     EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
-    // }
+        EXPECT_EQ(0x2004, cpu->PC());
+        EXPECT_EQ(0xA5, cpu->A());
+        EXPECT_EQ(0x05, cpu->X());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(0xA5, testMemory.read(0x3023));
+
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+    }
     // ----- Indirect Indexed Y ($LL),Y
-    // TEST_F(InstructionStoreTest, STA_IndexedIndirectY)
-    // {
-    //     testMemory.write(0x2000, 0xA0); // LDY #$10         ; Offset into table
-    //     testMemory.write(0x2001, 0x10);
-    //     testMemory.write(0x2002, 0xB1); // LDA ($70),Y      ; Indirect table address
-    //     testMemory.write(0x2003, 0x70);
+    TEST_F(InstructionStoreTest, STA_IndexedIndirectY)
+    {
+        testMemory.write(0x2000, 0xA0); // LDY #$10         ; Offset into table
+        testMemory.write(0x2001, 0x10);
+        testMemory.write(0x2002, 0x91); // STA ($70),Y      ; Indirect table address
+        testMemory.write(0x2003, 0x70);
+        cpu->A(0x23);
 
-    //     // Lookup table of addresses
-    //     testMemory.write(0x0070, 0x43); // Entry 0, $LL Address lookup table
-    //     testMemory.write(0x0071, 0x35); //          $HH
+        // Lookup table of addresses
+        testMemory.write(0x0070, 0x43); // Entry 0, $LL Address lookup table
+        testMemory.write(0x0071, 0x35); //          $HH
 
-    //     testMemory.write(0x3553, 0x23); // Data
+        testMemory.write(0x3553, 0x25); // Data
 
-    //     cpu->executeFromAddress(0x2000, 2);
+        cpu->executeFromAddress(0x2000, 2);
 
-    //     EXPECT_EQ(0x2004, cpu->PC());
-    //     EXPECT_EQ(0x23, cpu->A());
-    //     EXPECT_EQ(0x10, cpu->Y());
-    //     EXPECT_EQ(0b00100000, cpu->P());
-    //     EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
-    //     EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
-    // }
+        EXPECT_EQ(0x2004, cpu->PC());
+        EXPECT_EQ(0x23, cpu->A());
+        EXPECT_EQ(0x10, cpu->Y());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(0x23, testMemory.read(0x3553));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+    }
 
     //----------------------------------------
-    // LDX (LoaD X register)
+    // STX (STore X register)
     //
-    // Affects Flags: N Z
+    // Affects Flags: none
     //
     // MODE           SYNTAX       HEX LEN TIM
-    // Immediate     LDX #$44      $A2  2   2
-    // Zero Page     LDX $44       $A6  2   3
-    // Zero Page,Y   LDX $44,Y     $B6  2   4
-    // Absolute      LDX $4400     $AE  3   4
-    // Absolute,Y    LDX $4400,Y   $BE  3   4+
-    //
-    // + add 1 cycle if page boundary crossed
+    // Zero Page     STX $44       $86  2   3
+    // Zero Page,Y   STX $44,Y     $96  2   4
+    // Absolute      STX $4400     $8E  3   4
+    //----------------------------------------
 
-    // ----- Immediate #$BB
-    // TEST_F(InstructionStoreTest, LDX_ImmediateZero)
-    // {
-    //     // Destination of the reset vector - leaves zeroPage available for testing
-    //     testMemory.write(0x2000, 0xA2); // LDX #$00
-    //     testMemory.write(0x2001, 0x00);
-
-    //     cpu->executeFromAddress(0x2000, 1);
-
-    //     EXPECT_EQ(0x2002, cpu->PC());
-    //     EXPECT_EQ(0x00, cpu->X());
-    //     EXPECT_EQ(0b00100010, cpu->P());
-    //     EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
-    //     EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().dst);
-    // }
-
-    // TEST_F(InstructionStoreTest, LDX_ImmediatePositive)
-    // {
-    //     // Destination of the reset vector - leaves zeroPage available for testing
-    //     testMemory.write(0x2000, 0xA2); // LDX #$21
-    //     testMemory.write(0x2001, 0x21);
-
-    //     cpu->executeFromAddress(0x2000, 1);
-
-    //     EXPECT_EQ(0x2002, cpu->PC());
-    //     EXPECT_EQ(0x21, cpu->X());
-    //     EXPECT_EQ(0b00100000, cpu->P());
-    //     EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
-    //     EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().dst);
-    // }
-
-    // TEST_F(InstructionStoreTest, LDX_ImmediateNegative)
-    // {
-    //     // Destination of the reset vector - leaves zeroPage available for testing
-    //     testMemory.write(0x2000, 0xA2); // LDX #$F0
-    //     testMemory.write(0x2001, 0xF0);
-
-    //     cpu->executeFromAddress(0x2000, 1);
-
-    //     EXPECT_EQ(0x2002, cpu->PC());
-    //     EXPECT_EQ(0xF0, cpu->X());
-    //     EXPECT_EQ(0b10100000, cpu->P());
-    //     EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
-    //     EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().dst);
-    // }
-
+    // ..... Immediate #$BB
     // ..... Implied
     // ..... Accumulator
     // ----- ZeroPage $LL
+    TEST_F(InstructionStoreTest, STX_ZeroPageZero)
+    {
+        testMemory.write(0x2002, 0x86); // STX #$08
+        testMemory.write(0x2003, 0x08);
+        cpu->X(0x89);
+
+        // Hard set a wrong value
+        testMemory.write(0x0007, 0x44); // The data value to load
+        testMemory.write(0x0008, 0x11); // The data value to load
+        testMemory.write(0x0009, 0x44); // The data value to load
+
+        cpu->executeFromAddress(0x2002, 1);
+
+        EXPECT_EQ(0x2004, cpu->PC());
+        EXPECT_EQ(0x89, cpu->X());
+        EXPECT_EQ(0b10100000, cpu->P());
+        EXPECT_EQ(0x89, testMemory.read(0x0008));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+        EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().src);
+    }
     // ..... ZeroPage,X $LL,X
-    // ..... ZeroPage,Y $LL,Y
+    // ----- ZeroPage,Y $LL,Y
+    TEST_F(InstructionStoreTest, STX_ZeroPageY)
+    {
+        testMemory.write(0x2002, 0x96); // STX $08,Y
+        testMemory.write(0x2003, 0x08);
+        cpu->X(0x38);
+        cpu->Y(0x10);
+
+        // Hard set a wrong value
+        testMemory.write(0x0007, 0x44); // The data value to load
+        testMemory.write(0x0008, 0x11); // The data value to load
+        testMemory.write(0x0009, 0x44); // The data value to load
+
+        cpu->executeFromAddress(0x2002, 1);
+
+        EXPECT_EQ(0x2004, cpu->PC());
+        EXPECT_EQ(0x38, cpu->X());
+        EXPECT_EQ(0x10, cpu->Y());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(0x38, testMemory.read(0x0018));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+        EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().src);
+    }
     // ..... Relative $BB
     // ----- Absolute $LLHH
+    TEST_F(InstructionStoreTest, STX_Absolute)
+    {
+        testMemory.write(0x2000, 0x8E); // STX $3010
+        testMemory.write(0x2001, 0x10);
+        testMemory.write(0x2002, 0x30);
+        cpu->X(0x62);
+
+        testMemory.write(0x3010, 0x34); // Known bad non-zero value
+
+        cpu->executeFromAddress(0x2000, 1);
+
+        EXPECT_EQ(0x2003, cpu->PC());
+        EXPECT_EQ(0x62, cpu->X());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(0x62, testMemory.read(0x3010));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+        EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().src);
+    }
     // ..... AbsoluteX $LLHH,X
-    // ----- AbsoluteY $LLHH,Y
-    // ..... Indirect ($LLHH)
-    // ..... Indexed Indirect X ($LL,X)
-    // ..... Indirect Indexed Y ($LL),Y
-
-    //----------------------------------------
-    // LDY (LoaD Y register)
-    //
-    // Affects Flags: N Z
-    //
-    // MODE           SYNTAX       HEX LEN TIM
-    // Immediate     LDY #$44      $A0  2   2
-    // Zero Page     LDY $44       $A4  2   3
-    // Zero Page,X   LDY $44,X     $B4  2   4
-    // Absolute      LDY $4400     $AC  3   4
-    // Absolute,X    LDY $4400,X   $BC  3   4+
-    //
-    // + add 1 cycle if page boundary crossed
-
-    // ----- Immediate #$BB
-    // TEST_F(InstructionStoreTest, LDY_ImmediateZero)
-    // {
-    //     // Destination of the reset vector - leaves zeroPage available for testing
-    //     testMemory.write(0x2000, 0xA0); // LDY #$00
-    //     testMemory.write(0x2001, 0x00);
-
-    //     cpu->executeFromAddress(0x2000, 1);
-
-    //     EXPECT_EQ(0x2002, cpu->PC());
-    //     EXPECT_EQ(0x00, cpu->Y());
-    //     EXPECT_EQ(0b00100010, cpu->P());
-    //     EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
-    //     EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().dst);
-    // }
-
-    // TEST_F(InstructionStoreTest, LDY_ImmediatePositive)
-    // {
-    //     // Destination of the reset vector - leaves zeroPage available for testing
-    //     testMemory.write(0x2000, 0xA0); // LDY #$25
-    //     testMemory.write(0x2001, 0x25);
-
-    //     cpu->executeFromAddress(0x2000, 1);
-
-    //     EXPECT_EQ(0x2002, cpu->PC());
-    //     EXPECT_EQ(0x25, cpu->Y());
-    //     EXPECT_EQ(0b00100000, cpu->P());
-    //     EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
-    //     EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().dst);
-    // }
-
-    // TEST_F(InstructionStoreTest, LDY_ImmediateNegative)
-    // {
-    //     // Destination of the reset vector - leaves zeroPage available for testing
-    //     testMemory.write(0x2000, 0xA0); // LDY #$F0
-    //     testMemory.write(0x2001, 0xF0);
-
-    //     cpu->executeFromAddress(0x2000, 1);
-
-    //     EXPECT_EQ(0x2002, cpu->PC());
-    //     EXPECT_EQ(0xF0, cpu->Y());
-    //     EXPECT_EQ(0b10100000, cpu->P());
-    //     EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
-    //     EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().dst);
-    // }
-
-    // ..... Implied
-    // ..... Accumulator
-    // ----- ZeroPage $LL
-    // ----- ZeroPage,X $LL,X
-    // ..... ZeroPage,Y $LL,Y
-    // ..... Relative $BB
-    // ----- Absolute $LLHH
-    // ----- AbsoluteX $LLHH,X
     // ..... AbsoluteY $LLHH,Y
     // ..... Indirect ($LLHH)
     // ..... Indexed Indirect X ($LL,X)
     // ..... Indirect Indexed Y ($LL),Y
 
-    // ----- Transfer (store) -----
+    //----------------------------------------
+    // STY (STore Y register)
+    //
+    // Affects Flags: none
+    //
+    // MODE           SYNTAX       HEX LEN TIM
+    // Zero Page     STY $44       $84  2   3
+    // Zero Page,X   STY $44,X     $94  2   4
+    // Absolute      STY $4400     $8C  3   4
+    //----------------------------------------
+
+    // ..... Immediate #$BB
+    // ..... Implied
+    // ..... Accumulator
+    // ----- ZeroPage $LL
+    TEST_F(InstructionStoreTest, STY_ZeroPageZero)
+    {
+        testMemory.write(0x2002, 0x84); // STY #$08
+        testMemory.write(0x2003, 0x08);
+        cpu->Y(0x89);
+
+        // Hard set a wrong value
+        testMemory.write(0x0007, 0x44); // The data value to load
+        testMemory.write(0x0008, 0x11); // The data value to load
+        testMemory.write(0x0009, 0x44); // The data value to load
+
+        cpu->executeFromAddress(0x2002, 1);
+
+        EXPECT_EQ(0x2004, cpu->PC());
+        EXPECT_EQ(0x89, cpu->Y());
+        EXPECT_EQ(0b10100000, cpu->P());
+        EXPECT_EQ(0x89, testMemory.read(0x0008));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+        EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().src);
+    }
+    // ----- ZeroPage,X $LL,X
+    TEST_F(InstructionStoreTest, STY_ZeroPageX)
+    {
+        testMemory.write(0x2002, 0x94); // STY $08,X
+        testMemory.write(0x2003, 0x04);
+        cpu->X(0x14);
+        cpu->Y(0x10);
+
+        // Hard set a wrong value
+        testMemory.write(0x0007, 0x44); // The data value to load
+        testMemory.write(0x0008, 0x11); // The data value to load
+        testMemory.write(0x0009, 0x44); // The data value to load
+
+        cpu->executeFromAddress(0x2002, 1);
+
+        EXPECT_EQ(0x2004, cpu->PC());
+        EXPECT_EQ(0x14, cpu->X());
+        EXPECT_EQ(0x10, cpu->Y());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(0x10, testMemory.read(0x0018));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+        EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().src);
+    }
+    // ..... ZeroPage,Y $LL,Y
+    // ..... Relative $BB
+    // ----- Absolute $LLHH
+    TEST_F(InstructionStoreTest, STY_Absolute)
+    {
+        testMemory.write(0x2000, 0x8C); // STY $3010
+        testMemory.write(0x2001, 0x10);
+        testMemory.write(0x2002, 0x30);
+        cpu->Y(0x64);
+
+        testMemory.write(0x3010, 0x34); // Known bad non-zero value
+
+        cpu->executeFromAddress(0x2000, 1);
+
+        EXPECT_EQ(0x2003, cpu->PC());
+        EXPECT_EQ(0x64, cpu->Y());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(0x64, testMemory.read(0x3010));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+        EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().src);
+    }
+    // ..... AbsoluteX $LLHH,X
+    // ..... AbsoluteY $LLHH,Y
+    // ..... Indirect ($LLHH)
+    // ..... Indexed Indirect X ($LL,X)
+    // ..... Indirect Indexed Y ($LL),Y
+
     // ----- Transfer (interregister transfer) -----
 
     // ----- Stack () -----

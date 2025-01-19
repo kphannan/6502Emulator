@@ -40,10 +40,8 @@ namespace m6502
 
         fetchOpCode();
         AddressMode &addressMode = decodeAddressMode(opCode);
-        decodeSource();
-        decodeDestination();
         decodeOperation(opCode);
-        fetchOperand(addressMode);
+        // fetchOperand(addressMode);
         evaluate();
         // cpu.decodePipeline().cpuInstruction->execute();
         std::cout << "<<<<< ---------------------------------- >>>>>" << std::endl;
@@ -461,21 +459,10 @@ namespace m6502
             std::cout << " b is not found " << std::endl;
         }
 
-        // showAddressMode(addressMode);
-        // addressMode->execute();
         std::cout << " addrMode: " << addressMode->mnemonic() << std::endl;
-
         std::cout << "><><><><><><><><><" << std::endl;
 
         return *addressMode;
-    }
-
-    void CPU::Pipeline::decodeSource()
-    {
-    }
-
-    void CPU::Pipeline::decodeDestination()
-    {
     }
 
     void CPU::Pipeline::decodeOperation(const OpCode opcode)
@@ -804,14 +791,38 @@ namespace m6502
             case 0b011: // c(2) b(3) - Absolute
                 addressMode = cpu._addressModeAbsolute;
                 break;
-            // case 0b100: // c(2) b(4) - ZeroPage,X   (ZeroPage),Y
-            //     break;
+            case 0b100: // c(2) b(4) - ZeroPage,X   (ZeroPage),Y
+                break;
             case 0b101: // c(2) b(5) - ZeroPage,X
                 addressMode = cpu._addressModeZeroPageIndexedX;
-                // TODO zpgg,Y for a(4,5)
+                switch (opCode.memory.a) // 3 bits
+                {
+                case 0b000: // c(2) b(5) a(0) - ASL
+                    break;
+                case 0b001: // c(2) b(5) a(1) - ROL
+                    break;
+                case 0b010: // c(2) b(5) a(2) - LSR
+                    break;
+                case 0b011: // c(2) b(5) a(3) - ROR
+                    break;
+                case 0b100: // c(2) a(4) - STX
+                    addressMode = cpu._addressModeZeroPageIndexedY;
+                    dst = InstructionTarget::MEMORY;
+                    src = InstructionTarget::X;
+                    break;
+                case 0b101: // c(2) a(5) - LDX
+                    addressMode = cpu._addressModeZeroPageIndexedY;
+                    dst = InstructionTarget::X;
+                    src = InstructionTarget::MEMORY;
+                    break;
+                case 0b110: // c(2) a(6) - DEC
+                    break;
+                case 0b111: // c(2) a(7) - INC
+                    break;
+                }
                 break;
-            // case 0b110: // c(2) b(6) - Absolute,Y
-            //     break;
+            case 0b110: // c(2) b(6) - Absolute,Y
+                break;
             case 0b111:                                         // c(2) b(7) - Absolute,X
                 addressMode = cpu._addressModeAbsoluteIndexedX; // TODO not for a(5), ?? for a(4)
                 break;
@@ -861,7 +872,7 @@ namespace m6502
         //                  << " mode( " << mode.mnemonic() << " )"
         //                  << " addressMode( " << addressMode->mnemonic() << " )";
         // mode.execute();
-        addressMode->execute();
+        // addressMode->execute();
 
         // int operand = -1;
 
@@ -900,7 +911,7 @@ namespace m6502
 
     void CPU::Pipeline::showAddressMode(const AddressMode &addressMode) const
     {
-        std::cout << addressMode.name() << "    " << addressMode.mnemonic() << std::endl;
+        // std::cout << addressMode.name() << "    " << addressMode.mnemonic() << std::endl;
     }
 
     void CPU::Pipeline::showPipeline() const
@@ -911,10 +922,15 @@ namespace m6502
                   << (int)opCode.value
                   << " : "
                   << cpuInstruction->mnemonic()
-                  << " ~ ";
+                  << "  "
+                  << addressMode->mnemonic()
+                  << " ~ "
+                  << std::endl;
         std::cout.unsetf(std::ios::basefield);
 
-        showAddressMode(*addressMode);
+        // std::cout << addressMode.name() << "    " << addressMode.mnemonic() << std::endl;
+
+        // showAddressMode(*addressMode);
     }
 
     void CPU::Pipeline::reset(hardware::Address resetVector)

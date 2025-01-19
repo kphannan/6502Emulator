@@ -86,6 +86,46 @@ namespace m6502
         // src: memory - addressMode
         // dst: A register
         // cpu.A(cpu.decodePipeline().operand);
+        std::cout << "   GENERIC LOAD " << std::endl;
+
+        // TODO Need to deal with implied, Accumulator, Immediate addressingModes
+        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+        hardware::Byte value = cpu.addressSpace.read(address);
+        switch (dst)
+        {
+        case InstructionTarget::A:
+            switch (src)
+            {
+            case InstructionTarget::MEMORY:
+                cpu.A(value);
+                break;
+            default:
+                break;
+            }
+            break;
+        case InstructionTarget::X:
+                switch (src)
+                {
+                case InstructionTarget::MEMORY:
+                    cpu.X(value);
+                    break;
+                default:
+                    break;
+                }
+            break;
+        case InstructionTarget::Y:
+                switch (src)
+                {
+                case InstructionTarget::MEMORY:
+                    cpu.Y(value);
+                    break;
+                default:
+                    break;
+                }
+            break;
+        default:
+            break;
+        }
     }
 
     //----------------------------------------
@@ -106,7 +146,7 @@ namespace m6502
     // + add 1 cycle if page boundary crossed
     void CPU::InstructionLoadA::execute(InstructionTarget dst, InstructionTarget src)
     {
-        Instruction::execute(dst, src);
+        InstructionLoad::execute(dst, src);
         // TODO define a src and dst that is set during opcode decode
         // src: memory - addressMode
         // dst: A register
@@ -131,7 +171,7 @@ namespace m6502
     // ----- Immediate #$BB
     void CPU::InstructionLoadX::execute(InstructionTarget dst, InstructionTarget src)
     {
-        Instruction::execute(dst, src);
+        InstructionLoad::execute(dst, src);
         // TODO define a src and dst that is set during opcode decode
         // src: memory - addressMode
         // dst: X register
@@ -169,7 +209,7 @@ namespace m6502
     // ----- Immediate #$BB
     void CPU::InstructionLoadY::execute(InstructionTarget dst, InstructionTarget src)
     {
-        Instruction::execute(dst, src);
+        InstructionLoad::execute(dst, src);
         // TODO define a src and dst that is set during opcode decode
         // src: memory - addressMode
         // dst: X register

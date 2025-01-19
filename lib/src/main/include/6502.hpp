@@ -343,8 +343,6 @@ namespace m6502
             void fetchOpCode();
             AddressMode &decodeAddressMode(const OpCode instruction);
             void showAddressMode(const AddressMode &addressMode) const;
-            void decodeSource();
-            void decodeDestination();
             void decodeOperation(const OpCode instruction);
 
             // Decode  the opcode and determine the addressing mode and read the operand

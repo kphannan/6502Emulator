@@ -54,6 +54,7 @@ namespace m6502
     // ========== Instructions ==========
 
     // ----- Transfer (load) -----
+    //----------------------------------------
     // LDA (LoaD Accumulator)
     //
     // Affects Flags: N Z
@@ -69,9 +70,12 @@ namespace m6502
     // Indirect,Y    LDA ($44),Y   $B1  2   5+
     //
     // + add 1 cycle if page boundary crossed
+    //----------------------------------------
 
     // ----- Addressing Modes -----
     // ----- Immediate #$BB
+    // TODO - Need to fix this in the AddressingMode classes - the return from execute()
+    //        currently it works because the addressMode execute method sets the operand, not just returns it.
     TEST_F(InstructionLoadTest, LDA_ImmediateZero)
     {
         // Destination of the reset vector - leaves zeroPage available for testing
@@ -357,12 +361,28 @@ namespace m6502
     // ..... Implied
     // ..... Accumulator
     // ----- ZeroPage $LL
+    TEST_F(InstructionLoadTest, LDX_ZeroPage)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
     // ..... ZeroPage,X $LL,X
-    // ..... ZeroPage,Y $LL,Y
+    // ----- ZeroPage,Y $LL,Y
+    TEST_F(InstructionLoadTest, LDX_ZeroPageY)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
     // ..... Relative $BB
     // ----- Absolute $LLHH
+    TEST_F(InstructionLoadTest, LDX_Absolute)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
     // ..... AbsoluteX $LLHH,X
     // ----- AbsoluteY $LLHH,Y
+    TEST_F(InstructionLoadTest, LDX_AbsoluteY)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
     // ..... Indirect ($LLHH)
     // ..... Indexed Indirect X ($LL,X)
     // ..... Indirect Indexed Y ($LL),Y
@@ -429,11 +449,23 @@ namespace m6502
     // ..... Implied
     // ..... Accumulator
     // ----- ZeroPage $LL
+    TEST_F(InstructionLoadTest, LDY_ZeroPage)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
     // ----- ZeroPage,X $LL,X
     // ..... ZeroPage,Y $LL,Y
     // ..... Relative $BB
     // ----- Absolute $LLHH
+    TEST_F(InstructionLoadTest, LDY_Absolute)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
     // ----- AbsoluteX $LLHH,X
+    TEST_F(InstructionLoadTest, LDY_AbsoluteX)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
     // ..... AbsoluteY $LLHH,Y
     // ..... Indirect ($LLHH)
     // ..... Indexed Indirect X ($LL,X)

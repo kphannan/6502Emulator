@@ -4,7 +4,6 @@
 // #include <gmock/gmock.h>
 
 #include "memory.hpp"
-// using namespace memory;
 
 namespace memory
 {
