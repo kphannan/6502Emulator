@@ -7,7 +7,7 @@
 
 namespace m6502
 {
-    class InstructionStackTest : public testing::Test
+    class InstructionInterruptTest : public testing::Test
     {
     public:
         memory::Memory *tMemory = new memory::Memory("UnitTestMemory");
@@ -16,7 +16,7 @@ namespace m6502
         CPU *cpu;
 
     protected:
-        InstructionStackTest()
+        InstructionInterruptTest()
         {
             // Destination of the reset vector - leaves zeroPage available for testing
             testMemory.write(0x2000, 0x49); // LDA #00 // starting instruction after reset
@@ -29,7 +29,7 @@ namespace m6502
             cpu = new CPU(testMemory);
         }
 
-        ~InstructionStackTest() override
+        ~InstructionInterruptTest() override
         {
             delete cpu;
         }
@@ -80,7 +80,7 @@ namespace m6502
     // Addressing Modes
     // ..... Immediate #$BB
     // ----- Implied
-    TEST_F(InstructionStackTest, BRK_Implied)
+    TEST_F(InstructionInterruptTest, BRK_Implied)
     {
         ADD_FAILURE_AT(__FILE__, __LINE__);
     }
@@ -112,7 +112,7 @@ namespace m6502
     // Addressing Modes
     // ..... Immediate #$BB
     // ----- Implied
-    TEST_F(InstructionStackTest, RTI_Implied)
+    TEST_F(InstructionInterruptTest, RTI_Implied)
     {
         ADD_FAILURE_AT(__FILE__, __LINE__);
     }
