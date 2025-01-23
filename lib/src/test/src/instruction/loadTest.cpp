@@ -121,6 +121,7 @@ namespace m6502
 
     // ..... Implied
     // ..... Accumulator
+
     // ----- ZeroPage $LL
     TEST_F(InstructionLoadTest, LDA_ZeroPageZero)
     {
@@ -192,6 +193,7 @@ namespace m6502
 
     // ..... ZeroPage,Y $LL,Y
     // ..... Relative $BB
+
     // ----- Absolute $LLHH
     TEST_F(InstructionLoadTest, LDA_Absolute)
     {
@@ -230,6 +232,7 @@ namespace m6502
         EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
+
     // ----- AbsoluteY $LLHH,Y
     TEST_F(InstructionLoadTest, LDA_AbsoluteIndexedY)
     {
@@ -252,6 +255,7 @@ namespace m6502
     }
 
     // ..... Indirect ($LLHH)
+
     // ----- Indexed Indirect X ($LL,X)
     TEST_F(InstructionLoadTest, LDA_IndexedIndirectX)
     {
@@ -275,6 +279,7 @@ namespace m6502
         EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
+
     // ----- Indirect Indexed Y ($LL),Y
     TEST_F(InstructionLoadTest, LDA_IndexedIndirectY)
     {
