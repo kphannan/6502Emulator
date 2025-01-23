@@ -358,31 +358,102 @@ namespace m6502
         EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
         EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().dst);
     }
+
     // ..... Implied
     // ..... Accumulator
+
     // ----- ZeroPage $LL
     TEST_F(InstructionLoadTest, LDX_ZeroPage)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        testMemory.write(0x2000, 0xA6); // LDX $12
+        testMemory.write(0x2001, 0x12);
+
+        testMemory.write(0x0012, 0x42);
+
+        cpu->executeFromAddress(0x2000, 1);
+
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0x42, cpu->X());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().dst);
     }
+
     // ..... ZeroPage,X $LL,X
+
     // ----- ZeroPage,Y $LL,Y
     TEST_F(InstructionLoadTest, LDX_ZeroPageY)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        testMemory.write(0x2000, 0xB6); // LDX $12,Y
+        testMemory.write(0x2001, 0x12);
+
+        cpu->X(0x99);
+        cpu->Y(0x10);
+
+        testMemory.write(0x0022, 0x24);
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0x24, cpu->X());
+        EXPECT_EQ(0x10, cpu->Y());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().dst);
     }
+
     // ..... Relative $BB
+
     // ----- Absolute $LLHH
     TEST_F(InstructionLoadTest, LDX_Absolute)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        testMemory.write(0x2000, 0xAE); // LDX $3010
+        testMemory.write(0x2001, 0x10);
+        testMemory.write(0x2002, 0x30);
+
+        testMemory.write(0x3010, 0x99);
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2003, cpu->PC());
+        EXPECT_EQ(0x99, cpu->X());
+        EXPECT_EQ(0b10100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().dst);
     }
+
     // ..... AbsoluteX $LLHH,X
+
     // ----- AbsoluteY $LLHH,Y
     TEST_F(InstructionLoadTest, LDX_AbsoluteY)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        testMemory.write(0x2000, 0xBE); // LDX $3010,Y
+        testMemory.write(0x2001, 0x10);
+        testMemory.write(0x2002, 0x30);
+
+        testMemory.write(0x3020, 0x68);
+
+        cpu->Y(0x10);
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2003, cpu->PC());
+        EXPECT_EQ(0x68, cpu->X());
+        EXPECT_EQ(0x10, cpu->Y());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().dst);
     }
+
     // ..... Indirect ($LLHH)
     // ..... Indexed Indirect X ($LL,X)
     // ..... Indirect Indexed Y ($LL),Y
@@ -446,26 +517,77 @@ namespace m6502
         EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
         EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().dst);
     }
+
     // ..... Implied
     // ..... Accumulator
+
     // ----- ZeroPage $LL
     TEST_F(InstructionLoadTest, LDY_ZeroPage)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        testMemory.write(0x2000, 0xA4); // LDY $0A
+        testMemory.write(0x2001, 0x0A);
+
+        testMemory.write(0x000A, 0x66); // The data value to load
+
+        cpu->executeFromAddress(0x2000, 1);
+
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0x66, cpu->Y());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().dst);
     }
+
     // ----- ZeroPage,X $LL,X
+
     // ..... ZeroPage,Y $LL,Y
     // ..... Relative $BB
+
     // ----- Absolute $LLHH
     TEST_F(InstructionLoadTest, LDY_Absolute)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        testMemory.write(0x2000, 0xAC); // LDY $3014
+        testMemory.write(0x2001, 0x14);
+        testMemory.write(0x2002, 0x30);
+
+        testMemory.write(0x3014, 0x11);
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2003, cpu->PC());
+        EXPECT_EQ(0x11, cpu->Y());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().dst);
     }
+
     // ----- AbsoluteX $LLHH,X
     TEST_F(InstructionLoadTest, LDY_AbsoluteX)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        testMemory.write(0x2000, 0xBC); // LDY $3010,X
+        testMemory.write(0x2001, 0x10);
+        testMemory.write(0x2002, 0x30);
+
+        cpu->X(0x08);
+
+        testMemory.write(0x3018, 0x71);
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2003, cpu->PC());
+        EXPECT_EQ(0x08, cpu->X());
+        EXPECT_EQ(0x71, cpu->Y());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().dst);
     }
+
     // ..... AbsoluteY $LLHH,Y
     // ..... Indirect ($LLHH)
     // ..... Indexed Indirect X ($LL,X)

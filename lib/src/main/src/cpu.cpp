@@ -44,11 +44,14 @@ namespace m6502
         _instructionLoad = new InstructionLoad(*this, "load instruction", "load");
         // _instructionLoad = new InstructionLoad(*this);
         // --- LDA
-        _instructionLoadA = new InstructionLoadA(*this);
+        // _instructionLoadA = new InstructionLoadA(*this);
+        _instructionLoadA = _instructionLoad;
         // --- LDX
-        _instructionLoadX = new InstructionLoadX(*this);
+        // _instructionLoadX = new InstructionLoadX(*this);
+        _instructionLoadX = _instructionLoad;
         // --- LDY
-        _instructionLoadY = new InstructionLoadY(*this);
+        // _instructionLoadY = new InstructionLoadY(*this);
+        _instructionLoadY = _instructionLoad;
         //
 
         // ----- Store

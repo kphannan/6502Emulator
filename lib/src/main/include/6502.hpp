@@ -311,6 +311,10 @@ namespace m6502
             InstructionTarget src;
             InstructionTarget dst;
 
+            // Lambdas....
+            // source;
+            // destination;
+
         protected:
         private:
             CPU &cpu;
@@ -396,9 +400,12 @@ namespace m6502
         // TODO get the actual operations
         CPU::Instruction *_instructionUndefined;
         CPU::InstructionLoad *_instructionLoad;
-        CPU::InstructionLoadA *_instructionLoadA;
-        CPU::InstructionLoadX *_instructionLoadX;
-        CPU::InstructionLoadY *_instructionLoadY;
+        // CPU::InstructionLoadA *_instructionLoadA;
+        // CPU::InstructionLoadX *_instructionLoadX;
+        // CPU::InstructionLoadY *_instructionLoadY;
+        CPU::InstructionLoad *_instructionLoadA;
+        CPU::InstructionLoad *_instructionLoadX;
+        CPU::InstructionLoad *_instructionLoadY;
         CPU::InstructionStore *_instructionStore;
         CPU::InstructionLogical *_instructionLogical;
 

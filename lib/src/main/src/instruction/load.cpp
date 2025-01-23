@@ -10,58 +10,6 @@
 
 namespace m6502
 {
-    const char *CPU::Instruction::targetName(InstructionTarget target)
-    {
-        const char *name;
-
-        switch (target)
-        {
-        case InstructionTarget::Undefined:
-            name = "Undefined";
-            break;
-        case InstructionTarget::A:
-            name = "A";
-            break;
-        case InstructionTarget::X:
-            name = "X";
-            break;
-        case InstructionTarget::Y:
-            name = "Y";
-            break;
-        case InstructionTarget::S:
-            name = "S";
-            break;
-        case InstructionTarget::PC:
-            name = "PC";
-            break;
-        case InstructionTarget::MEMORY:
-            name = "Memory";
-            break;
-        case InstructionTarget::FLAG_N:
-            name = "N";
-            break;
-        case InstructionTarget::FLAG_V:
-            name = "V";
-            break;
-        case InstructionTarget::FLAG_B:
-            name = "B";
-            break;
-        case InstructionTarget::FLAG_D:
-            name = "D";
-            break;
-        case InstructionTarget::FLAG_I:
-            name = "I";
-            break;
-        case InstructionTarget::FLAG_Z:
-            name = "Z";
-            break;
-        case InstructionTarget::FLAG_C:
-            name = "C";
-            break;
-        }
-
-        return name;
-    }
 
     // Addressing Modes
     // ----- Immediate #$BB
@@ -104,24 +52,24 @@ namespace m6502
             }
             break;
         case InstructionTarget::X:
-                switch (src)
-                {
-                case InstructionTarget::MEMORY:
-                    cpu.X(value);
-                    break;
-                default:
-                    break;
-                }
+            switch (src)
+            {
+            case InstructionTarget::MEMORY:
+                cpu.X(value);
+                break;
+            default:
+                break;
+            }
             break;
         case InstructionTarget::Y:
-                switch (src)
-                {
-                case InstructionTarget::MEMORY:
-                    cpu.Y(value);
-                    break;
-                default:
-                    break;
-                }
+            switch (src)
+            {
+            case InstructionTarget::MEMORY:
+                cpu.Y(value);
+                break;
+            default:
+                break;
+            }
             break;
         default:
             break;
@@ -144,14 +92,14 @@ namespace m6502
     // Indirect,Y    LDA ($44),Y   $B1  2   5+
     //
     // + add 1 cycle if page boundary crossed
-    void CPU::InstructionLoadA::execute(InstructionTarget dst, InstructionTarget src)
-    {
-        InstructionLoad::execute(dst, src);
-        // TODO define a src and dst that is set during opcode decode
-        // src: memory - addressMode
-        // dst: A register
-        cpu.A(cpu.decodePipeline().operand); // TODO use the result of the addressing mode
-    }
+    // void CPU::InstructionLoadA::execute(InstructionTarget dst, InstructionTarget src)
+    // {
+    //     InstructionLoad::execute(dst, src);
+    //     // TODO define a src and dst that is set during opcode decode
+    //     // src: memory - addressMode
+    //     // dst: A register
+    //     cpu.A(cpu.decodePipeline().operand); // TODO use the result of the addressing mode
+    // }
 
     //----------------------------------------
     // LDX (LoaD X register)
@@ -169,14 +117,14 @@ namespace m6502
 
     // Addressing Modes
     // ----- Immediate #$BB
-    void CPU::InstructionLoadX::execute(InstructionTarget dst, InstructionTarget src)
-    {
-        InstructionLoad::execute(dst, src);
-        // TODO define a src and dst that is set during opcode decode
-        // src: memory - addressMode
-        // dst: X register
-        cpu.X(cpu.decodePipeline().operand); // TODO use the result of the addressing mode
-    }
+    // void CPU::InstructionLoadX::execute(InstructionTarget dst, InstructionTarget src)
+    // {
+    //     InstructionLoad::execute(dst, src);
+    //     // TODO define a src and dst that is set during opcode decode
+    //     // src: memory - addressMode
+    //     // dst: X register
+    //     cpu.X(cpu.decodePipeline().operand); // TODO use the result of the addressing mode
+    // }
 
     // ----- Implied
     // ----- Accumulator
@@ -207,14 +155,15 @@ namespace m6502
 
     // Addressing Modes
     // ----- Immediate #$BB
-    void CPU::InstructionLoadY::execute(InstructionTarget dst, InstructionTarget src)
-    {
-        InstructionLoad::execute(dst, src);
-        // TODO define a src and dst that is set during opcode decode
-        // src: memory - addressMode
-        // dst: X register
-        cpu.Y(cpu.decodePipeline().operand); // TODO use the result of the addressing mode
-    }
+
+    // void CPU::InstructionLoadY::execute(InstructionTarget dst, InstructionTarget src)
+    // {
+    //     InstructionLoad::execute(dst, src);
+    //     // TODO define a src and dst that is set during opcode decode
+    //     // src: memory - addressMode
+    //     // dst: X register
+    //     cpu.Y(cpu.decodePipeline().operand); // TODO use the result of the addressing mode
+    // }
 
     // ----- Implied
     // ----- Accumulator

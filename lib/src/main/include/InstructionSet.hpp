@@ -45,6 +45,7 @@ namespace m6502
         const char *name() const { return modeName; };
         const char *mnemonic() const { return modeMnemonic; };
         const char *targetName(InstructionTarget target);
+
         virtual void execute(InstructionTarget dst, InstructionTarget src)
         {
             std::cout << name() << " ; " << mnemonic() << " " << cpu.decodePipeline().addressMode->mnemonic() << std::endl;
@@ -75,40 +76,40 @@ namespace m6502
     };
 
     // --- LDA
-    class CPU::InstructionLoadA : public CPU::InstructionLoad
-    {
-        // Constructors
-    public:
-        InstructionLoadA(CPU &cpu) : InstructionLoad(cpu, "Load Accumulator", "LDA") {};
+    // class CPU::InstructionLoadA : public CPU::InstructionLoad
+    // {
+    //     // Constructors
+    // public:
+    //     InstructionLoadA(CPU &cpu) : InstructionLoad(cpu, "Load Accumulator", "LDA") {};
 
-        // methods
-    public:
-        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
-    };
+    //     // methods
+    // public:
+    //     virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    // };
 
     // --- LDX
-    class CPU::InstructionLoadX : public CPU::InstructionLoad
-    {
-        // Constructors
-    public:
-        InstructionLoadX(CPU &cpu) : InstructionLoad(cpu, "Load X index", "LDX") {}
+    // class CPU::InstructionLoadX : public CPU::InstructionLoad
+    // {
+    //     // Constructors
+    // public:
+    //     InstructionLoadX(CPU &cpu) : InstructionLoad(cpu, "Load X index", "LDX") {}
 
-        // methods
-    public:
-        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
-    };
+    //     // methods
+    // public:
+    //     virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    // };
 
     // --- LDY
-    class CPU::InstructionLoadY : public CPU::InstructionLoad
-    {
-        // Constructors
-    public:
-        InstructionLoadY(CPU &cpu) : InstructionLoad(cpu, "Load Y index", "LDY") {}
+    // class CPU::InstructionLoadY : public CPU::InstructionLoad
+    // {
+    //     // Constructors
+    // public:
+    //     InstructionLoadY(CPU &cpu) : InstructionLoad(cpu, "Load Y index", "LDY") {}
 
-        // methods
-    public:
-        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
-    };
+    //     // methods
+    // public:
+    //     virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    // };
 
     // ----- Store
     class CPU::InstructionStore : public Instruction
@@ -158,7 +159,7 @@ namespace m6502
 
         // methods
     public:
-        virtual void execute(InstructionTarget dst, InstructionTarget src) override { Instruction::execute(dst, src); }
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
     };
     // --- AND
     // --- EOR

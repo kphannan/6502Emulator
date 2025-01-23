@@ -1,0 +1,124 @@
+{
+    "version": 8,
+    "configurePresets": [
+        {
+            "name": "default",
+            "displayName": "Default Config",
+            "description": "Default build using Makefile generator",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build/default"
+        },
+        {
+            "inherits": "default",
+            "name": "macOS",
+            "displayName": "macOS base Config",
+            "description": "Base config for macOS build using Makefile generator",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
+            }
+        },
+        {
+            "inherits": "macOS",
+            "name": "macOS-Clang",
+            "displayName": "Clang 16.0.0 arm64-apple-darwin24.2.0",
+            "description": "Using compilers: C = /usr/bin/clang, CXX = /usr/bin/clang++",
+            "binaryDir": "${sourceDir}/build/target/mac/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "/usr/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "inherits": "macOS-Clang",
+            "name": "debug",
+            "displayName": "macOS debug Config",
+            "description": "Debug configuration on macOS",
+            "hidden": false,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "inherits": "macOS-Clang",
+            "name": "release",
+            "displayName": "macOS Release config",
+            "hidden": false,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "windows-only",
+            "inherits": "default",
+            "displayName": "Windows-only configuration",
+            "description": "This build is only available on Windows",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "default",
+            "displayName": "Default",
+            "configurePreset": "default",
+            "description": "Default build preset",
+            "hidden": true
+        },
+        {
+            "inherits": "default",
+            "name": "macOS",
+            "displayName": "macOS default",
+            "description": "macOS build preset",
+            "configurePreset": "macOS"
+        },
+        {
+            "inherits": "macOS",
+            "name": "macOS-Clang",
+            "displayName": "macOS Clang",
+            "configurePreset": "macOS-Clang",
+            "description": "macOS build preset using Clang",
+            "hidden": true
+        },
+        {
+            "inherits": "macOS-Clang",
+            "name": "macOS-debug",
+            "displayName": "macOS Debug",
+            "description": "macOS build preset",
+            "configurePreset": "macOS",
+            "configuration": "Debug"
+        },
+        {
+            "inherits": "macOS-Clang",
+            "name": "release",
+            "displayName": "macOS Release",
+            "configurePreset": "release",
+            "description": "Release build preset"
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "mac-debug",
+            "description": "",
+            "displayName": "",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "debug"
+                },
+                {
+                    "type": "build",
+                    "name": "macOS-debug"
+                }
+            ]
+        }
+    ]
+}

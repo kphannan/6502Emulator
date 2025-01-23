@@ -1,5 +1,5 @@
 # TODO 1: Set the minimum required version of CMake to be 3.10
-cmake_minimum_required(VERSION 3.16..3.31)
+cmake_minimum_required(VERSION 3.31)
 
 set(PROJECT_NAME EMU)
 set(PROJECT_LIB lib${PROJECT_NAME})
@@ -16,6 +16,7 @@ project(${PROJECT_NAME} VERSION 0.0.1
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_BUILD_PARALLEL_LEVEL 16)
 
 # TODO 8: Use configure_file to configure and copy TutorialConfig.h.in to
 # TutorialConfig.h
@@ -29,12 +30,12 @@ configure_file(TutorialConfig.h.in TutorialConfig.h)
 file(GLOB_RECURSE SRC_FILES lib/src/main/src/*.cpp)
 
 add_library(${PROJECT_LIB} ${SRC_FILES})
-target_include_directories(${PROJECT_LIB} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/main/include)
+target_include_directories(${PROJECT_LIB} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/main/include ${PROJECT_BINARY_DIR})
 
 add_executable(${PROJECT_NAME} app.cpp ${SRC_FILES})
 
 # target_compile_features( ${PROJECT_NAME} PRIVATE cxx_std_23)
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/main/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/lib/src/main/include ${PROJECT_BINARY_DIR})
 
 # TODO 9: Use target_include_directories to include ${PROJECT_BINARY_DIR}
 target_include_directories(${PROJECT_NAME} PUBLIC

@@ -50,6 +50,7 @@ namespace m6502
     public:
         const char *name() const { return modeName; }
         const char *mnemonic() const { return modeMnemonic; }
+        // TODO  this should return an address, a literal byte.... (flag bit, register(A,X,Y,PC,SP))
         virtual hardware::Address execute()
         {
             std::cout << name() << " ; " << mnemonic() << std::endl;
@@ -98,6 +99,7 @@ namespace m6502
     public:
         virtual hardware::Address execute()
         {
+            // TODO return 'Accumulator'
             std::cout << "AddressModeAccumulator: Not yet implemented" << std::endl;
             return AddressMode::execute();
         }
@@ -118,6 +120,7 @@ namespace m6502
 
             cpu.decodePipeline().operand = cpu.addressSpace.read(0x0000 + zpOffset);
 
+            // TODO return 'address'
             return zpOffset;
         }
     };
@@ -136,6 +139,7 @@ namespace m6502
             hardware::Address zpOffset = cpu.addressSpace.read(cpu.registers.PC++);
             cpu.decodePipeline().operand = cpu.addressSpace.read(zpOffset + cpu.registers.X);
 
+            // TODO return 'address'
             return zpOffset + cpu.registers.X;
         }
     };
@@ -154,6 +158,7 @@ namespace m6502
             hardware::Address zpOffset = cpu.addressSpace.read(cpu.registers.PC++);
             cpu.decodePipeline().operand = cpu.addressSpace.read(zpOffset + cpu.registers.Y);
 
+            // TODO return 'address'
             return zpOffset + cpu.registers.Y;
         }
     };
@@ -169,6 +174,7 @@ namespace m6502
         virtual hardware::Address execute() override
         {
             std::cout << "AddressMode(Relative): Not yet implemented" << std::endl;
+            // TODO return 'byte - offset'
             return AddressMode::execute();
         }
     };
@@ -188,6 +194,7 @@ namespace m6502
             cpu.decodePipeline().operand = cpu.addressSpace.read(absolute);
             cpu.registers.PC += 2;
 
+            // TODO return 'address'
             return absolute;
         }
     };
@@ -208,6 +215,7 @@ namespace m6502
             cpu.decodePipeline().operand = cpu.addressSpace.read(absolute + cpu.registers.X);
             cpu.registers.PC += 2;
 
+            // TODO return 'address'
             return absolute + cpu.registers.X;
         }
     };
@@ -228,6 +236,7 @@ namespace m6502
             cpu.decodePipeline().operand = cpu.addressSpace.read(absolute + cpu.registers.Y);
             cpu.registers.PC += 2;
 
+            // TODO return 'address'
             return absolute + cpu.registers.Y;
         }
     };
@@ -247,6 +256,7 @@ namespace m6502
 
             cpu.decodePipeline().operand = cpu.addressSpace.readWord(indirectAddress);
 
+            // TODO return 'address'
             return indirectAddress;
         }
     };
@@ -267,6 +277,7 @@ namespace m6502
             hardware::Address address = cpu.addressSpace.readWord(zeroPageAddress + cpu.registers.X);
             cpu.decodePipeline().operand = cpu.addressSpace.read(address);
 
+            // TODO return 'address'
             return address;
         }
     };
@@ -290,6 +301,7 @@ namespace m6502
             address += cpu.registers.Y;
             cpu.decodePipeline().operand = cpu.addressSpace.read(address);
 
+            // TODO return 'address'
             return address;
         }
     };
@@ -322,9 +334,11 @@ namespace m6502
         {
             AddressMode::execute();
 
-            cpu.decodePipeline().operand = cpu.addressSpace.read(cpu.registers.PC++);
+            // cpu.decodePipeline().operand = cpu.addressSpace.read(cpu.registers.PC++);
 
-            return cpu.addressSpace.read(cpu.registers.PC - 1); // TODO watch the PC value when opeand fetch is removed from this method
+            // // TODO return 'byte - literal'
+            // return cpu.addressSpace.read(cpu.registers.PC - 1); // TODO watch the PC value when opeand fetch is removed from this method
+            return cpu.registers.PC++;
         }
         // Operators
     private:

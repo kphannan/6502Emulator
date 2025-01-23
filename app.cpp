@@ -10,7 +10,7 @@
 // #include "app.h"
 #include "memory.hpp"
 #include "6502.hpp"
-#include "TutorialConfig.h"
+// #include "TutorialConfig.h"
 
 // Forward declarations
 void loadProgram(memory::Memory &memory);
@@ -19,15 +19,15 @@ void showMemory(memory::Memory &mem, const hardware::Address from, const int cou
 // ===== Entry Pointt =====
 int main(int argc, char **argv)
 {
-    if (argc < 2)
-    {
-        // report version
-        std::cout << argv[0] << " Version " << EMU_VERSION_MAJOR << "."
-                  << EMU_VERSION_MINOR << "."
-                  << EMU_VERSION_PATCH << std::endl;
-        std::cout << "Usage: " << argv[0] << std::endl;
-        // return 1;
-    }
+    // if (argc < 2)
+    // {
+    //     // report version
+    //     std::cout << argv[0] << " Version " << EMU_VERSION_MAJOR << "."
+    //               << EMU_VERSION_MINOR << "."
+    //               << EMU_VERSION_PATCH << std::endl;
+    //     std::cout << "Usage: " << argv[0] << std::endl;
+    //     // return 1;
+    // }
 
     memory::Memory memory;
     m6502::CPU processor(memory);
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     memory.showMemory(0x2000, 0x20);
     memory.showMemory(0xFAD0, 16);
 
-    processor.A(0xC3);
+    processor.A(0x21);
     processor.X(0x38);
     processor.Y(0x10);
 
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
     // std::cout << processor.currentMemory().name() << std::endl;
     processor.showRegisters();
 
-    processor.execute(1);
+    processor.execute(2);
 
     processor.showRegisters();
 
@@ -58,11 +58,13 @@ void loadProgram(memory::Memory &memory)
 {
     // cpu::Address = std::to_underlying(cpu::HardwareVector::RESET);
     // int address = std::to_underlying(m6502::HardwareVector::RESET);
+    memory.write(0x2000, 0xA9); // LDA #$10
+    memory.write(0x2001, 0x21);
+    memory.write(0x2002, 0x0D); // ORA $4024
+    memory.write(0x2003, 0x24);
+    memory.write(0x2004, 0x40);
 
-    memory.write(0x2000, 0xA0); // LDY #$10
-    memory.write(0x2001, 0x10);
-    memory.write(0x2000, 0x96); // STX $08,Y
-    memory.write(0x2001, 0x08);
+    memory.write(0x4024, 0x48);
 
     // memory.write(0x2000, 0xA9); // LDA #$10
     // memory.write(0x2001, 0x10);
