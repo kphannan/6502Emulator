@@ -37,16 +37,16 @@ namespace m6502
 
     // Addressing Modes
     // ----- Immediate #$BB
-    // ----- Implied
-    // ----- Accumulator
+    // ..... Implied
+    // ..... Accumulator
     // ----- ZeroPage $LL
     // ----- ZeroPage,X $LL,X
     // ----- ZeroPage,Y $LL,Y
-    // ----- Relative $BB
+    // ..... Relative $BB
     // ----- Absolute $LLHH
     // ----- AbsoluteX $LLHH,X
     // ----- AbsoluteY $LLHH,Y
-    // ----- Indirect ($LLHH)
+    // ..... Indirect ($LLHH)
     // ----- Indexed Indirect X ($LL,X)
     // ----- Indirect Indexed Y ($LL),Y
 
@@ -60,6 +60,203 @@ namespace m6502
     // ----- Decrement & Increment () -----
     // ----- Arithmetic () -----
     // ----- Logical () -----
+
+    //----------------------------------------
+    // AND (bitwise AND with accumulator)
+    //
+    // Affects Flags: N Z
+    //
+    // MODE           SYNTAX       HEX LEN TIM
+    // Immediate     AND #$44      $29  2   2
+    // Zero Page     AND $44       $25  2   3
+    // Zero Page,X   AND $44,X     $35  2   4
+    // Absolute      AND $4400     $2D  3   4
+    // Absolute,X    AND $4400,X   $3D  3   4+
+    // Absolute,Y    AND $4400,Y   $39  3   4+
+    // Indirect,X    AND ($44,X)   $21  2   6
+    // Indirect,Y    AND ($44),Y   $31  2   5+
+    //
+    // + add 1 cycle if page boundary crossed
+    //----------------------------------------
+    // Addressing Modes
+    // ----- Immediate #$BB
+    TEST_F(InstructionLogicalTest, AND_Immediate)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    // ..... Implied
+    // ..... Accumulator
+
+    // ----- ZeroPage $LL
+    TEST_F(InstructionLogicalTest, AND_ZeroPage)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    // ----- ZeroPage,X $LL,X
+    TEST_F(InstructionLogicalTest, AND_ZeroPageX)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    // ..... ZeroPage,Y $LL,Y
+    // ..... Relative $BB
+
+    // ----- Absolute $LLHH
+    TEST_F(InstructionLogicalTest, AND_Absolute)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    // ----- AbsoluteX $LLHH,X
+    TEST_F(InstructionLogicalTest, AND_AbsoluteX)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    // ----- AbsoluteY $LLHH,Y
+    TEST_F(InstructionLogicalTest, AND_AbsoluteY)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    // ..... Indirect ($LLHH)
+
+    // ----- Indexed Indirect X ($LL,X)
+    TEST_F(InstructionLogicalTest, AND_IndexedIndirectX)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    // ----- Indirect Indexed Y ($LL),Y
+    TEST_F(InstructionLogicalTest, AND_IndirectIndexedY)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    //----------------------------------------
+    // BIT (test BITs)
+    //
+    // Affects Flags: N V Z
+    //
+    // MODE           SYNTAX       HEX LEN TIM
+    // Zero Page     BIT $44       $24  2   3
+    // Absolute      BIT $4400     $2C  3   4
+    //
+    // BIT sets the Z flag as though the value in the address tested were ANDed with the accumulator. The N and V flags are set to match bits 7 and 6 respectively in the value stored at the tested address.
+    // BIT is often used to skip one or two following bytes as in:
+    //
+    // CLOSE1 LDX #$10   If entered here, we
+    //        .BYTE $2C  effectively perform
+    // CLOSE2 LDX #$20   a BIT test on $20A2,
+    //        .BYTE $2C  another one on $30A2,
+    // CLOSE3 LDX #$30   and end up with the X
+    // CLOSEX LDA #12    register still at $10
+    //        STA ICCOM,X upon arrival here.
+    //
+    // Beware: a BIT instruction used in this way as a NOP does have effects: the flags may be modified, and the read of the absolute address, if it happens to access an I/O device, may cause an unwanted action.
+    //----------------------------------------
+    // Addressing Modes
+    // ..... Immediate #$BB
+    // ..... Implied
+    // ..... Accumulator
+
+    // ----- ZeroPage $LL
+    TEST_F(InstructionLogicalTest, BIT_ZeroPage)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    // ..... ZeroPage,X $LL,X
+    // ..... ZeroPage,Y $LL,Y
+    // ..... Relative $BB
+
+    // ----- Absolute $LLHH
+    TEST_F(InstructionLogicalTest, BIT_Absolute)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    // ..... AbsoluteX $LLHH,X
+    // ..... AbsoluteY $LLHH,Y
+    // ..... Indirect ($LLHH)
+    // ..... Indexed Indirect X ($LL,X)
+    // ..... Indirect Indexed Y ($LL),Y
+
+    //----------------------------------------
+    // EOR (bitwise Exclusive OR)
+    //
+    // Affects Flags: N Z
+    //
+    // MODE           SYNTAX       HEX LEN TIM
+    // Immediate     EOR #$44      $49  2   2
+    // Zero Page     EOR $44       $45  2   3
+    // Zero Page,X   EOR $44,X     $55  2   4
+    // Absolute      EOR $4400     $4D  3   4
+    // Absolute,X    EOR $4400,X   $5D  3   4+
+    // Absolute,Y    EOR $4400,Y   $59  3   4+
+    // Indirect,X    EOR ($44,X)   $41  2   6
+    // Indirect,Y    EOR ($44),Y   $51  2   5+
+    //
+    // + add 1 cycle if page boundary crossed
+    //----------------------------------------
+    // Addressing Modes
+    // ----- Immediate #$BB
+    TEST_F(InstructionLogicalTest, EOR_Immediate)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    // ..... Implied
+    // ..... Accumulator
+
+    // ----- ZeroPage $LL
+    TEST_F(InstructionLogicalTest, EOR_ZeroPage)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    // ----- ZeroPage,X $LL,X
+    TEST_F(InstructionLogicalTest, EOR_ZeroPageX)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    // ..... ZeroPage,Y $LL,Y
+    // ..... Relative $BB
+
+    // ----- Absolute $LLHH
+    TEST_F(InstructionLogicalTest, EOR_Absolute)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    // ----- AbsoluteX $LLHH,X
+    TEST_F(InstructionLogicalTest, EOR_AbsoluteX)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    // ----- AbsoluteY $LLHH,Y
+    TEST_F(InstructionLogicalTest, EOR_AbsoluteY)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    // ..... Indirect ($LLHH)
+
+    // ----- Indexed Indirect X ($LL,X)
+    TEST_F(InstructionLogicalTest, EOR_IndexedIndirectX)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    // ----- Indirect Indexed Y ($LL),Y
+    TEST_F(InstructionLogicalTest, EOR_IndirectIndexedY)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
 
     //----------------------------------------
     // ORA (bitwise OR with Accumulator)
