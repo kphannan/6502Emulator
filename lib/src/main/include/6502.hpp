@@ -4,6 +4,7 @@
 #define PROCESSOR_HPP
 
 #include <cstdint>
+#include <stdexcept>
 // #include <cstddef>
 
 #include "hardware.hpp"
