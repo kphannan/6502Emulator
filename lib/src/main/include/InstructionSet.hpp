@@ -7,6 +7,7 @@
 #include <iomanip>
 
 #include "6502.hpp"
+#include "AddressMode.hpp"
 
 namespace m6502
 {
@@ -128,6 +129,17 @@ namespace m6502
     // --- STY
 
     // ----- Interregister transfer
+    class CPU::InstructionTransfer : public Instruction
+    {
+        // Constructors
+    public:
+        InstructionTransfer(CPU &cpu) : Instruction(cpu, "Transfer instruction", "xfr") {}
+        // InstructionLoad(CPU &cpu, const char *name, const char *mnemonic) {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
     // --- TAX
     // --- TAY
     // --- TSX

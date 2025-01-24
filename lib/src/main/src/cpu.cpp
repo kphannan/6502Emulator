@@ -61,9 +61,12 @@ namespace m6502
         // --- STY
 
         // ----- Interregister transfer
+        _instructionTransfer = new InstructionTransfer(*this);
         // --- TAX
+        _instructionTransferAtoX = _instructionTransfer;
         // --- TAY
         // --- TSX
+        _instructionTransferStoX = _instructionTransfer;
         // --- TXA
         // --- TXS
         // --- TYA

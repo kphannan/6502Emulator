@@ -6,12 +6,34 @@
 #include <cstdint>
 #include <stdexcept>
 // #include <cstddef>
+#include <iostream>
+#include <iomanip>
 
 #include "hardware.hpp"
 #include "memory.hpp"
+// #include "AddressMode.hpp"
 
 namespace m6502
 {
+
+    // class CPU;
+
+    // // ----- Forward Declarations of Inner classes
+    // // --- Address Modes
+    // class CPU::AddressMode; // base
+    // class CPU::AddressModeImplied;
+    // class CPU::AddressModeAccumulator;
+    // class CPU::AddressModeZeroPage;
+    // class CPU::AddressModeZeroPageIndexedX;
+    // class CPU::AddressModeZeroPageIndexedY;
+    // class CPU::AddressModeRelative;
+    // class CPU::AddressModeAbsolute;
+    // class CPU::AddressModeAbsoluteIndexedX;
+    // class CPU::AddressModeAbsoluteIndexedY;
+    // class CPU::AddressModeIndirect;
+    // class CPU::AddressModeIndexedIndirectX;
+    // class CPU::AddressModeIndirectIndexedY;
+    // class CPU::AddressModeImmediate;
 
     // Identifies the source & destination of an operation
     enum class InstructionTarget
@@ -138,22 +160,353 @@ namespace m6502
     {
         // ===== Inner Classes =====
     public:
-        // ----- Forward Declarations of Inner classes
-        // --- Address Modes
-        class AddressMode; // base
-        class AddressModeImplied;
-        class AddressModeAccumulator;
-        class AddressModeZeroPage;
-        class AddressModeZeroPageIndexedX;
-        class AddressModeZeroPageIndexedY;
-        class AddressModeRelative;
-        class AddressModeAbsolute;
-        class AddressModeAbsoluteIndexedX;
-        class AddressModeAbsoluteIndexedY;
-        class AddressModeIndirect;
-        class AddressModeIndexedIndirectX;
-        class AddressModeIndirectIndexedY;
-        class AddressModeImmediate;
+        // #include "AddressMode.hpp"
+
+        class AddressMode
+        {
+            // Constructors
+        protected:
+            AddressMode(CPU &cpu, const char *name, const char *mnemonic) : cpu(cpu), modeName(name), modeMnemonic(mnemonic) {}
+
+            // Fields
+        private:
+            const char *modeName;
+            const char *modeMnemonic;
+
+        protected:
+            CPU &cpu;
+
+            // Methods
+        public:
+            const char *name() const { return modeName; }
+            const char *mnemonic() const { return modeMnemonic; }
+            // TODO  this should return an address, a literal byte.... (flag bit, register(A,X,Y,PC,SP))
+            virtual hardware::Address execute();
+            // {
+            //     std::cout << name() << " ; " << mnemonic() << std::endl;
+            //     return hardware::Address(0xDEADBEEF);
+            // }
+        };
+
+        //        Undefined,           // Catch illegal address mode
+        class AddressModeUndefined : public AddressMode
+        {
+            // Constructors
+        public:
+            AddressModeUndefined(CPU &cpu) : AddressMode(cpu, "Undefined", "error") {}
+
+            // Methods
+        public:
+            hardware::Address execute() override;
+            // {
+            //     std::cout << "AddressMode(Undefined): Not yet implemented" << std::endl;
+            //     return hardware::Address(0xFADEFACE);
+            // }
+        };
+
+        //        IMPLICIT,           // Implicit
+        class AddressModeImplied : public AddressMode
+        {
+            // Constructors
+        public:
+            AddressModeImplied(CPU &cpu) : AddressMode(cpu, "Implicit", "") {}
+            // Methods
+        public:
+            virtual hardware::Address execute() override
+            {
+                std::cout << "AddressMode(Implied): Not yet implemented" << std::endl;
+                return AddressMode::execute();
+            };
+        };
+
+        //        ACCUMULATOR,        // Accumulator         A
+        class AddressModeAccumulator : public AddressMode
+        {
+            // Constructors
+        public:
+            AddressModeAccumulator(CPU &cpu) : AddressMode(cpu, "Accumulator", "A") {}
+            // Methods
+        public:
+            virtual hardware::Address execute()
+            {
+                // TODO return 'Accumulator'
+                std::cout << "AddressModeAccumulator: Not yet implemented" << std::endl;
+                return AddressMode::execute();
+            }
+        };
+
+        //        ZERO_PAGE,          // Zero Page           $nn        LO bits 4,5,6
+        class AddressModeZeroPage : public AddressMode
+        {
+            // Constructors
+        public:
+            AddressModeZeroPage(CPU &cpu) : AddressMode(cpu, "ZeroPage", "$nn") {}
+            // Methods
+        public:
+            virtual hardware::Address execute() override;
+            // {
+            //     AddressMode::execute();
+            //     hardware::Address zpOffset = cpu.addressSpace.read(cpu.registers.PC++);
+
+            //     cpu.decodePipeline().operand = cpu.addressSpace.read(0x0000 + zpOffset);
+
+            //     // TODO return 'address'
+            //     return zpOffset;
+            // }
+        };
+
+        //        ZERO_PAGE_X,        // Zero Page, X        $nn,X      LO bits 4,5,6
+        class AddressModeZeroPageIndexedX : public AddressMode
+        {
+            // Constructors
+        public:
+            AddressModeZeroPageIndexedX(CPU &cpu) : AddressMode(cpu, "ZeroPage,X", "$nn,X") {}
+            // Methods
+        public:
+            virtual hardware::Address execute() override;
+            // {
+            //     AddressMode::execute();
+            //     hardware::Address zpOffset = cpu.addressSpace.read(cpu.registers.PC++);
+            //     cpu.decodePipeline().operand = cpu.addressSpace.read(zpOffset + cpu.registers.X);
+
+            //     // TODO return 'address'
+            //     return zpOffset + cpu.registers.X;
+            // }
+        };
+
+        //        ZERO_PAGE_Y,        // Zero Page, Y        $nn,Y      LO bits 4,5,6
+        class AddressModeZeroPageIndexedY : public AddressMode
+        {
+            // Constructors
+        public:
+            AddressModeZeroPageIndexedY(CPU &cpu) : AddressMode(cpu, "ZeroPage, Y", "$nn,Y") {}
+            // Methods
+        public:
+            virtual hardware::Address execute() override;
+            // {
+            //     AddressMode::execute();
+            //     hardware::Address zpOffset = cpu.addressSpace.read(cpu.registers.PC++);
+            //     cpu.decodePipeline().operand = cpu.addressSpace.read(zpOffset + cpu.registers.Y);
+
+            //     // TODO return 'address'
+            //     return zpOffset + cpu.registers.Y;
+            // }
+        };
+
+        //        RELATIVE,           // Relative            $nn
+        class AddressModeRelative : public AddressMode
+        {
+            // Constructors
+        public:
+            AddressModeRelative(CPU &cpu) : AddressMode(cpu, "Relative", "$nn") {}
+            // Methods
+        public:
+            virtual hardware::Address execute() override
+            {
+                std::cout << "AddressMode(Relative): Not yet implemented" << std::endl;
+                // TODO return 'byte - offset'
+                return AddressMode::execute();
+            }
+        };
+
+        //        ABSOLUTE,           // Absolute            $nnnn
+        class AddressModeAbsolute : public AddressMode
+        {
+            // Constructors
+        public:
+            AddressModeAbsolute(CPU &cpu) : AddressMode(cpu, "Absolute", "$nnnn") {}
+            // Methods
+        public:
+            virtual hardware::Address execute() override;
+            // {
+            //     AddressMode::execute();
+            //     hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC);
+            //     cpu.decodePipeline().operand = cpu.addressSpace.read(absolute);
+            //     cpu.registers.PC += 2;
+
+            //     // TODO return 'address'
+            //     return absolute;
+            // }
+        };
+
+        //        ABSOLUTE_X,         // Absolute, X         $nnnn,X
+        class AddressModeAbsoluteIndexedX : public AddressMode
+        {
+            // Constructors
+        public:
+            AddressModeAbsoluteIndexedX(CPU &cpu) : AddressMode(cpu, "Absolute,X", "$nnnn,X") {}
+            // Methods
+        public:
+            virtual hardware::Address execute() override;
+            // {
+            //     // value = read( $nnnn + X)
+            //     AddressMode::execute();
+            //     hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC);
+            //     cpu.decodePipeline().operand = cpu.addressSpace.read(absolute + cpu.registers.X);
+            //     cpu.registers.PC += 2;
+
+            //     // TODO return 'address'
+            //     return absolute + cpu.registers.X;
+            // }
+        };
+
+        //        ABSOLUTE_Y,         // Absolute, Y         $nnnn,Y
+        class AddressModeAbsoluteIndexedY : public AddressMode
+        {
+            // Constructors
+        public:
+            AddressModeAbsoluteIndexedY(CPU &cpu) : AddressMode(cpu, "Absolute,Y", "$nnnn,Y") {}
+            // Methods
+        public:
+            virtual hardware::Address execute() override;
+            // {
+            //     // value = read( $nnnn + Y)
+            //     AddressMode::execute();
+            //     hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC);
+            //     cpu.decodePipeline().operand = cpu.addressSpace.read(absolute + cpu.registers.Y);
+            //     cpu.registers.PC += 2;
+
+            //     // TODO return 'address'
+            //     return absolute + cpu.registers.Y;
+            // }
+        };
+
+        //        INDIRECT,           // Indirect            ($nnnn)
+        class AddressModeIndirect : public AddressMode
+        {
+            // Constructors
+        public:
+            AddressModeIndirect(CPU &cpu) : AddressMode(cpu, "Indirect", "($nnnn)") {}
+            // Methods
+        public:
+            virtual hardware::Address execute() override;
+            // {
+            //     AddressMode::execute();
+            //     hardware::Address indirectAddress = cpu.addressSpace.readWord(cpu.registers.PC++);
+
+            //     cpu.decodePipeline().operand = cpu.addressSpace.readWord(indirectAddress);
+
+            //     // TODO return 'address'
+            //     return indirectAddress;
+            // }
+        };
+
+        //        INDEXED_INDIRECT_X, // X Indexed Indirect  ($nn,X)    LO bit 1
+        class AddressModeIndexedIndirectX : public AddressMode
+        {
+            // Constructors
+        public:
+            AddressModeIndexedIndirectX(CPU &cpu) : AddressMode(cpu, "X Indexed Indirect", "($nn,X)") {}
+            // Methods
+        public:
+            virtual hardware::Address execute() override;
+            // {
+            //     // value = read( $nn + X )
+            //     AddressMode::execute();
+            //     hardware::Address zeroPageAddress = cpu.addressSpace.read(cpu.registers.PC++);
+            //     hardware::Address address = cpu.addressSpace.readWord(zeroPageAddress + cpu.registers.X);
+            //     cpu.decodePipeline().operand = cpu.addressSpace.read(address);
+
+            //     // TODO return 'address'
+            //     return address;
+            // }
+        };
+
+        //        INDIRECT_INDEXED_Y  // Y Indirect Indexed  ($nn),Y    LO bit 1
+        class AddressModeIndirectIndexedY : public AddressMode
+        {
+            // Constructors
+        public:
+            AddressModeIndirectIndexedY(CPU &cpu) : AddressMode(cpu, "Y Indirect Indexed", "($nn),Y") {}
+            // Methods
+        public:
+            virtual hardware::Address execute() override;
+            // {
+            //     AddressMode::execute();
+            //     // read( read( $nn ) | (read( $nn + 1) << 8) + Y )
+            //     // indirect pointer (PC | (PC+1)<<8) + Y
+            //     // value = read( $nn + X )
+            //     hardware::Address zpOffset = cpu.addressSpace.read(cpu.registers.PC++);
+            //     hardware::Address address = cpu.addressSpace.readWord(zpOffset);
+            //     address += cpu.registers.Y;
+            //     cpu.decodePipeline().operand = cpu.addressSpace.read(address);
+
+            //     // TODO return 'address'
+            //     return address;
+            // }
+        };
+
+        //         IMMEDIATE,          // Immediate           #$nn
+        class AddressModeImmediate : public AddressMode
+        {
+            // Types
+        private:
+        protected:
+        public:
+            // Constants
+        private:
+        protected:
+        public:
+            // Constructors
+        private:
+        protected:
+        public:
+            AddressModeImmediate(CPU &cpu) : AddressMode(cpu, "Immediate", "$#BB") {}
+            // Fields
+        private:
+        protected:
+        public:
+            // Methods
+        private:
+        protected:
+        public:
+            virtual hardware::Address execute();
+            // {
+            //     AddressMode::execute();
+
+            //     // cpu.decodePipeline().operand = cpu.addressSpace.read(cpu.registers.PC++);
+
+            //     // // TODO return 'byte - literal'
+            //     // return cpu.addressSpace.read(cpu.registers.PC - 1); // TODO watch the PC value when opeand fetch is removed from this method
+            //     return cpu.registers.PC++;
+            // }
+            // Operators
+        private:
+        protected:
+        public:
+        };
+
+        // // ----- Forward Declarations of Inner classes
+        // // --- Address Modes
+        // class AddressMode; // base
+        // class AddressModeImplied;
+        // class AddressModeAccumulator;
+        // class AddressModeZeroPage;
+        // class AddressModeZeroPageIndexedX;
+        // class AddressModeZeroPageIndexedY;
+        // class AddressModeRelative;
+        // class AddressModeAbsolute;
+        // class AddressModeAbsoluteIndexedX;
+        // class AddressModeAbsoluteIndexedY;
+        // class AddressModeIndirect;
+        // class AddressModeIndexedIndirectX;
+        // class AddressModeIndirectIndexedY;
+        // class AddressModeImmediate;
+
+        // friend class AddressMode; // base
+        // friend class AddressModeImplied;
+        // friend class AddressModeAccumulator;
+        // friend class AddressModeZeroPage;
+        // friend class AddressModeZeroPageIndexedX;
+        // friend class AddressModeZeroPageIndexedY;
+        // friend class AddressModeRelative;
+        // friend class AddressModeAbsolute;
+        // friend class AddressModeAbsoluteIndexedX;
+        // friend class AddressModeAbsoluteIndexedY;
+        // friend class AddressModeIndirect;
+        // friend class AddressModeIndexedIndirectX;
+        // friend class AddressModeIndirectIndexedY;
+        // friend class AddressModeImmediate;
 
         // --- Instruction
         class Instruction; // base
@@ -177,6 +530,7 @@ namespace m6502
         // --- STY *
 
         // ----- Interregister transfer
+        class InstructionTransfer;
         // --- TAX
         // --- TAY
         // --- TSX
@@ -307,7 +661,7 @@ namespace m6502
             // TODO not good to be public
             int operand; // struct/union/class (register,implied,Byte,Word)
             Instruction *cpuInstruction;
-            AddressMode *addressMode;
+            CPU::AddressMode *addressMode;
 
             InstructionTarget src;
             InstructionTarget dst;
@@ -374,9 +728,10 @@ namespace m6502
         // ----- Attributes -----
     public:
     protected:
-    private:
-        // PROGRAMMING_MODEL model;
+        friend class CPU::InstructionTransfer;
         REGISTERS registers;
+
+    private:
         memory::Memory &addressSpace; // make a reference
 
         hardware::Byte instruction;
@@ -409,6 +764,10 @@ namespace m6502
         CPU::InstructionLoad *_instructionLoadY;
         CPU::InstructionStore *_instructionStore;
         CPU::InstructionLogical *_instructionLogical;
+        // ----- Transfer
+        CPU::InstructionTransfer *_instructionTransfer;
+        CPU::InstructionTransfer *_instructionTransferAtoX;
+        CPU::InstructionTransfer *_instructionTransferStoX;
 
         // ----- Constructors -----
     public:

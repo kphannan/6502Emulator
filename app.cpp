@@ -16,6 +16,8 @@
 void loadProgram(memory::Memory &memory);
 void showMemory(memory::Memory &mem, const hardware::Address from, const int count);
 
+int testSize = 0;
+
 // ===== Entry Pointt =====
 int main(int argc, char **argv)
 {
@@ -47,7 +49,7 @@ int main(int argc, char **argv)
     // std::cout << processor.currentMemory().name() << std::endl;
     processor.showRegisters();
 
-    processor.execute(2);
+    processor.execute(testSize);
 
     processor.showRegisters();
 
@@ -58,13 +60,17 @@ void loadProgram(memory::Memory &memory)
 {
     // cpu::Address = std::to_underlying(cpu::HardwareVector::RESET);
     // int address = std::to_underlying(m6502::HardwareVector::RESET);
-    memory.write(0x2000, 0xA9); // LDA #$10
-    memory.write(0x2001, 0x21);
-    memory.write(0x2002, 0x0D); // ORA $4024
-    memory.write(0x2003, 0x24);
-    memory.write(0x2004, 0x40);
+    // memory.write(0x2000, 0xA9); // LDA #$10
+    // memory.write(0x2001, 0x21);
+    // memory.write(0x2002, 0x0D); // ORA $4024
+    // memory.write(0x2003, 0x24);
+    // memory.write(0x2004, 0x40);
 
-    memory.write(0x4024, 0x48);
+    memory.write(0x2000, 0xAA); // TAX
+
+    testSize = 1;
+
+    // memory.write(0x4024, 0x48);
 
     // memory.write(0x2000, 0xA9); // LDA #$10
     // memory.write(0x2001, 0x10);

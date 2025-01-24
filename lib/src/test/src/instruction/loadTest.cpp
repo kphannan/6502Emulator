@@ -11,7 +11,7 @@ namespace m6502
     class InstructionLoadTest : public testing::Test
     {
     public:
-        memory::Memory *tMemory = new memory::Memory("UnitTestMemory");
+        memory::Memory *tMemory = new memory::Memory("LoadUnitTestMemory");
         memory::Memory testMemory = *tMemory;
 
         CPU *cpu;

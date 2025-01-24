@@ -10,7 +10,7 @@ namespace m6502
     class InstructionTransferTest : public testing::Test
     {
     public:
-        memory::Memory *tMemory = new memory::Memory("UnitTestMemory");
+        memory::Memory *tMemory = new memory::Memory("TransferUnitTestMemory");
         memory::Memory testMemory = *tMemory;
 
         CPU *cpu;
@@ -34,21 +34,6 @@ namespace m6502
             delete cpu;
         }
     };
-
-    // Addressing Modes
-    // ----- Immediate #$BB
-    // ----- Implied
-    // ----- Accumulator
-    // ----- ZeroPage $LL
-    // ----- ZeroPage,X $LL,X
-    // ----- ZeroPage,Y $LL,Y
-    // ----- Relative $BB
-    // ----- Absolute $LLHH
-    // ----- AbsoluteX $LLHH,X
-    // ----- AbsoluteY $LLHH,Y
-    // ----- Indirect ($LLHH)
-    // ----- Indexed Indirect X ($LL,X)
-    // ----- Indirect Indexed Y ($LL),Y
 
     // ========== Instructions ==========
 
@@ -79,41 +64,91 @@ namespace m6502
     // ----- Implied
     TEST_F(InstructionTransferTest, TAX_Implied)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->A(0x99);
+        cpu->X(0x10);
+        cpu->Y(0x10);
+        testMemory.write(0x2000, 0xAA); // TAX
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_EQ(0x99, cpu->X());
+        EXPECT_EQ(0x99, cpu->A());
+        EXPECT_EQ(0b10100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionTransferTest, TXA_Implied)
     {
+        // --- given
+
+        // --- when
+
+        // --- then
         ADD_FAILURE_AT(__FILE__, __LINE__);
     }
 
     TEST_F(InstructionTransferTest, DEX_Implied)
     {
+        // --- given
+
+        // --- when
+
+        // --- then
         ADD_FAILURE_AT(__FILE__, __LINE__);
     }
 
     TEST_F(InstructionTransferTest, INX_Implied)
     {
+        // --- given
+
+        // --- when
+
+        // --- then
         ADD_FAILURE_AT(__FILE__, __LINE__);
     }
 
     TEST_F(InstructionTransferTest, TAY_Implied)
     {
+        // --- given
+
+        // --- when
+
+        // --- then
         ADD_FAILURE_AT(__FILE__, __LINE__);
     }
 
     TEST_F(InstructionTransferTest, TYA_Implied)
     {
+        // --- given
+
+        // --- when
+
+        // --- then
         ADD_FAILURE_AT(__FILE__, __LINE__);
     }
 
     TEST_F(InstructionTransferTest, DEY_Implied)
     {
+        // --- given
+
+        // --- when
+
+        // --- then
         ADD_FAILURE_AT(__FILE__, __LINE__);
     }
 
     TEST_F(InstructionTransferTest, INY_Implied)
     {
+        // --- given
+
+        // --- when
+
+        // --- then
         ADD_FAILURE_AT(__FILE__, __LINE__);
     }
 

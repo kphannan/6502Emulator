@@ -818,9 +818,31 @@ namespace m6502
                 src = InstructionTarget::X;
                 break;
             case 0b101: // c(2) a(5) - LDX
-                cpuInstruction = cpu._instructionLoadX;
-                dst = InstructionTarget::X;
-                src = InstructionTarget::MEMORY;
+                switch (opCode.memory.b) // 3 bits
+                {
+                case 0b000: // c(2) a(5) b(0) - LDX
+                case 0b001: // c(2) a(5) b(1) -  "
+                case 0b011: // c(2) a(5) b(3) -  "
+                case 0b101: // c(2) a(5) b(5) -  "
+                case 0b111: // c(2) a(5) b(7) -  "
+                    cpuInstruction = cpu._instructionLoadX;
+                    dst = InstructionTarget::X;
+                    src = InstructionTarget::MEMORY;
+                    break;
+                case 0b010: // c(2) a(5) b(2) - LSR
+                    cpuInstruction = cpu._instructionTransferAtoX;
+                    dst = InstructionTarget::X;
+                    src = InstructionTarget::A;
+                    break;
+                case 0b100: // c(2) a(5) b(4) -
+                        // n/a Illegal
+                    break;
+                case 0b110: // c(2) a(5) b(6) - DEC
+                    cpuInstruction = cpu._instructionTransferStoX;
+                    dst = InstructionTarget::X;
+                    src = InstructionTarget::S;
+                    break;
+                }
                 break;
             case 0b110: // c(2) a(6) - DEC
                 break;
@@ -828,6 +850,30 @@ namespace m6502
                 break;
             }
 
+            
+            
+//            switch (opCode.memory.b) // 3 bits
+//            {
+//            case 0b000: // c(2) a(0) b(0) - ASL
+//                break;
+//            case 0b001: // c(2) a(1) b(1) - ROL
+//                break;
+//            case 0b010: // c(2) a(2) b(2) - LSR
+//                break;
+//            case 0b011: // c(2) a(3) b(3) - ROR
+//                break;
+//            case 0b100: // c(2) a(4) b(4) - STX
+//                break;
+//            case 0b101: // c(2) a(5) b(5) - LDX
+//                break;
+//            case 0b110: // c(2) a(6) b(6) - DEC
+//                break;
+//            case 0b111: // c(2) a(7) b(7) - INC
+//                break;
+//            }
+
+            
+            
             // Addressing Mode
             switch (opCode.memory.b) // 3 bits
             {
@@ -837,16 +883,29 @@ namespace m6502
             case 0b001: // c(2) b(1) - ZeroPage
                 addressMode = cpu._addressModeZeroPage;
                 break;
-            case 0b010: // c(2) b(2) - Accumulator
-                addressMode = cpu._addressModeAccumulator;
-                // TODO A b(0,1,2,3) impl b(4,5,6,7)
+            case 0b010: // c(2) b(2) - Accumulator or Implied
+                switch (opCode.memory.a) // 3 bits
+                {
+                case 0b000: // c(2) b(2) a(0) - Accumulator
+                case 0b001: // c(2) b(2) a(1)
+                case 0b010: // c(2) b(2) a(2)
+                case 0b011: // c(2) b(2) a(3)
+                    addressMode = cpu._addressModeAccumulator;
+                    break;
+                case 0b100: // c(2) b(2) a(4) - Implied
+                case 0b101: // c(2) b(2) a(5)
+                case 0b110: // c(2) b(2) a(6)
+                case 0b111: // c(2) b(2) a(7)
+                    addressMode = cpu._addressModeImplied;
+                    break;
+                }
                 break;
             case 0b011: // c(2) b(3) - Absolute
                 addressMode = cpu._addressModeAbsolute;
                 break;
             case 0b100: // c(2) b(4) - ZeroPage,X   (ZeroPage),Y
                 break;
-            case 0b101: // c(2) b(5) - ZeroPage,X
+            case 0b101: // c(2) b(5) - ZeroPage,X or ZeroPage,Y
                 addressMode = cpu._addressModeZeroPageIndexedX;
                 switch (opCode.memory.a) // 3 bits
                 {
