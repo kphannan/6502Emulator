@@ -72,7 +72,7 @@ void loadProgram(memory::Memory &memory)
     //    memory.write(0x2000, 0x98); // TYA
     //    memory.write(0x2000, 0xCA); // DEX
     //    memory.write(0x2000, 0xE8); // INX
-        memory.write(0x2000, 0x88); // DEY
+    //    memory.write(0x2000, 0x88); // DEY
     //    memory.write(0x2000, 0xC8); // INY
 
 //    memory.write(0x2000, 0xC6); // DEC $72
@@ -85,6 +85,12 @@ void loadProgram(memory::Memory &memory)
     // DEY (DEcrement Y)        $88
     // INY (INcrement Y)        $C8
 
+    
+    memory.write(0x2000, 0x8C); // STY $3010
+    memory.write(0x2001, 0x10);
+    memory.write(0x2002, 0x30);
+    
+    
     testSize = 1;
 
     // memory.write(0x4024, 0x48);

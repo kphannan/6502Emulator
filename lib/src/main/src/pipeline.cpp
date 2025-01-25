@@ -580,6 +580,7 @@ namespace m6502
                     cpuInstruction = cpu._instructionStore;
                     dst = InstructionTarget::MEMORY;
                     src = InstructionTarget::Y;
+                    break;
                 case 0b010: // c(0) a(4) b(2) - DEY impl
                     cpuInstruction = cpu._instructionDecrementY;
                     dst = InstructionTarget::Y;
