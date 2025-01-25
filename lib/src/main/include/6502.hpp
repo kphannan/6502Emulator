@@ -11,7 +11,6 @@
 
 #include "hardware.hpp"
 #include "memory.hpp"
-// #include "AddressMode.hpp"
 
 namespace m6502
 {
@@ -160,8 +159,6 @@ namespace m6502
     {
         // ===== Inner Classes =====
     public:
-        // #include "AddressMode.hpp"
-
         class AddressMode
         {
             // Constructors
@@ -544,12 +541,18 @@ namespace m6502
         // --- PLA
         // --- PLP
         // ===== Decrement & Increment
+        class InstructionDecrement;
+        class InstructionIncrement;
         // --- DEC *
         // --- DEX
+        class InstructionDecrementX;
         // --- DEY
+        class InstructionDecrementY;
         // --- INC *
         // --- INX
+        class InstructionIncrementX;
         // --- INY
+        class InstructionIncrementY;
         // ===== Arithmetic Instructions
         // --- ADC *
         // --- SBC *
@@ -755,19 +758,102 @@ namespace m6502
 
         // TODO get the actual operations
         CPU::Instruction *_instructionUndefined;
-        CPU::InstructionLoad *_instructionLoad;
-        // CPU::InstructionLoadA *_instructionLoadA;
-        // CPU::InstructionLoadX *_instructionLoadX;
-        // CPU::InstructionLoadY *_instructionLoadY;
-        CPU::InstructionLoad *_instructionLoadA;
-        CPU::InstructionLoad *_instructionLoadX;
-        CPU::InstructionLoad *_instructionLoadY;
-        CPU::InstructionStore *_instructionStore;
-        CPU::InstructionLogical *_instructionLogical;
         // ----- Transfer
+
+        // ===== Transfer Instructions
+        // ----- Load
+        CPU::InstructionLoad *_instructionLoad;
+        // --- LDA *
+        CPU::InstructionLoad *_instructionLoadA;
+        // --- LDX *
+        CPU::InstructionLoad *_instructionLoadX;
+        // --- LDY *
+        CPU::InstructionLoad *_instructionLoadY;
+        //
+
+        // ----- Store
+        CPU::InstructionStore *_instructionStore;
+        // --- STA *
+        // --- STX *
+        // --- STY *
+
+        // ----- Interregister transfer
         CPU::InstructionTransfer *_instructionTransfer;
+        // --- TAX
         CPU::InstructionTransfer *_instructionTransferAtoX;
+        // --- TAY
+        CPU::InstructionTransfer *_instructionTransferAtoY;
+        // --- TSX
         CPU::InstructionTransfer *_instructionTransferStoX;
+        // --- TXA
+        CPU::InstructionTransfer *_instructionTransferXtoA;
+        // --- TXS
+        CPU::InstructionTransfer *_instructionTransferXtoS;
+        // --- TYA
+        CPU::InstructionTransfer *_instructionTransferYtoA;
+
+        // ===== Stack Instructions
+        // --- PHA
+        // --- PHP
+        // --- PLA
+        // --- PLP
+        // ===== Decrement & Increment
+        CPU::InstructionDecrement *_instructionDecrement;
+        CPU::InstructionIncrement *_instructionIncrement;
+        // --- DEC *
+        // --- DEX
+        CPU::InstructionDecrement *_instructionDecrementX; // TODO use general Decrement
+        // --- DEY
+        CPU::InstructionDecrement *_instructionDecrementY; // TODO use general Decrement
+        // --- INC *
+        // --- INX
+        CPU::InstructionIncrement *_instructionIncrementX; // TODO use general Increment
+        // --- INY
+        CPU::InstructionIncrement *_instructionIncrementY; // TODO use general Increment
+        // ===== Arithmetic Instructions
+        // --- ADC *
+        // --- SBC *
+        // ===== Logical Instructions
+        CPU::InstructionLogical *_instructionLogical;
+        // --- AND *
+        // --- EOR *
+        // --- ORA *
+        // ===== Shift & Rotate Instructions
+        // --- ASL *
+        // --- LSR *
+        // --- ROL *
+        // --- ROR *
+        // ===== Flag Instructions
+        // --- CLC
+        // --- CLD
+        // --- CLI
+        // --- CLV
+        // --- SEC
+        // --- SED
+        // --- SEI
+        // ===== Comparison Instructions
+        // --- CMP *
+        // --- CPX *
+        // --- CPY *
+        // ===== Conditional Branch Instructions (fmt: zzy10000)
+        // --- BCC
+        // --- BCS
+        // --- BEQ
+        // --- BMI
+        // --- BNE
+        // --- BPL
+        // --- BVC
+        // --- BVS
+        // ===== Jumps & Subroutines Instructions
+        // --- JUMP *
+        // --- JSR
+        // --- RTS
+        // ===== Interrupts Instructions
+        // --- BRK
+        // --- RTI
+        // ===== Other Instructions
+        // --- BIT *
+        // --- NOP
 
         // ----- Constructors -----
     public:

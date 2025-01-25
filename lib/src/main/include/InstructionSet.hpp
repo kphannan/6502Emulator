@@ -7,7 +7,6 @@
 #include <iomanip>
 
 #include "6502.hpp"
-#include "AddressMode.hpp"
 
 namespace m6502
 {
@@ -153,6 +152,54 @@ namespace m6502
     // --- PLA
     // --- PLP
     // ===== Decrement & Increment (increment, decrement)
+    class CPU::InstructionDecrement : public Instruction
+    {
+        // Constructors
+    public:
+        InstructionDecrement(CPU &cpu) : Instruction(cpu, "Transfer instruction", "xfr") {}
+        // InstructionLoad(CPU &cpu, const char *name, const char *mnemonic) {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
+
+    class CPU::InstructionIncrement : public Instruction
+    {
+        // Constructors
+    public:
+        InstructionIncrement(CPU &cpu) : Instruction(cpu, "Transfer instruction", "xfr") {}
+        // InstructionLoad(CPU &cpu, const char *name, const char *mnemonic) {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
+
+    // class CPU::InstructionDecrementIndex : public Instruction
+    // {
+    //     // Constructors
+    // public:
+    //     InstructionDecrementIndex(CPU &cpu) : Instruction(cpu, "Transfer instruction", "xfr") {}
+    //     // InstructionLoad(CPU &cpu, const char *name, const char *mnemonic) {}
+
+    //     // methods
+    // public:
+    //     virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    // };
+
+    // class CPU::InstructionIncrementIndex : public Instruction
+    // {
+    //     // Constructors
+    // public:
+    //     InstructionIncrementIndex(CPU &cpu) : Instruction(cpu, "Transfer instruction", "xfr") {}
+    //     // InstructionLoad(CPU &cpu, const char *name, const char *mnemonic) {}
+
+    //     // methods
+    // public:
+    //     virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    // };
+
     // --- DEC
     // --- DEX
     // --- DEY

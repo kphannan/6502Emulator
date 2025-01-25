@@ -25,37 +25,30 @@ namespace m6502
     // MNEMONIC                 HEX
     // TAX (Transfer A to X)    $AA
     // TXA (Transfer X to A)    $8A
-    // DEX (DEcrement X)        $CA
-    // INX (INcrement X)        $E8
+    // DEX (DEcrement X)        $CA     ; see increment.cpp
+    // INX (INcrement X)        $E8     ; see increment.cpp
     // TAY (Transfer A to Y)    $A8
     // TYA (Transfer Y to A)    $98
-    // DEY (DEcrement Y)        $88
-    // INY (INcrement Y)        $C8
+    // DEY (DEcrement Y)        $88     ; see increment.cpp
+    // INY (INcrement Y)        $C8     ; see increment.cpp
     //----------------------------------------
 
     // ----- Generic Load -----
     void CPU::InstructionTransfer::execute(InstructionTarget dst, InstructionTarget src)
     {
-        InstructionTransfer::execute(dst, src);
-        // TODO define a src and dst that is set during opcode decode
-        // src: memory - addressMode
-        // dst: A register
-        // cpu.A(cpu.decodePipeline().operand);
+        Instruction::execute(dst, src);
         std::cout << "   GENERIC TRANSFER " << std::endl;
 
-        // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-        // hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        // hardware::Byte value = cpu.addressSpace.read(address);
         switch (dst)
         {
         case InstructionTarget::A:
             switch (src)
             {
             case InstructionTarget::X:
-                cpu.registers.A = cpu.registers.X;
+                cpu.A(cpu.registers.X);
                 break;
             case InstructionTarget::Y:
-                cpu.registers.A = cpu.registers.Y;
+                cpu.A(cpu.registers.Y);
                 break;
             case InstructionTarget::MEMORY:
             case InstructionTarget::A:
@@ -80,7 +73,7 @@ namespace m6502
             switch (src)
             {
             case InstructionTarget::A:
-                cpu.registers.X = cpu.registers.A;
+                cpu.X(cpu.registers.A);
                 break;
             case InstructionTarget::MEMORY:
             case InstructionTarget::S:
@@ -94,7 +87,7 @@ namespace m6502
             switch (src)
             {
             case InstructionTarget::A:
-                cpu.registers.Y = cpu.registers.A;
+                cpu.Y(cpu.registers.A);
                 break;
             case InstructionTarget::MEMORY:
             case InstructionTarget::S:

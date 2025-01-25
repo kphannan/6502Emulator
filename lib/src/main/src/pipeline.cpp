@@ -4,7 +4,6 @@
 #include <iomanip>
 
 #include "6502.hpp"
-#include "AddressMode.hpp"
 #include "InstructionSet.hpp"
 
 namespace m6502
@@ -487,6 +486,20 @@ namespace m6502
         // format: aaabbbcc where aaa, bbb, cc represent groups of 2 or 3 bits.  Each
         // letter represents a single bit.
         // std::cout << "Instruction: switch(c: " << std::bitset<2>(opCode.memory.c) << ") > ";
+
+        // switch (opCode.memory.b) // 3 bits
+        // {
+        // case 0b000: // c(0) a(5) b(0)
+        // case 0b001: // c(0) a(5) b(1)
+        // case 0b010: // c(0) a(5) b(2)
+        // case 0b011: // c(0) a(5) b(3)
+        // case 0b100: // c(0) a(5) b(4)
+        // case 0b101: // c(0) a(5) b(5)
+        // case 0b110: // c(0) a(5) b(6)
+        // case 0b111: // c(0) a(5) b(7)
+        //     break;
+        // }
+
         switch (opCode.memory.c) // 2 bits
         {
         case 0b00: // c(0)
@@ -498,17 +511,13 @@ namespace m6502
             {
                 switch (opCode.memory.b) // 3 bits
                 {
-                case 0b000: // c(0) a(0) b(0)
-                            // BRK impl
-                case 0b010: // c(0) a(0) b(2)
-                            // PMP impl
-                case 0b100: // c(0) a(0) b(4)
-                            // BPL rel
-                case 0b110: // c(0) a(0) b(6)
-                            // CLC impl
+                case 0b000: // c(0) a(0) b(0) - BRK impl
                 case 0b001: // c(0) a(0) b(1)
+                case 0b010: // c(0) a(0) b(2) - PMP impl
                 case 0b011: // c(0) a(0) b(3)
+                case 0b100: // c(0) a(0) b(4) - BPL rel
                 case 0b101: // c(0) a(0) b(5)
+                case 0b110: // c(0) a(0) b(6) - CLC impl
                 case 0b111: // c(0) a(0) b(7)
                     // Illegal
                     break;
@@ -523,8 +532,8 @@ namespace m6502
                 case 0b010: // c(0) a(1) b(2) - PLP impl
                 case 0b011: // c(0) a(1) b(3) - BIT abs
                 case 0b100: // c(0) a(1) b(4) - BMI rel
-                case 0b110: // c(0) a(1) b(6) - SEC impl
                 case 0b101: // c(0) a(1) b(5) - illegal
+                case 0b110: // c(0) a(1) b(6) - SEC impl
                 case 0b111: // c(0) a(1) b(7) - illegal
                     break;
                 }
@@ -532,49 +541,58 @@ namespace m6502
             case 0b010:                  // c(0) a(2) - JMP
                 switch (opCode.memory.b) // 3 bits
                 {
-                case 0b000: // c(0) a(0) b(0)
-                            // RTI impl
-                case 0b010: // c(0) a(0) b(2)
-                            // PHA impl
-                case 0b011: // c(0) a(0) b(3)
-                            // JMP abs
-                case 0b100: // c(0) a(0) b(4)
-                            // BVC rel
-                case 0b110: // c(0) a(0) b(6)
-                            // CLI impl
-                case 0b001: // c(0) a(0) b(1)
-                case 0b101: // c(0) a(0) b(5)
-                case 0b111: // c(0) a(0) b(7)
-                    // Illegal
+                case 0b000: // c(0) a(2) b(0) - RTI impl
+                case 0b001: // c(0) a(2) b(1)   Illegal
+                case 0b010: // c(0) a(2) b(2) - PHA impl
+                case 0b011: // c(0) a(2) b(3) - JMP abs
+                case 0b100: // c(0) a(2) b(4) - BVC rel
+                case 0b101: // c(0) a(2) b(5)   Illegal
+                case 0b110: // c(0) a(2) b(6) - CLI impl
+                case 0b111: // c(0) a(2) b(7)   Illegal
                     break;
                 }
                 break;
             case 0b011:                  // c(0) a(3) - JMP (abs)
                 switch (opCode.memory.b) // 3 bits
                 {
-                case 0b000: // c(0) a(0) b(0)
-                            // RTS impl
-                case 0b010: // c(0) a(0) b(2)
-                            // PLA impl
-                case 0b011: // c(0) a(0) b(3)
-                            // JMP ind
-                case 0b100: // c(0) a(0) b(4)
-                            // BVS rel
-                case 0b110: // c(0) a(0) b(6)
-                            // SEI impl
-                case 0b001: // c(0) a(0) b(1)
-                case 0b101: // c(0) a(0) b(5)
-                case 0b111: // c(0) a(0) b(7)
+                case 0b000: // c(0) a(3) b(0) - RTS impl
+                case 0b001: // c(0) a(3) b(1)
+                case 0b010: // c(0) a(3) b(2) - PLA impl
+                case 0b011: // c(0) a(3) b(3) - JMP ind
+                case 0b100: // c(0) a(3) b(4) - BVS rel
+                case 0b101: // c(0) a(3) b(5)
+                case 0b110: // c(0) a(3) b(6) - SEI impl
+                case 0b111: // c(0) a(3) b(7)
                     // Illegal
                     break;
                 }
                 break;
-            case 0b100: // c(0) a(4) - STY
+            case 0b100: // c(0) a(4) - STY, DEY, BCC, TYA
             {
-                // b(2) DEY, b(4) BCC, b(6) TYA
-                cpuInstruction = cpu._instructionStore;
-                dst = InstructionTarget::MEMORY;
-                src = InstructionTarget::Y;
+                switch (opCode.memory.b) // 3 bits
+                {
+                case 0b000: // c(0) a(4) b(0)   Illegal
+                case 0b111: // c(0) a(4) b(7)   Illegal
+                    break;
+                case 0b001: // c(0) a(4) b(1) - STY $nn
+                case 0b011: // c(0) a(4) b(3) - STY $nnnn
+                case 0b101: // c(0) a(4) b(5) - STY $nn,X
+                    cpuInstruction = cpu._instructionStore;
+                    dst = InstructionTarget::MEMORY;
+                    src = InstructionTarget::Y;
+                case 0b010: // c(0) a(4) b(2) - DEY impl
+                    cpuInstruction = cpu._instructionDecrementY;
+                    dst = InstructionTarget::Y;
+                    src = InstructionTarget::Y;
+                    break;
+                case 0b100: // c(0) a(4) b(4) - BCC $nn
+                    break;
+                case 0b110: // c(0) a(4) b(6) - TYA impl
+                    cpuInstruction = cpu._instructionTransferYtoA;
+                    dst = InstructionTarget::A;
+                    src = InstructionTarget::Y;
+                    break;
+                }
 
                 /*
                 hardware::Byte &reg = cpu.registers.Y;
@@ -625,16 +643,69 @@ namespace m6502
                 */
                 break;
             }
-            case 0b101: // c(0) a(5) - LDY
-                // b(2): TAY imp, b(4): BCS rel, b(6): CLV impl
-                cpuInstruction = cpu._instructionLoadY;
-                dst = InstructionTarget::Y;
-                src = InstructionTarget::MEMORY;
+            case 0b101:                  // c(0) a(5) - LDY
+                switch (opCode.memory.b) // 3 bits
+                {
+                case 0b000: // c(0) a(5) b(0) - LDY #$nn
+                case 0b001: // c(0) a(5) b(1) - LDY $nn
+                case 0b011: // c(0) a(5) b(3) - LDY $nnnn
+                case 0b101: // c(0) a(5) b(5) - LDY $nn,X
+                case 0b111: // c(0) a(5) b(7) - LDY $nnnn,X
+                    cpuInstruction = cpu._instructionLoadY;
+                    dst = InstructionTarget::Y;
+                    src = InstructionTarget::MEMORY;
+                    break;
+                case 0b010: // c(0) a(5) b(2) - TAY
+                    cpuInstruction = cpu._instructionTransferAtoY;
+                    dst = InstructionTarget::Y;
+                    src = InstructionTarget::A;
+                    break;
+                case 0b100: // c(0) a(5) b(4) - BCS $nn
+                case 0b110: // c(0) a(5) b(6) - CLV
+                    break;
+                }
                 break;
-            case 0b110: // c(0) a(6) - CPY
-                // b(2): INY imp, b(4): BNE rel, b(6): CLD impl
+            case 0b110: // c(0) a(6) - CPY, BNE, CLD
+                switch (opCode.memory.b) // 3 bits
+                {
+                case 0b000: // c(0) a(6) b(0) - CPY #
+                case 0b001: // c(0) a(6) b(1) - CPY $nn
+                case 0b011: // c(0) a(6) b(3) - CPY $nnnn
+                    break;
+                case 0b010: // c(0) a(6) b(2) - INY
+                    cpuInstruction = cpu._instructionIncrementY;
+                    dst = InstructionTarget::Y;
+                    src = InstructionTarget::Y;
+                    break;
+                case 0b100: // c(0) a(6) b(4) - BNE $nn
+                    break;
+                case 0b101: // c(0) a(6) b(5)   Illegal
+                case 0b111: // c(0) a(6) b(7)   Illegal
+                    break;
+                case 0b110: // c(0) a(6) b(6) - CLD
+                    break;
+                }
                 break;
-            case 0b111: // c(0) a(7) - CPX
+            case 0b111: // c(0) a(7) - CPX, INX, BEQ, SED
+                switch (opCode.memory.b) // 3 bits
+                {
+                case 0b000: // c(0) a(7) b(0) - CPX #
+                case 0b001: // c(0) a(7) b(1) - CPX $nn
+                case 0b011: // c(0) a(7) b(3) - CPX $nnnn
+                    break;
+                case 0b010: // c(0) a(7) b(2) - INX
+                    cpuInstruction = cpu._instructionIncrementX;
+                    dst = InstructionTarget::X;
+                    src = InstructionTarget::X;
+                    break;
+                case 0b100: // c(0) a(7) b(4) - BEQ $nn
+                    break;
+                case 0b101: // c(0) a(7) b(5)   Illegal
+                case 0b111: // c(0) a(7) b(7)   Illegal
+                    break;
+                case 0b110: // c(0) a(7) b(6) - SED
+                   break;
+                }
                 break;
             }
 
@@ -812,12 +883,34 @@ namespace m6502
                 break;
             case 0b011: // c(2) a(3) - ROR
                 break;
-            case 0b100: // c(2) a(4) - STX
-                cpuInstruction = cpu._instructionStore;
-                dst = InstructionTarget::MEMORY;
-                src = InstructionTarget::X;
+            case 0b100:                  // c(2) a(4) - STX
+                switch (opCode.memory.b) // 3 bits
+                {
+                case 0b000: // c(2) a(4) b(0) -
+                case 0b100: // c(2) a(4) b(4) -
+                case 0b111: // c(2) a(4) b(7) -  "
+                    // n/a - Illegal
+                    break;
+                case 0b001: // c(2) a(4) b(1) -  "
+                case 0b011: // c(2) a(4) b(3) -  "
+                case 0b101: // c(2) a(4) b(5) -  "
+                    cpuInstruction = cpu._instructionStore;
+                    dst = InstructionTarget::MEMORY;
+                    src = InstructionTarget::X;
+                    break;
+                case 0b010: // c(2) a(4) b(2) - LSR
+                    cpuInstruction = cpu._instructionTransferXtoA;
+                    dst = InstructionTarget::A;
+                    src = InstructionTarget::X;
+                    break;
+                case 0b110: // c(2) a(4) b(6) - DEC
+                    cpuInstruction = cpu._instructionTransferXtoS;
+                    dst = InstructionTarget::S;
+                    src = InstructionTarget::X;
+                    break;
+                }
                 break;
-            case 0b101: // c(2) a(5) - LDX
+            case 0b101:                  // c(2) a(5) - LDX
                 switch (opCode.memory.b) // 3 bits
                 {
                 case 0b000: // c(2) a(5) b(0) - LDX
@@ -835,7 +928,7 @@ namespace m6502
                     src = InstructionTarget::A;
                     break;
                 case 0b100: // c(2) a(5) b(4) -
-                        // n/a Illegal
+                            // n/a Illegal
                     break;
                 case 0b110: // c(2) a(5) b(6) - DEC
                     cpuInstruction = cpu._instructionTransferStoX;
@@ -844,36 +937,51 @@ namespace m6502
                     break;
                 }
                 break;
-            case 0b110: // c(2) a(6) - DEC
+            case 0b110: // c(2) a(6) - DEC, DEX
+
+                switch (opCode.memory.b) // 3 bits
+                {
+                case 0b000: // c(2) a(6) b(0)   Illegal
+                case 0b100: // c(2) a(6) b(4)   Illegal
+                case 0b110: // c(2) a(6) b(6)   Illegal
+                    break;
+                case 0b001: // c(2) a(6) b(1) - DEC
+                case 0b011: // c(2) a(6) b(3) - DEC
+                case 0b101: // c(2) a(6) b(5) - DEC
+                case 0b111: // c(2) a(6) b(7) - DEC
+                    cpuInstruction = cpu._instructionDecrement;
+                    dst = InstructionTarget::MEMORY;
+                    src = InstructionTarget::MEMORY;
+                    break;
+                case 0b010: // c(2) a(6) b(2) - DEX
+                    cpuInstruction = cpu._instructionDecrementX;
+                    dst = InstructionTarget::X;
+                    src = InstructionTarget::X;
+                    break;
+                }
+
                 break;
             case 0b111: // c(2) a(7) - INC
+
+                switch (opCode.memory.b) // 3 bits
+                {
+                case 0b000: // c(2) a(7) b(0)  Illegal
+                case 0b100: // c(2) a(7) b(4)  Illegal
+                case 0b110: // c(2) a(7) b(6)  Illegal
+                    break;
+                case 0b001: // c(2) a(7) b(1) - INC $nn
+                case 0b010: // c(2) a(7) b(2) - NOP
+                case 0b011: // c(2) a(7) b(3) - INC $nnnn
+                case 0b101: // c(2) a(7) b(5) - INC $nn,X
+                case 0b111: // c(2) a(7) b(7) - INC $nnnn,X
+                    cpuInstruction = cpu._instructionIncrement;
+                    dst = InstructionTarget::MEMORY;
+                    src = InstructionTarget::MEMORY;
+                    break;
+                }
                 break;
             }
 
-            
-            
-//            switch (opCode.memory.b) // 3 bits
-//            {
-//            case 0b000: // c(2) a(0) b(0) - ASL
-//                break;
-//            case 0b001: // c(2) a(1) b(1) - ROL
-//                break;
-//            case 0b010: // c(2) a(2) b(2) - LSR
-//                break;
-//            case 0b011: // c(2) a(3) b(3) - ROR
-//                break;
-//            case 0b100: // c(2) a(4) b(4) - STX
-//                break;
-//            case 0b101: // c(2) a(5) b(5) - LDX
-//                break;
-//            case 0b110: // c(2) a(6) b(6) - DEC
-//                break;
-//            case 0b111: // c(2) a(7) b(7) - INC
-//                break;
-//            }
-
-            
-            
             // Addressing Mode
             switch (opCode.memory.b) // 3 bits
             {
@@ -883,7 +991,7 @@ namespace m6502
             case 0b001: // c(2) b(1) - ZeroPage
                 addressMode = cpu._addressModeZeroPage;
                 break;
-            case 0b010: // c(2) b(2) - Accumulator or Implied
+            case 0b010:                  // c(2) b(2) - Accumulator or Implied
                 switch (opCode.memory.a) // 3 bits
                 {
                 case 0b000: // c(2) b(2) a(0) - Accumulator
@@ -952,7 +1060,6 @@ namespace m6502
                     break;
                 case 0b101: // c(2) b(5) a(5) - LDX
                     addressMode = cpu._addressModeAbsoluteIndexedY;
-                    ;
                     break;
                 }
                 break;

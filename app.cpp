@@ -66,7 +66,24 @@ void loadProgram(memory::Memory &memory)
     // memory.write(0x2003, 0x24);
     // memory.write(0x2004, 0x40);
 
-    memory.write(0x2000, 0xAA); // TAX
+    //    memory.write(0x2000, 0xAA); // TAX
+    //    memory.write(0x2000, 0x8A); // TXA
+    //    memory.write(0x2000, 0xA8); // TAY
+    //    memory.write(0x2000, 0x98); // TYA
+    //    memory.write(0x2000, 0xCA); // DEX
+    //    memory.write(0x2000, 0xE8); // INX
+        memory.write(0x2000, 0x88); // DEY
+    //    memory.write(0x2000, 0xC8); // INY
+
+//    memory.write(0x2000, 0xC6); // DEC $72
+//    memory.write(0x2001, 0x72);
+//
+//    memory.write(0x0072, 0x74); //
+
+    // DEX (DEcrement X)        $CA
+    // INX (INcrement X)        $E8
+    // DEY (DEcrement Y)        $88
+    // INY (INcrement Y)        $C8
 
     testSize = 1;
 

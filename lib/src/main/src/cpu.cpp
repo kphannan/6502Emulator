@@ -4,7 +4,6 @@
 #include <iomanip>
 
 #include "6502.hpp"
-#include "AddressMode.hpp"
 #include "InstructionSet.hpp"
 
 namespace m6502
@@ -65,11 +64,15 @@ namespace m6502
         // --- TAX
         _instructionTransferAtoX = _instructionTransfer;
         // --- TAY
+        _instructionTransferAtoY = _instructionTransfer;
         // --- TSX
         _instructionTransferStoX = _instructionTransfer;
         // --- TXA
+        _instructionTransferXtoA = _instructionTransfer;
         // --- TXS
+        _instructionTransferXtoS = _instructionTransfer;
         // --- TYA
+        _instructionTransferYtoA = _instructionTransfer;
 
         // ===== Stack Instructions
         // --- PHA
@@ -77,12 +80,18 @@ namespace m6502
         // --- PLA
         // --- PLP
         // ===== Decrement & Increment
+        _instructionDecrement = new InstructionDecrement(*this);
+        _instructionIncrement = new InstructionIncrement(*this);
         // --- DEC
         // --- DEX
+        _instructionDecrementX = _instructionDecrement;
         // --- DEY
+        _instructionDecrementY = _instructionDecrement;
         // --- INC
         // --- INX
+        _instructionIncrementX = _instructionIncrement;
         // --- INY
+        _instructionIncrementY = _instructionIncrement;
         // ===== Arithmetic Instructions
         // --- ADC
         // --- SBC

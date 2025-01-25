@@ -51,12 +51,12 @@ namespace m6502
     // MNEMONIC                 HEX
     // TAX (Transfer A to X)    $AA
     // TXA (Transfer X to A)    $8A
-    // DEX (DEcrement X)        $CA
-    // INX (INcrement X)        $E8
+    // DEX (DEcrement X)        $CA     ; see incrementTest.cpp
+    // INX (INcrement X)        $E8     ; see incrementTest.cpp
     // TAY (Transfer A to Y)    $A8
     // TYA (Transfer Y to A)    $98
-    // DEY (DEcrement Y)        $88
-    // INY (INcrement Y)        $C8
+    // DEY (DEcrement Y)        $88     ; see incrementTest.cpp
+    // INY (INcrement Y)        $C8     ; see incrementTest.cpp
     //----------------------------------------
 
     // Addressing Modes
@@ -85,71 +85,61 @@ namespace m6502
     TEST_F(InstructionTransferTest, TXA_Implied)
     {
         // --- given
+        cpu->A(0x99);
+        cpu->X(0x10);
+        cpu->Y(0x10);
+        testMemory.write(0x2000, 0x8A); // TXA
 
         // --- when
+        cpu->executeFromAddress(0x2000, 1);
 
         // --- then
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
-    TEST_F(InstructionTransferTest, DEX_Implied)
-    {
-        // --- given
-
-        // --- when
-
-        // --- then
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
-    TEST_F(InstructionTransferTest, INX_Implied)
-    {
-        // --- given
-
-        // --- when
-
-        // --- then
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_EQ(0x10, cpu->X());
+        EXPECT_EQ(0x10, cpu->A());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionTransferTest, TAY_Implied)
     {
         // --- given
+        cpu->A(0x99);
+        cpu->X(0x10);
+        cpu->Y(0x10);
+        testMemory.write(0x2000, 0xA8); // TAY
 
         // --- when
+        cpu->executeFromAddress(0x2000, 1);
 
         // --- then
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_EQ(0x99, cpu->Y());
+        EXPECT_EQ(0x99, cpu->A());
+        EXPECT_EQ(0b10100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionTransferTest, TYA_Implied)
     {
         // --- given
+        cpu->A(0x99);
+        cpu->X(0x10);
+        cpu->Y(0x30);
+        testMemory.write(0x2000, 0x98); // TYA
 
         // --- when
+        cpu->executeFromAddress(0x2000, 1);
 
         // --- then
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
-    TEST_F(InstructionTransferTest, DEY_Implied)
-    {
-        // --- given
-
-        // --- when
-
-        // --- then
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
-    TEST_F(InstructionTransferTest, INY_Implied)
-    {
-        // --- given
-
-        // --- when
-
-        // --- then
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_EQ(0x30, cpu->Y());
+        EXPECT_EQ(0x30, cpu->A());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
     // ..... Accumulator

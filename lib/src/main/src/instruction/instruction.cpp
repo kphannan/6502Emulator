@@ -5,7 +5,6 @@
 #include <iomanip>
 
 #include "6502.hpp"
-#include "AddressMode.hpp"
 #include "InstructionSet.hpp"
 
 namespace m6502

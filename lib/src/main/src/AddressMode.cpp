@@ -1,7 +1,7 @@
 
 
 #include "hardware.hpp"
-#include "AddressMode.hpp"
+#include "6502.hpp"
 
 namespace m6502
 {
