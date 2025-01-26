@@ -513,7 +513,12 @@ namespace m6502
                 {
                 case 0b000: // c(0) a(0) b(0) - BRK impl
                 case 0b001: // c(0) a(0) b(1)
-                case 0b010: // c(0) a(0) b(2) - PMP impl
+                    break;
+                case 0b010: // c(0) a(0) b(2) - PHP impl
+                    cpuInstruction = cpu._instructionStack;
+                    dst = InstructionTarget::STACK; // TODO was memory
+                    src = InstructionTarget::PSR;
+                    break;
                 case 0b011: // c(0) a(0) b(3)
                 case 0b100: // c(0) a(0) b(4) - BPL rel
                 case 0b101: // c(0) a(0) b(5)
@@ -530,6 +535,10 @@ namespace m6502
                 case 0b000: // c(0) a(1) b(0) - JSR abs
                 case 0b001: // c(0) a(1) b(1) - BIT zpg
                 case 0b010: // c(0) a(1) b(2) - PLP impl
+                    cpuInstruction = cpu._instructionStack;
+                    dst = InstructionTarget::PSR;
+                    src = InstructionTarget::STACK; // TODO was memory
+                    break;
                 case 0b011: // c(0) a(1) b(3) - BIT abs
                 case 0b100: // c(0) a(1) b(4) - BMI rel
                 case 0b101: // c(0) a(1) b(5) - illegal
@@ -542,13 +551,21 @@ namespace m6502
                 switch (opCode.memory.b) // 3 bits
                 {
                 case 0b000: // c(0) a(2) b(0) - RTI impl
+                    break;
                 case 0b001: // c(0) a(2) b(1)   Illegal
-                case 0b010: // c(0) a(2) b(2) - PHA impl
-                case 0b011: // c(0) a(2) b(3) - JMP abs
-                case 0b100: // c(0) a(2) b(4) - BVC rel
                 case 0b101: // c(0) a(2) b(5)   Illegal
-                case 0b110: // c(0) a(2) b(6) - CLI impl
                 case 0b111: // c(0) a(2) b(7)   Illegal
+                    break;
+                case 0b010: // c(0) a(2) b(2) - PHA impl
+                    cpuInstruction = cpu._instructionStack;
+                    dst = InstructionTarget::STACK; // TODO was memory
+                    src = InstructionTarget::A;
+                    break;
+                case 0b011: // c(0) a(2) b(3) - JMP abs
+                    break;
+                case 0b100: // c(0) a(2) b(4) - BVC rel
+                    break;
+                case 0b110: // c(0) a(2) b(6) - CLI impl
                     break;
                 }
                 break;
@@ -557,7 +574,12 @@ namespace m6502
                 {
                 case 0b000: // c(0) a(3) b(0) - RTS impl
                 case 0b001: // c(0) a(3) b(1)
+                    break;
                 case 0b010: // c(0) a(3) b(2) - PLA impl
+                    cpuInstruction = cpu._instructionStack;
+                    dst = InstructionTarget::A;
+                    src = InstructionTarget::STACK; // TODO was memory
+                    break;
                 case 0b011: // c(0) a(3) b(3) - JMP ind
                 case 0b100: // c(0) a(3) b(4) - BVS rel
                 case 0b101: // c(0) a(3) b(5)
@@ -666,7 +688,7 @@ namespace m6502
                     break;
                 }
                 break;
-            case 0b110: // c(0) a(6) - CPY, BNE, CLD
+            case 0b110:                  // c(0) a(6) - CPY, BNE, CLD
                 switch (opCode.memory.b) // 3 bits
                 {
                 case 0b000: // c(0) a(6) b(0) - CPY #
@@ -687,7 +709,7 @@ namespace m6502
                     break;
                 }
                 break;
-            case 0b111: // c(0) a(7) - CPX, INX, BEQ, SED
+            case 0b111:                  // c(0) a(7) - CPX, INX, BEQ, SED
                 switch (opCode.memory.b) // 3 bits
                 {
                 case 0b000: // c(0) a(7) b(0) - CPX #
@@ -705,7 +727,7 @@ namespace m6502
                 case 0b111: // c(0) a(7) b(7)   Illegal
                     break;
                 case 0b110: // c(0) a(7) b(6) - SED
-                   break;
+                    break;
                 }
                 break;
             }
@@ -739,7 +761,29 @@ namespace m6502
                 // TODO check illegal instructions at a(0,2,3)
                 break;
             case 0b010: // c(0) b(2) - Implied
-                addressMode = cpu._addressModeImplied;
+
+                switch (opCode.memory.a) // 3 bits
+                {
+                case 0b000: // b(3) a(0) - PHP
+                    addressMode = cpu._addressModeStackPush;
+                    break;
+                case 0b001: // b(3) a(1) - PLP
+                    addressMode = cpu._addressModeStackPull;
+                    break;
+                case 0b010: // b(3) a(2) - PHA
+                    addressMode = cpu._addressModeStackPush;
+                    break;
+                case 0b011: // b(3) a(3) - PLA
+                    addressMode = cpu._addressModeStackPull;
+                    break;
+                case 0b100: // b(3) a(4) - DEY
+                case 0b101: // b(3) a(5) - TAY
+                case 0b110: // b(3) a(6) - INY
+                case 0b111: // b(3) a(7) - INX
+                    addressMode = cpu._addressModeImplied;
+                    break;
+                }
+
                 break;
             case 0b011: // c(0) b(3) - Absolute
                         // TODO more modes
@@ -1043,6 +1087,9 @@ namespace m6502
                 }
                 break;
             case 0b110: // c(2) b(6) - Absolute,Y
+                // a(4,5) implied a(0-3,6-7) illegal
+                addressMode = cpu._addressModeImplied;
+                break;
                 break;
             case 0b111: // c(2) b(7) - Absolute,X
 

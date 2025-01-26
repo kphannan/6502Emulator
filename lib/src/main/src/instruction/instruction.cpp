@@ -34,8 +34,14 @@ namespace m6502
         case InstructionTarget::PC:
             name = "PC";
             break;
+        case InstructionTarget::PSR:
+            name = "PSR";
+            break;
         case InstructionTarget::MEMORY:
             name = "Memory";
+            break;
+        case InstructionTarget::STACK:
+            name = "Stack";
             break;
         case InstructionTarget::FLAG_N:
             name = "N";

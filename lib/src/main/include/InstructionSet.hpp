@@ -147,6 +147,16 @@ namespace m6502
     // --- TYA
 
     // ===== Stack Instructions (push, pop)
+    class CPU::InstructionStack : public Instruction
+    {
+        // Constructors
+    public:
+        InstructionStack(CPU &cpu) : Instruction(cpu, "Stack instruction", "stk") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src);
+    };
     // --- PHA
     // --- PHP
     // --- PLA
@@ -156,7 +166,7 @@ namespace m6502
     {
         // Constructors
     public:
-        InstructionDecrement(CPU &cpu) : Instruction(cpu, "Transfer instruction", "xfr") {}
+        InstructionDecrement(CPU &cpu) : Instruction(cpu, "Decrement instruction", "dec") {}
         // InstructionLoad(CPU &cpu, const char *name, const char *mnemonic) {}
 
         // methods
@@ -168,7 +178,7 @@ namespace m6502
     {
         // Constructors
     public:
-        InstructionIncrement(CPU &cpu) : Instruction(cpu, "Transfer instruction", "xfr") {}
+        InstructionIncrement(CPU &cpu) : Instruction(cpu, "Increment instruction", "inc") {}
         // InstructionLoad(CPU &cpu, const char *name, const char *mnemonic) {}
 
         // methods

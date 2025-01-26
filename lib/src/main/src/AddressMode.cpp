@@ -147,5 +147,41 @@ namespace m6502
         return cpu.registers.PC++;
     }
 
+    // ----- AddressModeImplied -----
+    hardware::Address CPU::AddressModeImplied::execute()
+    {
+        AddressMode::execute();
+
+        return 0xFFFF;      // return address is always ignored.
+    }
+
+    // ----- AddressModeStack -----
+    hardware::Address CPU::AddressModeStack::execute()
+    {
+        return AddressMode::execute();
+
+        // decrement stack after calculating the address
+//        return (cpu.registers.S-- & stackMask) + stackPage;
+    }
+
+    hardware::Address CPU::AddressModeStackPush::execute()
+    {
+        AddressMode::execute();
+
+        // decrement stack after calculating the address
+        return (cpu.registers.S-- & stackMask) + stackPage;
+    }
+
+    hardware::Address CPU::AddressModeStackPull::execute()
+    {
+        AddressMode::execute();
+
+        // increment stack before calculating the address
+        cpu.registers.S++;
+        return (cpu.registers.S & stackMask) + stackPage;
+    }
+
+
+
     //    }
 }

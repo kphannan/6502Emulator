@@ -33,18 +33,19 @@ namespace m6502
     // class CPU::AddressModeIndexedIndirectX;
     // class CPU::AddressModeIndirectIndexedY;
     // class CPU::AddressModeImmediate;
+    // class CPU::AddressModeStack;
 
     // Identifies the source & destination of an operation
     enum class InstructionTarget
     {
         Undefined,
         // Register
-        A,  // Accumulator
-        X,  // X Index
-        Y,  // Y Index
-        S,  // Stack  Pointer
-        PC, // Program Counter
-            // Status Register
+        A,      // Accumulator
+        X,      // X Index
+        Y,      // Y Index
+        S,      // Stack  Pointer
+        PC,     // Program Counter
+        PSR,    // Status Register
         FLAG_N, // negative
         FLAG_V, // overflow
         FLAG_B, // break
@@ -53,7 +54,8 @@ namespace m6502
         FLAG_Z, // zero
         FLAG_C, // carry
                 // Memory
-        MEMORY  // Location in the address space (use addressing mode)
+        MEMORY, // Location in the address space (use addressing mode)
+        STACK   // Stack memory
     };
 
     // http://www.6502.org/users/obelisk/6502/registers.html
@@ -209,11 +211,11 @@ namespace m6502
             AddressModeImplied(CPU &cpu) : AddressMode(cpu, "Implicit", "") {}
             // Methods
         public:
-            virtual hardware::Address execute() override
-            {
-                std::cout << "AddressMode(Implied): Not yet implemented" << std::endl;
-                return AddressMode::execute();
-            };
+            hardware::Address execute() override;
+            // {
+            //     std::cout << "AddressMode(Implied): Not yet implemented" << std::endl;
+            //     return AddressMode::execute();
+            // };
         };
 
         //        ACCUMULATOR,        // Accumulator         A
@@ -240,16 +242,7 @@ namespace m6502
             AddressModeZeroPage(CPU &cpu) : AddressMode(cpu, "ZeroPage", "$nn") {}
             // Methods
         public:
-            virtual hardware::Address execute() override;
-            // {
-            //     AddressMode::execute();
-            //     hardware::Address zpOffset = cpu.addressSpace.read(cpu.registers.PC++);
-
-            //     cpu.decodePipeline().operand = cpu.addressSpace.read(0x0000 + zpOffset);
-
-            //     // TODO return 'address'
-            //     return zpOffset;
-            // }
+            hardware::Address execute() override;
         };
 
         //        ZERO_PAGE_X,        // Zero Page, X        $nn,X      LO bits 4,5,6
@@ -260,15 +253,7 @@ namespace m6502
             AddressModeZeroPageIndexedX(CPU &cpu) : AddressMode(cpu, "ZeroPage,X", "$nn,X") {}
             // Methods
         public:
-            virtual hardware::Address execute() override;
-            // {
-            //     AddressMode::execute();
-            //     hardware::Address zpOffset = cpu.addressSpace.read(cpu.registers.PC++);
-            //     cpu.decodePipeline().operand = cpu.addressSpace.read(zpOffset + cpu.registers.X);
-
-            //     // TODO return 'address'
-            //     return zpOffset + cpu.registers.X;
-            // }
+            hardware::Address execute() override;
         };
 
         //        ZERO_PAGE_Y,        // Zero Page, Y        $nn,Y      LO bits 4,5,6
@@ -279,15 +264,7 @@ namespace m6502
             AddressModeZeroPageIndexedY(CPU &cpu) : AddressMode(cpu, "ZeroPage, Y", "$nn,Y") {}
             // Methods
         public:
-            virtual hardware::Address execute() override;
-            // {
-            //     AddressMode::execute();
-            //     hardware::Address zpOffset = cpu.addressSpace.read(cpu.registers.PC++);
-            //     cpu.decodePipeline().operand = cpu.addressSpace.read(zpOffset + cpu.registers.Y);
-
-            //     // TODO return 'address'
-            //     return zpOffset + cpu.registers.Y;
-            // }
+            hardware::Address execute() override;
         };
 
         //        RELATIVE,           // Relative            $nn
@@ -314,16 +291,7 @@ namespace m6502
             AddressModeAbsolute(CPU &cpu) : AddressMode(cpu, "Absolute", "$nnnn") {}
             // Methods
         public:
-            virtual hardware::Address execute() override;
-            // {
-            //     AddressMode::execute();
-            //     hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC);
-            //     cpu.decodePipeline().operand = cpu.addressSpace.read(absolute);
-            //     cpu.registers.PC += 2;
-
-            //     // TODO return 'address'
-            //     return absolute;
-            // }
+            hardware::Address execute() override;
         };
 
         //        ABSOLUTE_X,         // Absolute, X         $nnnn,X
@@ -334,17 +302,7 @@ namespace m6502
             AddressModeAbsoluteIndexedX(CPU &cpu) : AddressMode(cpu, "Absolute,X", "$nnnn,X") {}
             // Methods
         public:
-            virtual hardware::Address execute() override;
-            // {
-            //     // value = read( $nnnn + X)
-            //     AddressMode::execute();
-            //     hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC);
-            //     cpu.decodePipeline().operand = cpu.addressSpace.read(absolute + cpu.registers.X);
-            //     cpu.registers.PC += 2;
-
-            //     // TODO return 'address'
-            //     return absolute + cpu.registers.X;
-            // }
+            hardware::Address execute() override;
         };
 
         //        ABSOLUTE_Y,         // Absolute, Y         $nnnn,Y
@@ -355,17 +313,7 @@ namespace m6502
             AddressModeAbsoluteIndexedY(CPU &cpu) : AddressMode(cpu, "Absolute,Y", "$nnnn,Y") {}
             // Methods
         public:
-            virtual hardware::Address execute() override;
-            // {
-            //     // value = read( $nnnn + Y)
-            //     AddressMode::execute();
-            //     hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC);
-            //     cpu.decodePipeline().operand = cpu.addressSpace.read(absolute + cpu.registers.Y);
-            //     cpu.registers.PC += 2;
-
-            //     // TODO return 'address'
-            //     return absolute + cpu.registers.Y;
-            // }
+            hardware::Address execute() override;
         };
 
         //        INDIRECT,           // Indirect            ($nnnn)
@@ -396,17 +344,7 @@ namespace m6502
             AddressModeIndexedIndirectX(CPU &cpu) : AddressMode(cpu, "X Indexed Indirect", "($nn,X)") {}
             // Methods
         public:
-            virtual hardware::Address execute() override;
-            // {
-            //     // value = read( $nn + X )
-            //     AddressMode::execute();
-            //     hardware::Address zeroPageAddress = cpu.addressSpace.read(cpu.registers.PC++);
-            //     hardware::Address address = cpu.addressSpace.readWord(zeroPageAddress + cpu.registers.X);
-            //     cpu.decodePipeline().operand = cpu.addressSpace.read(address);
-
-            //     // TODO return 'address'
-            //     return address;
-            // }
+            hardware::Address execute() override;
         };
 
         //        INDIRECT_INDEXED_Y  // Y Indirect Indexed  ($nn),Y    LO bit 1
@@ -417,20 +355,7 @@ namespace m6502
             AddressModeIndirectIndexedY(CPU &cpu) : AddressMode(cpu, "Y Indirect Indexed", "($nn),Y") {}
             // Methods
         public:
-            virtual hardware::Address execute() override;
-            // {
-            //     AddressMode::execute();
-            //     // read( read( $nn ) | (read( $nn + 1) << 8) + Y )
-            //     // indirect pointer (PC | (PC+1)<<8) + Y
-            //     // value = read( $nn + X )
-            //     hardware::Address zpOffset = cpu.addressSpace.read(cpu.registers.PC++);
-            //     hardware::Address address = cpu.addressSpace.readWord(zpOffset);
-            //     address += cpu.registers.Y;
-            //     cpu.decodePipeline().operand = cpu.addressSpace.read(address);
-
-            //     // TODO return 'address'
-            //     return address;
-            // }
+            hardware::Address execute() override;
         };
 
         //         IMMEDIATE,          // Immediate           #$nn
@@ -457,20 +382,46 @@ namespace m6502
         private:
         protected:
         public:
-            virtual hardware::Address execute();
-            // {
-            //     AddressMode::execute();
-
-            //     // cpu.decodePipeline().operand = cpu.addressSpace.read(cpu.registers.PC++);
-
-            //     // // TODO return 'byte - literal'
-            //     // return cpu.addressSpace.read(cpu.registers.PC - 1); // TODO watch the PC value when opeand fetch is removed from this method
-            //     return cpu.registers.PC++;
-            // }
+            hardware::Address execute() override;
             // Operators
         private:
         protected:
         public:
+        };
+
+        //        Stack (pseudo),      // Stack               $01nn
+        class AddressModeStack : public AddressMode
+        {
+        public:
+            const static hardware::Address stackPage = 0x0100;
+            const static hardware::Address stackMask = 0x00FF;
+
+            // Constructors
+        public:
+            AddressModeStack(CPU &cpu, const char *name, const char *mnemonic) : AddressMode(cpu, name, mnemonic) {}
+            // Methods
+        public:
+            hardware::Address execute() override;
+        };
+
+        class AddressModeStackPull : public AddressModeStack
+        {
+            // Constructors
+        public:
+            AddressModeStackPull(CPU &cpu) : AddressModeStack(cpu, "Stack Pull", "$01nn") {}
+            // Methods
+        public:
+            hardware::Address execute() override;
+        };
+
+        class AddressModeStackPush : public AddressModeStack
+        {
+            // Constructors
+        public:
+            AddressModeStackPush(CPU &cpu) : AddressModeStack(cpu, "Stack Push", "$01nn") {}
+            // Methods
+        public:
+            hardware::Address execute() override;
         };
 
         // // ----- Forward Declarations of Inner classes
@@ -536,6 +487,7 @@ namespace m6502
         // --- TYA
 
         // ===== Stack Instructions
+        class InstructionStack;
         // --- PHA
         // --- PHP
         // --- PLA
@@ -755,6 +707,9 @@ namespace m6502
         CPU::AddressModeIndexedIndirectX *_addressModeIndexedIndirectX;
         CPU::AddressModeIndirectIndexedY *_addressModeIndirectIndexedY;
         CPU::AddressModeImmediate *_addressModeImmediate;
+        // CPU::AddressModeStack *_addressModeStack;
+        CPU::AddressModeStackPull *_addressModeStackPull;
+        CPU::AddressModeStackPush *_addressModeStackPush;
 
         // TODO get the actual operations
         CPU::Instruction *_instructionUndefined;
@@ -793,6 +748,7 @@ namespace m6502
         CPU::InstructionTransfer *_instructionTransferYtoA;
 
         // ===== Stack Instructions
+        CPU::InstructionStack *_instructionStack;
         // --- PHA
         // --- PHP
         // --- PLA
@@ -894,8 +850,16 @@ namespace m6502
             setN((value & 0b10000000) != 0); // 2s compliment bit 7 is sign bit
         };
 
+        void P(hardware::Byte value)
+        {
+            registers.P = value;
+        };
+
         void S(hardware::Address value)
         {
+            // TODO address the fact the stack pointer is 8 bits and lives in page 1
+            // TODO mask / set the value
+            // TODO - may change from Address to Byte and let addresMode handle the page
             registers.S = value;
         };
 

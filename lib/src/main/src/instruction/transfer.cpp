@@ -31,6 +31,8 @@ namespace m6502
     // TYA (Transfer Y to A)    $98
     // DEY (DEcrement Y)        $88     ; see increment.cpp
     // INY (INcrement Y)        $C8     ; see increment.cpp
+    // TXS (Transfer X to Stack ptr)   $9A  2   ; see stack.cpp
+    // TSX (Transfer Stack ptr to X)   $BA  2   ; see stack.cpp
     //----------------------------------------
 
     // ----- Generic Load -----
@@ -64,6 +66,8 @@ namespace m6502
             case InstructionTarget::A:
             case InstructionTarget::S:
             case InstructionTarget::X:
+                cpu.registers.S = cpu.registers.X;  // no status flags effected
+                break;
             case InstructionTarget::Y:
             default:
                 break;
@@ -77,6 +81,8 @@ namespace m6502
                 break;
             case InstructionTarget::MEMORY:
             case InstructionTarget::S:
+                cpu.X( cpu.registers.S);  // flags effected
+                break;
             case InstructionTarget::X:
             case InstructionTarget::Y:
             default:

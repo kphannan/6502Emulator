@@ -44,7 +44,11 @@ int main(int argc, char **argv)
     processor.A(0x21);
     processor.X(0x38);
     processor.Y(0x10);
+    processor.S(0xF1);
 
+    memory.write( 0x01F1, 0x22);
+    memory.write( 0x01F2, 0x33);
+    
     // std::cout << memory.name() << std::endl;
     // std::cout << processor.currentMemory().name() << std::endl;
     processor.showRegisters();
@@ -86,11 +90,16 @@ void loadProgram(memory::Memory &memory)
     // INY (INcrement Y)        $C8
 
     
-    memory.write(0x2000, 0x8C); // STY $3010
-    memory.write(0x2001, 0x10);
-    memory.write(0x2002, 0x30);
+//    memory.write(0x2000, 0x8C); // STY $3010
+//    memory.write(0x2001, 0x10);
+//    memory.write(0x2002, 0x30);
     
-    
+    //    memory.write(0x2000, 0x48); // PHA
+    //    memory.write(0x2000, 0x08); // PHP
+    //    memory.write(0x2000, 0x68); // PLA
+        memory.write(0x2000, 0x28); // PLP
+    //    memory.write(0x2000, 0xBA); // TSX
+    //    memory.write(0x2000, 0x9A); // TXS
     testSize = 1;
 
     // memory.write(0x4024, 0x48);

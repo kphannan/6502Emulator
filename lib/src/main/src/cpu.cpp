@@ -34,6 +34,9 @@ namespace m6502
         _addressModeIndexedIndirectX = new AddressModeIndexedIndirectX(*this);
         _addressModeIndirectIndexedY = new AddressModeIndirectIndexedY(*this);
         _addressModeImmediate = new AddressModeImmediate(*this);
+//        _addressModeStack = new AddressModeStack(*this);
+        _addressModeStackPull = new AddressModeStackPull(*this);
+        _addressModeStackPush = new AddressModeStackPush(*this);
 
         // ===== Instructions =====
         _instructionUndefined = new Instruction(*this, "Illegal Instruction", "bad");
@@ -75,6 +78,7 @@ namespace m6502
         _instructionTransferYtoA = _instructionTransfer;
 
         // ===== Stack Instructions
+        _instructionStack = new InstructionStack(*this);
         // --- PHA
         // --- PHP
         // --- PLA
