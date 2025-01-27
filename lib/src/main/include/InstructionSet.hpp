@@ -179,6 +179,19 @@ namespace m6502
     // --- ORA
     // ===== Shift & Rotate Instructions (shift, rotate both left and right)
     // --- ASL
+    class CPU::InstructionShiftLeft : public Instruction
+    {
+        // Constructors
+    public:
+        InstructionShiftLeft(CPU &cpu) : Instruction(cpu, "Shift Left instruction", "ASL") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+
+    private:
+        hardware::Byte shiftLeft(hardware::Byte value);
+    };
     // --- LSR
     class CPU::InstructionShiftRight : public Instruction
     {

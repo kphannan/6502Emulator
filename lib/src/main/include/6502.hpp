@@ -515,6 +515,7 @@ namespace m6502
         // --- ORA *
         // ===== Shift & Rotate Instructions
         // --- ASL *
+        class InstructionShiftLeft;
         // --- LSR *
         class InstructionShiftRight;
         // --- ROL *
@@ -779,6 +780,7 @@ namespace m6502
         // --- ORA *
         // ===== Shift & Rotate Instructions
         // --- ASL *
+        CPU::InstructionShiftLeft *_instructionShiftLeft;
         // --- LSR *
         CPU::InstructionShiftRight *_instructionShiftRight;
         // --- ROL *

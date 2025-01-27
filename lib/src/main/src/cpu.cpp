@@ -106,6 +106,7 @@ namespace m6502
         // --- ORA
         // ===== Shift & Rotate Instructions
         // --- ASL
+        _instructionShiftLeft = new InstructionShiftLeft(*this);
         // --- LSR
         _instructionShiftRight = new InstructionShiftRight(*this);
         // --- ROL

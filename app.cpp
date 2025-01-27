@@ -113,11 +113,26 @@ void loadProgram(m6502::CPU &processor )
     //    memory.write(0x2000, 0x9A); // TXS
 
     
-    processor.A(0x80); // 0b1000 0000 -> 0000 0000  C:1
-    processor.clearC();
+//    processor.A(0x80); // 0b1000 0000 -> 0000 0000  C:1
+//    processor.clearC();
 
-    memory.write(0x2000, 0x2A); // ROL
+//    memory.write(0x2000, 0x2A); // ROL
 //    memory.write(0x2000, 0x6A); // ROR
+
+//    processor.A(0x22); // 0b1000 0000 -> 0000 0000  C:1
+//    processor.setC();
+//    memory.write(0x2000, 0x0A); // ASL
+
+//    processor.X(0x10); // 0b1000 0000 -> 0000 0000  C:1
+//    memory.write(0x2000, 0x16); // ASL
+//    memory.write(0x2001, 0x08);
+//    memory.write(0x0018, 0x55);
+
+    memory.write(0x2000, 0x0E); // ASL $nnnn
+    memory.write(0x2001, 0x08);
+    memory.write(0x2002, 0x22);
+
+    memory.write(0x2208, 0x22); // 0010 0010 -> 0100 0100
 
     
 

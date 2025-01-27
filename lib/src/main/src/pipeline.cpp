@@ -920,7 +920,27 @@ namespace m6502
             // Instruction
             switch (opCode.memory.a) // 3 bits
             {
-            case 0b000: // c(2) a(0) - ASL
+            case 0b000: // c(2) a(0) - ASL   // TODO ASL
+                    switch (opCode.memory.b) // 3 bits
+                    {
+                    case 0b000: // c(2) a(0) b(0)   Illegal (JAM)
+                    case 0b100: // c(2) a(0) b(4)   Illegal (JAM)
+                    case 0b110: // c(2) a(0) b(6)   Illegal (NOP impl)
+                        break;
+                    case 0b010: // c(2) a(1) b(2) - ASL A
+                        cpuInstruction = cpu._instructionShiftLeft;
+                        dst = InstructionTarget::A;
+                        src = InstructionTarget::A;
+                        break;
+                    case 0b001: // c(2) a(0) b(1) - ASL $nn
+                    case 0b011: // c(2) a(0) b(3) - ASL $nnnn
+                    case 0b101: // c(2) a(0) b(5) - ASL $nn,X
+                    case 0b111: // c(2) a(0) b(7) - ASL $nnnn,X
+                        cpuInstruction = cpu._instructionShiftLeft;
+                        dst = InstructionTarget::MEMORY;
+                        src = InstructionTarget::MEMORY;
+                        break;
+                    }
                 break;
             case 0b001:                  // c(2) a(1) - ROL
                 switch (opCode.memory.b) // 3 bits
@@ -944,7 +964,7 @@ namespace m6502
                     break;
                 }
                 break;
-            case 0b010: // c(2) a(2) - LSR // TODO  LSR breakdown
+            case 0b010: // c(2) a(2) - LSR
 
                 switch (opCode.memory.b) // 3 bits
                 {
@@ -1124,7 +1144,7 @@ namespace m6502
                 addressMode = cpu._addressModeZeroPageIndexedX;
                 switch (opCode.memory.a) // 3 bits
                 {
-                case 0b000: // c(2) b(5) a(0) - ASL
+                case 0b000: // c(2) b(5) a(0) - ASL   // TODO ASL
                     break;
                 case 0b001: // c(2) b(5) a(1) - ROL
                     break;
@@ -1157,7 +1177,7 @@ namespace m6502
 
                 switch (opCode.memory.a) // 3 bits
                 {
-                case 0b000: // c(2) b(7) a(0) - ASL
+                case 0b000: // c(2) b(7) a(0) - ASL  // TODO ASL
                 case 0b001: // c(2) b(7) a(1) - ROL
                 case 0b010: // c(2) b(7) a(2) - LSR
                 case 0b011: // c(2) b(7) a(3) - ROR

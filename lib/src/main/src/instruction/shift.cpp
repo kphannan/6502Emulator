@@ -35,6 +35,69 @@ namespace m6502
     // ASL shifts all bits left one position. 0 is shifted into bit 0 and the original bit 7 is shifted into the Carry.
     //----------------------------------------
 
+    hardware::Byte CPU::InstructionShiftLeft::shiftLeft(hardware::Byte value)
+    {
+        // hardware::Byte originalValue = value;
+        // Set carry bit to the value of bit 0
+        value & 0x80 ? cpu.setC() : cpu.clearC();
+
+        // Shift the bits to the right
+        value <<= 1;
+
+        // // Copy the carry bit into bit 7
+        // if (cpu.isC())
+        //     value |= 0x80;
+
+        // Set the N flag to the value of bit 7
+        // 2's complement negative
+        // Never possible since msb is always 0
+        value & 0x80 ? cpu.setN() : cpu.clearN();
+
+        value == 0x00 ? cpu.setZ() : cpu.clearZ();
+
+        return value;
+    }
+
+    void CPU::InstructionShiftLeft::execute(InstructionTarget dst, InstructionTarget src)
+    {
+        Instruction::execute(dst, src);
+        std::cout << "   GENERIC SHIFT LEFT " << std::endl;
+
+        switch (dst)
+        {
+        case InstructionTarget::MEMORY: // M -> M
+            switch (src)
+            {
+            case InstructionTarget::MEMORY:
+            {
+                hardware::Address address = cpu.decodePipeline().addressMode->execute();
+                hardware::Byte value = cpu.addressSpace.read(address);
+
+                value = shiftLeft(value);
+                cpu.addressSpace.write(address, value);
+                break;
+            }
+            default:
+                break;
+            }
+            break;
+
+        case InstructionTarget::A: // A -> A
+            switch (src)
+            {
+            case InstructionTarget::A:
+                cpu.A(shiftLeft(cpu.A()));
+                break;
+            default:
+                break;
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+
     // Addressing Modes
     // ----- Immediate #$BB
 
