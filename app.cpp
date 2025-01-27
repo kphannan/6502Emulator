@@ -13,7 +13,8 @@
 // #include "TutorialConfig.h"
 
 // Forward declarations
-void loadProgram(memory::Memory &memory);
+//void loadProgram(memory::Memory &memory);
+void loadProgram( m6502::CPU &processor );
 void showMemory(memory::Memory &mem, const hardware::Address from, const int count);
 
 int testSize = 0;
@@ -34,7 +35,8 @@ int main(int argc, char **argv)
     memory::Memory memory;
     m6502::CPU processor(memory);
 
-    loadProgram(memory);
+//    loadProgram(memory);
+    loadProgram(processor);
     processor.reset();
     memory.showMemory(0x0000, 0x32);
     memory.showMemory(0xFFFA, 6);
@@ -60,8 +62,9 @@ int main(int argc, char **argv)
     return 0;
 }
 
-void loadProgram(memory::Memory &memory)
+void loadProgram(m6502::CPU &processor )
 {
+    memory::Memory memory = processor.currentMemory();
     // cpu::Address = std::to_underlying(cpu::HardwareVector::RESET);
     // int address = std::to_underlying(m6502::HardwareVector::RESET);
     // memory.write(0x2000, 0xA9); // LDA #$10
@@ -97,9 +100,21 @@ void loadProgram(memory::Memory &memory)
     //    memory.write(0x2000, 0x48); // PHA
     //    memory.write(0x2000, 0x08); // PHP
     //    memory.write(0x2000, 0x68); // PLA
-        memory.write(0x2000, 0x28); // PLP
+    //    memory.write(0x2000, 0x28); // PLP
     //    memory.write(0x2000, 0xBA); // TSX
     //    memory.write(0x2000, 0x9A); // TXS
+
+//    memory.write(0x2000, 0x2A); // ROL
+    memory.write(0x2000, 0x6A); // ROR
+
+    
+
+    processor.clearC();
+    memory.write(0x2000, 0x66); // ROR $34
+    memory.write(0x2001, 0x34);
+
+    memory.write(0x0034, 0xD0);     // 0b1101 0000 -> 0110 1000 C:0
+
     testSize = 1;
 
     // memory.write(0x4024, 0x48);

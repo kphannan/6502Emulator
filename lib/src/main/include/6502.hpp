@@ -518,6 +518,7 @@ namespace m6502
         // --- LSR *
         // --- ROL *
         // --- ROR *
+        class InstructionRotateRight;
         // ===== Flag Instructions
         // --- CLC
         // --- CLD
@@ -779,6 +780,7 @@ namespace m6502
         // --- LSR *
         // --- ROL *
         // --- ROR *
+        CPU::InstructionRotateRight *_instructionRotateRight;
         // ===== Flag Instructions
         // --- CLC
         // --- CLD
@@ -828,6 +830,8 @@ namespace m6502
         hardware::Byte &Y() { return registers.Y; };
         hardware::Address &PC() { return registers.PC; };
         hardware::Address &S() { return registers.S; };
+        // Processor status byte
+        hardware::Byte &P() { return registers.P; };
 
         void A(hardware::Byte value)
         {
@@ -863,8 +867,6 @@ namespace m6502
             registers.S = value;
         };
 
-        // Processor status byte
-        hardware::Byte &P() { return registers.P; };
 
         // Organize these constants better
         const uint8_t NegativeBit = 7;

@@ -76,40 +76,8 @@ namespace m6502
     };
 
     // --- LDA
-    // class CPU::InstructionLoadA : public CPU::InstructionLoad
-    // {
-    //     // Constructors
-    // public:
-    //     InstructionLoadA(CPU &cpu) : InstructionLoad(cpu, "Load Accumulator", "LDA") {};
-
-    //     // methods
-    // public:
-    //     virtual void execute(InstructionTarget dst, InstructionTarget src) override;
-    // };
-
     // --- LDX
-    // class CPU::InstructionLoadX : public CPU::InstructionLoad
-    // {
-    //     // Constructors
-    // public:
-    //     InstructionLoadX(CPU &cpu) : InstructionLoad(cpu, "Load X index", "LDX") {}
-
-    //     // methods
-    // public:
-    //     virtual void execute(InstructionTarget dst, InstructionTarget src) override;
-    // };
-
     // --- LDY
-    // class CPU::InstructionLoadY : public CPU::InstructionLoad
-    // {
-    //     // Constructors
-    // public:
-    //     InstructionLoadY(CPU &cpu) : InstructionLoad(cpu, "Load Y index", "LDY") {}
-
-    //     // methods
-    // public:
-    //     virtual void execute(InstructionTarget dst, InstructionTarget src) override;
-    // };
 
     // ----- Store
     class CPU::InstructionStore : public Instruction
@@ -186,30 +154,6 @@ namespace m6502
         virtual void execute(InstructionTarget dst, InstructionTarget src) override;
     };
 
-    // class CPU::InstructionDecrementIndex : public Instruction
-    // {
-    //     // Constructors
-    // public:
-    //     InstructionDecrementIndex(CPU &cpu) : Instruction(cpu, "Transfer instruction", "xfr") {}
-    //     // InstructionLoad(CPU &cpu, const char *name, const char *mnemonic) {}
-
-    //     // methods
-    // public:
-    //     virtual void execute(InstructionTarget dst, InstructionTarget src) override;
-    // };
-
-    // class CPU::InstructionIncrementIndex : public Instruction
-    // {
-    //     // Constructors
-    // public:
-    //     InstructionIncrementIndex(CPU &cpu) : Instruction(cpu, "Transfer instruction", "xfr") {}
-    //     // InstructionLoad(CPU &cpu, const char *name, const char *mnemonic) {}
-
-    //     // methods
-    // public:
-    //     virtual void execute(InstructionTarget dst, InstructionTarget src) override;
-    // };
-
     // --- DEC
     // --- DEX
     // --- DEY
@@ -238,6 +182,20 @@ namespace m6502
     // --- LSR
     // --- ROL
     // --- ROR
+    class CPU::InstructionRotateRight : public Instruction
+    {
+        // Constructors
+    public:
+        InstructionRotateRight(CPU &cpu) : Instruction(cpu, "Rotate Right instruction", "ROR") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+
+    private:
+        hardware::Byte rotateRight(hardware::Byte value);
+    };
+
     // ===== Flag Instructions (set, clear)
     // --- CLC
     // --- CLD

@@ -115,7 +115,7 @@ namespace m6502
                 cpu.addressSpace.write(address, cpu.registers.A);
                 break;
             }
-            case InstructionTarget::S:  // Nonsense to push stack pointer to stack
+            case InstructionTarget::S: // Nonsense to push stack pointer to stack
                 break;
             case InstructionTarget::PSR: // PHP
             {
@@ -139,15 +139,15 @@ namespace m6502
             case InstructionTarget::MEMORY:
                 break;
             case InstructionTarget::STACK:
-                {
-                    hardware::Address address = cpu.decodePipeline().addressMode->execute();
-                    hardware::Byte value = cpu.addressSpace.read(address);
-                    cpu.registers.P = value;
-                    break;
-                }
+            {
+                hardware::Address address = cpu.decodePipeline().addressMode->execute();
+                hardware::Byte value = cpu.addressSpace.read(address);
+                cpu.registers.P = value;
+                break;
+            }
             case InstructionTarget::A: // PHA
                 break;
-            case InstructionTarget::S:  // Nonsense to push stack pointer to stack
+            case InstructionTarget::S: // Nonsense to push stack pointer to stack
                 break;
             case InstructionTarget::PSR: // PHP
                 break;
@@ -174,9 +174,6 @@ namespace m6502
                 cpu.A(value);
                 break;
             }
-                {
-                    break;
-                }
             case InstructionTarget::A:
                 break;
             case InstructionTarget::S:
@@ -208,86 +205,6 @@ namespace m6502
         default:
             break;
         }
-
-        // switch (dst)
-        // {
-        // case InstructionTarget::A:
-        //     switch (src)
-        //     {
-        //     case InstructionTarget::X:
-        //     case InstructionTarget::Y:
-        //     case InstructionTarget::MEMORY:
-        //     case InstructionTarget::A:
-        //     case InstructionTarget::S:
-        //     default:
-        //         break;
-        //     }
-        //     break;
-        // case InstructionTarget::MEMORY:
-        //     switch (src)
-        //     {
-        //     case InstructionTarget::X:
-        //     case InstructionTarget::Y:
-        //     case InstructionTarget::MEMORY:
-        //         break;
-        //     case InstructionTarget::A:
-        //     {
-        //         hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        //         hardware::Byte value = cpu.addressSpace.read(address);
-        //         // get address from stack address mode.
-        //         cpu.addressSpace.write(address, cpu.registers.A);
-        //         break;
-        //     }
-        //     case InstructionTarget::S:
-        //     default:
-        //         break;
-        //     }
-        //     break;
-        // case InstructionTarget::S:
-        //     switch (src)
-        //     {
-        //     case InstructionTarget::MEMORY:
-        //     case InstructionTarget::A:
-        //     case InstructionTarget::S:
-        //         break;
-        //     case InstructionTarget::X:
-        //         cpu.registers.S = cpu.registers.X; // no flags affected
-        //         break;
-        //     case InstructionTarget::Y:
-        //     default:
-        //         break;
-        //     }
-        //     break;
-        // case InstructionTarget::X:
-        //     switch (src)
-        //     {
-        //     case InstructionTarget::A:
-        //     case InstructionTarget::MEMORY:
-        //         break;
-        //     case InstructionTarget::S:
-        //         cpu.X(cpu.registers.S);
-        //         break;
-        //     case InstructionTarget::X:
-        //     case InstructionTarget::Y:
-        //     default:
-        //         break;
-        //     }
-        //     break;
-        // case InstructionTarget::Y: // TODO xfer to Y
-        //     switch (src)
-        //     {
-        //     case InstructionTarget::A:
-        //     case InstructionTarget::MEMORY:
-        //     case InstructionTarget::S:
-        //     case InstructionTarget::X:
-        //     case InstructionTarget::Y:
-        //     default:
-        //         break;
-        //     }
-        //     break;
-        // default:
-        //     break;
-        // }
     }
 
     // ..... Accumulator

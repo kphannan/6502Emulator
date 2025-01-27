@@ -34,7 +34,7 @@ namespace m6502
         _addressModeIndexedIndirectX = new AddressModeIndexedIndirectX(*this);
         _addressModeIndirectIndexedY = new AddressModeIndirectIndexedY(*this);
         _addressModeImmediate = new AddressModeImmediate(*this);
-//        _addressModeStack = new AddressModeStack(*this);
+        //        _addressModeStack = new AddressModeStack(*this);
         _addressModeStackPull = new AddressModeStackPull(*this);
         _addressModeStackPush = new AddressModeStackPush(*this);
 
@@ -109,6 +109,7 @@ namespace m6502
         // --- LSR
         // --- ROL
         // --- ROR
+        _instructionRotateRight = new InstructionRotateRight(*this);
         // ===== Flag Instructions
         // --- CLC
         // --- CLD

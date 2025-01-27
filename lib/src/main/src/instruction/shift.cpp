@@ -1,7 +1,11 @@
 
 
+#include <iostream>
+#include <iomanip>
+
 #include "6502.hpp"
 #include "memory.hpp"
+#include "InstructionSet.hpp"
 
 namespace m6502
 {
@@ -150,7 +154,98 @@ namespace m6502
     //
     // ROR shifts all bits right one position. The Carry is shifted into bit 7 and the original bit 0 is shifted into the Carry.
     //----------------------------------------
+    hardware::Byte CPU::InstructionRotateRight::rotateRight(hardware::Byte value)
+    {
+//        std::cout.setf(std::ios::hex, std::ios::basefield);
+//        std::cout << "before: "
+//                  << std::setfill('0') << std::setw(2) << (int)value
+//                  << " C:" << (cpu.isC() ? "set" : "clear")
+//                  << " PSR: 0b" << std::bitset<8>(cpu.P()) << std::endl;
+//        std::cout.unsetf(std::ios::basefield);
 
+        bool carryBit = cpu.isC();
+        bool isLsbSet = value & 0x01;
+        value >>= 1;
+        if (carryBit)
+            value |= 0x80;
+
+        isLsbSet ? cpu.setC() : cpu.clearC();
+        value & 0x80 ? cpu.setN() : cpu.clearN();
+        
+//        std::cout.setf(std::ios::hex, std::ios::basefield);
+//        std::cout << " after: "
+//                  << std::setfill('0') << std::setw(2) << (int)value
+//                  << " C:" << (cpu.isC() ? "set" : "clear")
+//                  << " PSR: 0b" << std::bitset<8>(cpu.P()) << std::endl;
+//        std::cout.unsetf(std::ios::basefield);
+        return value;
+    }
+
+    void CPU::InstructionRotateRight::execute(InstructionTarget dst, InstructionTarget src)
+    {
+        Instruction::execute(dst, src);
+        std::cout << "   GENERIC ROTATE RIGHT " << std::endl;
+
+        switch (dst)
+        {
+        case InstructionTarget::MEMORY: // M -> M
+            switch (src)
+            {
+            case InstructionTarget::MEMORY:
+            {
+                hardware::Address address = cpu.decodePipeline().addressMode->execute();
+                hardware::Byte value = cpu.addressSpace.read(address);
+//                std::cout.setf(std::ios::hex, std::ios::basefield);
+//                std::cout << "start: M -> M from:" << std::setfill('0') << std::setw(4) << address
+//                << " value: " << std::setfill('0') << std::setw(2) << (int)value
+//                << " PSR: 0b" << std::bitset<8>(cpu.P())
+//                << std::endl;
+//                std::cout.unsetf(std::ios::basefield);
+                // do the  ROR
+                value = rotateRight(value);
+                cpu.addressSpace.write(address, value);
+//                std::cout.setf(std::ios::hex, std::ios::basefield);
+//                std::cout << "  end: M -> M from:" << std::setfill('0') << std::setw(4) << address
+//                << " value: " << std::setfill('0') << std::setw(2) << (int)value
+//                << " PSR: 0b" << std::bitset<8>(cpu.P())
+//                << std::endl;
+//                std::cout.unsetf(std::ios::basefield);
+                break;
+            }
+            default:
+                break;
+            }
+            break;
+        case InstructionTarget::A: // A -> A
+            switch (src)
+            {
+            case InstructionTarget::A:
+            {
+                //                hardware::Byte carryBit = cpu.isC();
+                //                hardware::Byte a = cpu.A();
+
+                // doROR
+                //                bool isLsbSet = a & 0x01;
+                //                a >>= 1;
+                //                if (carryBit)
+                //                    a |= 0x80;
+                //                if (isLsbSet)
+                //                    cpu.setC();
+                //                else
+                //                    cpu.clearC();
+
+                //                cpu.A(a);
+                cpu.A(rotateRight(cpu.A()));
+                break;
+            }
+            default:
+                break;
+            }
+            break;
+        default:
+            break;
+        }
+    }
     // Addressing Modes
     // ----- Immediate #$BB
 

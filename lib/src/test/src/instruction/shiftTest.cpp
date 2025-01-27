@@ -10,7 +10,7 @@ namespace m6502
     class InstructionShiftTest : public testing::Test
     {
     public:
-        memory::Memory *tMemory = new memory::Memory("UnitTestMemory");
+        memory::Memory *tMemory = new memory::Memory("ShiftUnitTestMemory");
         memory::Memory testMemory = *tMemory;
 
         CPU *cpu;
@@ -294,18 +294,178 @@ namespace m6502
 
     // Addressing Modes
     // ----- Immediate #$BB
-    TEST_F(InstructionShiftTest, ROR_Immediate)
+    TEST_F(InstructionShiftTest, ROR_ImmediateWithCarryLsb1)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->A(0xF1);
+        cpu->setC();
+        testMemory.write(0x2000, 0x6A); // ROR A
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_EQ(0xF8, cpu->A());
+        // EXPECT_EQ(0xF0, cpu->S());
+        EXPECT_EQ(0b10100001, cpu->P());
+        // EXPECT_EQ(0x09, testMemory.read(0x7235));
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionShiftTest, ROR_ImmediateWithCarryLsb0)
+    {
+        // --- given
+        cpu->A(0xF0);
+        cpu->setC();
+        testMemory.write(0x2000, 0x6A); // ROR A
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_EQ(0xF8, cpu->A());
+        // EXPECT_EQ(0xF0, cpu->S());
+        EXPECT_EQ(0b10100000, cpu->P());
+        // EXPECT_EQ(0x09, testMemory.read(0x7235));
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionShiftTest, ROR_ImmediateWithoutCarryLsb1)
+    {
+        // --- given
+        cpu->A(0xF1);   // 0b1111 0001  -> 0111 1000  C:1
+        cpu->clearC();
+        testMemory.write(0x2000, 0x6A); // ROR A
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_EQ(0x78, cpu->A());
+        // EXPECT_EQ(0xF0, cpu->S());
+        EXPECT_EQ(0b00100001, cpu->P());
+        // EXPECT_EQ(0x09, testMemory.read(0x7235));
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionShiftTest, ROR_ImmediateWithoutCarryLsb0)
+    {
+        // --- given
+        cpu->A(0xF0);   // 0b1111 0000  -> 0111 1000  C:0
+        cpu->clearC();
+        testMemory.write(0x2000, 0x6A); // ROR A
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_EQ(0x78, cpu->A());
+        // EXPECT_EQ(0xF0, cpu->S());
+        EXPECT_EQ(0b00100000, cpu->P());
+        // EXPECT_EQ(0x09, testMemory.read(0x7235));
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
     // ..... Implied
     // ..... Accumulator
 
     // ----- ZeroPage $LL
-    TEST_F(InstructionShiftTest, ROR_ZeroPage)
+    TEST_F(InstructionShiftTest, ROR_ZeroPageWithCarryLsb0)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->A(0xF0);
+        cpu->setC();
+        testMemory.write(0x2000, 0x66); // ROR $34
+        testMemory.write(0x2001, 0x34);
+
+        testMemory.write(0x0034, 0xD0);     // 0b1101 0000 -> 1110 1000 C:0
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0xF0, cpu->A());
+        EXPECT_EQ(0b10100000, cpu->P());
+        EXPECT_EQ(0xE8, testMemory.read(0x0034));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionShiftTest, ROR_ZeroPageWithCarryLsb1)
+    {
+        // --- given
+        cpu->A(0xF0);
+        cpu->setC();
+        testMemory.write(0x2000, 0x66); // ROR $33
+        testMemory.write(0x2001, 0x33);
+
+        testMemory.write(0x0033, 0x41);     // 0b0100 0001 -> 1010 0000 C:1
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0xF0, cpu->A());
+        EXPECT_EQ(0b10100001, cpu->P());
+        EXPECT_EQ(0xA0, testMemory.read(0x0033));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionShiftTest, ROR_ZeroPageWithoutCarryLsb0)
+    {
+        // --- given
+        cpu->A(0xF0);
+        cpu->clearC();
+//        cpu->clearN();
+        testMemory.write(0x2000, 0x66); // ROR $34
+        testMemory.write(0x2001, 0x34);
+
+        testMemory.write(0x0034, 0xD0);     // 0b1101 0000 -> 0110 1000 C:0
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0xF0, cpu->A());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(0x68, testMemory.read(0x0034));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionShiftTest, ROR_ZeroPageWithoutCarryLsb1)
+    {
+        // --- given
+        cpu->A(0xF0);
+        cpu->clearC();
+//        cpu->clearN();
+        testMemory.write(0x2000, 0x66); // ROR $34
+        testMemory.write(0x2001, 0x34);
+
+        testMemory.write(0x0034, 0x11);     // 0b0001 0000 -> 0000 1000 C:1
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0xF0, cpu->A());
+        EXPECT_EQ(0b00100001, cpu->P());
+        EXPECT_EQ(0x08, testMemory.read(0x0034));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
     }
 
     // ----- ZeroPage,X $LL,X
