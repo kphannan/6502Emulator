@@ -517,6 +517,7 @@ namespace m6502
         // --- ASL *
         // --- LSR *
         // --- ROL *
+        class InstructionRotateLeft;
         // --- ROR *
         class InstructionRotateRight;
         // ===== Flag Instructions
@@ -779,6 +780,7 @@ namespace m6502
         // --- ASL *
         // --- LSR *
         // --- ROL *
+        CPU::InstructionRotateLeft *_instructionRotateLeft;
         // --- ROR *
         CPU::InstructionRotateRight *_instructionRotateRight;
         // ===== Flag Instructions
@@ -866,7 +868,6 @@ namespace m6502
             // TODO - may change from Address to Byte and let addresMode handle the page
             registers.S = value;
         };
-
 
         // Organize these constants better
         const uint8_t NegativeBit = 7;

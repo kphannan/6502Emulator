@@ -115,11 +115,73 @@ namespace m6502
     // ROL shifts all bits left one position. The Carry is shifted into bit 0 and the original bit 7 is shifted into the Carry.
     //----------------------------------------
 
-    // Addressing Modes
-    // ----- Immediate #$BB
+    hardware::Byte CPU::InstructionRotateLeft::rotateLeft(hardware::Byte value)
+    {
+        hardware::Byte originalValue = value;
+        // Shift the bits to the left
+        value <<= 1;
 
+        // Copy the carry bit into bit 0
+        if (cpu.isC())
+            value |= 0x01;
+
+        // Set carry bit to the value of bit 7
+        originalValue & 0x80 ? cpu.setC() : cpu.clearC();
+
+        // Set the N flag to the value of bit 7
+        // 2's complement negative
+        value & 0x80 ? cpu.setN() : cpu.clearN();
+
+        value == 0x00 ? cpu.setZ() : cpu.clearZ();
+
+        return value;
+    }
+
+    void CPU::InstructionRotateLeft::execute(InstructionTarget dst, InstructionTarget src)
+    {
+        Instruction::execute(dst, src);
+        std::cout << "   GENERIC ROTATE LEFT " << std::endl;
+
+        switch (dst)
+        {
+        case InstructionTarget::MEMORY: // M -> M
+            switch (src)
+            {
+            case InstructionTarget::MEMORY:
+            {
+                hardware::Address address = cpu.decodePipeline().addressMode->execute();
+                hardware::Byte value = cpu.addressSpace.read(address);
+
+                value = rotateLeft(value);
+                cpu.addressSpace.write(address, value);
+                break;
+            }
+            default:
+                break;
+            }
+            break;
+
+        case InstructionTarget::A: // A -> A
+            switch (src)
+            {
+            case InstructionTarget::A:
+                cpu.A(rotateLeft(cpu.A()));
+                break;
+            default:
+                break;
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    // Addressing Modes
+    // ..... Immediate #$BB
     // ..... Implied
-    // ..... Accumulator
+
+    // ----- Accumulator
 
     // ----- ZeroPage $LL
 
@@ -132,13 +194,10 @@ namespace m6502
 
     // ----- AbsoluteX $LLHH,X
 
-    // ----- AbsoluteY $LLHH,Y
-
+    // ..... AbsoluteY $LLHH,Y
     // ..... Indirect ($LLHH)
-
-    // ----- Indexed Indirect X ($LL,X)
-
-    // ----- Indirect Indexed Y ($LL),Y
+    // ..... Indexed Indirect X ($LL,X)
+    // ..... Indirect Indexed Y ($LL),Y
 
     //----------------------------------------
     // ROR (ROtate Right)
@@ -154,30 +213,41 @@ namespace m6502
     //
     // ROR shifts all bits right one position. The Carry is shifted into bit 7 and the original bit 0 is shifted into the Carry.
     //----------------------------------------
+
+    /**
+     * @brief Rotate bits to the right, through the carry flag.
+     *
+     * Rotate bits to the right, with bit 0 shifted into the carry flag
+     * and the carry flag shifted into bit 7.
+     * S V B D I Z C
+     * x 0 0 0 0 x x <+
+     *             |  |
+     * +<----<-----+  |
+     * - - - - - - -  | value
+     * 7 6 4 3 2 1 0>-+
+     *
+     * @param value the byte to rotate
+     * @return hardware::Byte
+     */
     hardware::Byte CPU::InstructionRotateRight::rotateRight(hardware::Byte value)
     {
-//        std::cout.setf(std::ios::hex, std::ios::basefield);
-//        std::cout << "before: "
-//                  << std::setfill('0') << std::setw(2) << (int)value
-//                  << " C:" << (cpu.isC() ? "set" : "clear")
-//                  << " PSR: 0b" << std::bitset<8>(cpu.P()) << std::endl;
-//        std::cout.unsetf(std::ios::basefield);
-
-        bool carryBit = cpu.isC();
-        bool isLsbSet = value & 0x01;
+        hardware::Byte originalValue = value;
+        // Shift the bits to the right
         value >>= 1;
-        if (carryBit)
+
+        // Copy the carry bit into bit 7
+        if (cpu.isC())
             value |= 0x80;
 
-        isLsbSet ? cpu.setC() : cpu.clearC();
+        // Set carry bit to the value of bit 0
+        originalValue & 0x01 ? cpu.setC() : cpu.clearC();
+
+        // Set the N flag to the value of bit 7
+        // 2's complement negative
         value & 0x80 ? cpu.setN() : cpu.clearN();
-        
-//        std::cout.setf(std::ios::hex, std::ios::basefield);
-//        std::cout << " after: "
-//                  << std::setfill('0') << std::setw(2) << (int)value
-//                  << " C:" << (cpu.isC() ? "set" : "clear")
-//                  << " PSR: 0b" << std::bitset<8>(cpu.P()) << std::endl;
-//        std::cout.unsetf(std::ios::basefield);
+
+        value == 0x00 ? cpu.setZ() : cpu.clearZ();
+
         return value;
     }
 
@@ -195,57 +265,32 @@ namespace m6502
             {
                 hardware::Address address = cpu.decodePipeline().addressMode->execute();
                 hardware::Byte value = cpu.addressSpace.read(address);
-//                std::cout.setf(std::ios::hex, std::ios::basefield);
-//                std::cout << "start: M -> M from:" << std::setfill('0') << std::setw(4) << address
-//                << " value: " << std::setfill('0') << std::setw(2) << (int)value
-//                << " PSR: 0b" << std::bitset<8>(cpu.P())
-//                << std::endl;
-//                std::cout.unsetf(std::ios::basefield);
-                // do the  ROR
+
                 value = rotateRight(value);
                 cpu.addressSpace.write(address, value);
-//                std::cout.setf(std::ios::hex, std::ios::basefield);
-//                std::cout << "  end: M -> M from:" << std::setfill('0') << std::setw(4) << address
-//                << " value: " << std::setfill('0') << std::setw(2) << (int)value
-//                << " PSR: 0b" << std::bitset<8>(cpu.P())
-//                << std::endl;
-//                std::cout.unsetf(std::ios::basefield);
                 break;
             }
             default:
                 break;
             }
             break;
+
         case InstructionTarget::A: // A -> A
             switch (src)
             {
             case InstructionTarget::A:
-            {
-                //                hardware::Byte carryBit = cpu.isC();
-                //                hardware::Byte a = cpu.A();
-
-                // doROR
-                //                bool isLsbSet = a & 0x01;
-                //                a >>= 1;
-                //                if (carryBit)
-                //                    a |= 0x80;
-                //                if (isLsbSet)
-                //                    cpu.setC();
-                //                else
-                //                    cpu.clearC();
-
-                //                cpu.A(a);
                 cpu.A(rotateRight(cpu.A()));
                 break;
-            }
             default:
                 break;
             }
             break;
+
         default:
             break;
         }
     }
+
     // Addressing Modes
     // ----- Immediate #$BB
 

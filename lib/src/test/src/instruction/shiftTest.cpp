@@ -221,25 +221,136 @@ namespace m6502
     //----------------------------------------
 
     // Addressing Modes
-    // ----- Immediate #$BB
-    TEST_F(InstructionShiftTest, ROL_Immediate)
+    // ..... Immediate #$BB
+    // ..... Implied
+
+    // ----- Accumulator
+    TEST_F(InstructionShiftTest, ROL_AccumulatorWithCarryMsb0)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // Verify carry of zero msb to carry flag
+
+        // --- given
+        cpu->A(0x7F); // 0b0111 1111  -> 1111 1111  C:0
+        cpu->setC();
+        testMemory.write(0x2000, 0x2A); // ROL A
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_EQ(0xFF, cpu->A());
+        EXPECT_EQ(0b10100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
-    // ..... Implied
-    // ..... Accumulator
+    TEST_F(InstructionShiftTest, ROL_AccumulatorWithCarryMsb1)
+    {
+        // Verify carry of one lsb to carry flag
+
+        // --- given
+        cpu->A(0x94); // 0b1001 0100  -> 0010 1001  C:1
+        cpu->setC();
+        testMemory.write(0x2000, 0x2A); // ROL A
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_EQ(0x29, cpu->A());
+        EXPECT_EQ(0b00100001, cpu->P());
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionShiftTest, ROL_AccumulatorZero)
+    {
+        // Verify zero flag set
+
+        // --- given
+        cpu->A(0x80); // 0b1000 0000 -> 0000 0000  C:1
+        cpu->clearC();
+        testMemory.write(0x2000, 0x2A); // ROL A
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_EQ(0x00, cpu->A());
+        EXPECT_EQ(0b00100011, cpu->P());
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionShiftTest, ROL_AccumulatorNegative)
+    {
+        // Verify negative flag set when Carry flag is set
+
+        // --- given
+        cpu->A(0xC0); // 0b1100 0000 -> 1000 0000  C:1
+        cpu->clearC();
+        testMemory.write(0x2000, 0x2A); // ROL A
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_EQ(0x80, cpu->A());
+        EXPECT_EQ(0b10100001, cpu->P());
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
+    }
 
     // ----- ZeroPage $LL
     TEST_F(InstructionShiftTest, ROL_ZeroPage)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->A(0xC0);
+        cpu->clearC();
+        testMemory.write(0x2000, 0x26); // ROL $12
+        testMemory.write(0x2001, 0x12);
+
+        testMemory.write(0x0012, 0xC0); // Data: 0b1100 0000 -> 1000 0000  C:1
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0xC0, cpu->A());
+        EXPECT_EQ(0b10100001, cpu->P());
+        EXPECT_EQ(0x80, testMemory.read(0x0012));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
     }
 
     // ----- ZeroPage,X $LL,X
     TEST_F(InstructionShiftTest, ROL_ZeroPageX)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->A(0xC0);
+        cpu->X(0x01);
+        cpu->setC();
+        testMemory.write(0x2000, 0x36); // ROL $12,X
+        testMemory.write(0x2001, 0x12);
+
+        testMemory.write(0x0013, 0xE0); // Data: 0b1110 0000 -> 1100 0001  C:1
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0xC0, cpu->A());
+        EXPECT_EQ(0x01, cpu->X());
+        EXPECT_EQ(0b10100001, cpu->P());
+        EXPECT_EQ(0xC1, testMemory.read(0x0013));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
     }
 
     // ..... ZeroPage,Y $LL,Y
@@ -248,34 +359,59 @@ namespace m6502
     // ----- Absolute $LLHH
     TEST_F(InstructionShiftTest, ROL_Absolute)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->A(0xC0);
+        cpu->X(0x01);
+        cpu->setC();
+        testMemory.write(0x2000, 0x2E); // ROL $1234
+        testMemory.write(0x2001, 0x34);
+        testMemory.write(0x2002, 0x12);
+
+        testMemory.write(0x1234, 0xE0); // Data: 0b1110 0000 -> 1100 0001  C:1
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2003, cpu->PC());
+        EXPECT_EQ(0xC0, cpu->A());
+        EXPECT_EQ(0x01, cpu->X());
+        EXPECT_EQ(0b10100001, cpu->P());
+        EXPECT_EQ(0xC1, testMemory.read(0x1234));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
     }
 
     // ----- AbsoluteX $LLHH,X
     TEST_F(InstructionShiftTest, ROL_AbsoluteX)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->A(0xC0);
+        cpu->X(0x01);
+        cpu->setC();
+        testMemory.write(0x2000, 0x3E); // ROL $1243,X
+        testMemory.write(0x2001, 0x43);
+        testMemory.write(0x2002, 0x12);
+
+        testMemory.write(0x1244, 0xE0); // Data: 0b1110 0000 -> 1100 0001  C:1
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2003, cpu->PC());
+        EXPECT_EQ(0xC0, cpu->A());
+        EXPECT_EQ(0x01, cpu->X());
+        EXPECT_EQ(0b10100001, cpu->P());
+        EXPECT_EQ(0xC1, testMemory.read(0x1244));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
     }
 
-    // ----- AbsoluteY $LLHH,Y
-    TEST_F(InstructionShiftTest, ROL_AbsoluteY)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
+    // ..... AbsoluteY $LLHH,Y
     // ..... Indirect ($LLHH)
-
-    // ----- Indexed Indirect X ($LL,X)
-    TEST_F(InstructionShiftTest, ROL_IndirectX)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
-    // ----- Indirect Indexed Y ($LL),Y
-    TEST_F(InstructionShiftTest, ROL_IndirectY)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
+    // ..... Indexed Indirect X ($LL,X)
+    // ..... Indirect Indexed Y ($LL),Y
 
     //----------------------------------------
     // ROR (ROtate Right)
@@ -293,8 +429,11 @@ namespace m6502
     //----------------------------------------
 
     // Addressing Modes
-    // ----- Immediate #$BB
-    TEST_F(InstructionShiftTest, ROR_ImmediateWithCarryLsb1)
+    // ..... Immediate #$BB
+    // ..... Implied
+
+    // ----- Accumulator
+    TEST_F(InstructionShiftTest, ROR_AccumulatorWithCarryLsb1)
     {
         // --- given
         cpu->A(0xF1);
@@ -314,7 +453,7 @@ namespace m6502
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
-    TEST_F(InstructionShiftTest, ROR_ImmediateWithCarryLsb0)
+    TEST_F(InstructionShiftTest, ROR_AccumulatorWithCarryLsb0)
     {
         // --- given
         cpu->A(0xF0);
@@ -334,10 +473,10 @@ namespace m6502
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
-    TEST_F(InstructionShiftTest, ROR_ImmediateWithoutCarryLsb1)
+    TEST_F(InstructionShiftTest, ROR_AccumulatorWithoutCarryLsb1)
     {
         // --- given
-        cpu->A(0xF1);   // 0b1111 0001  -> 0111 1000  C:1
+        cpu->A(0xF1); // 0b1111 0001  -> 0111 1000  C:1
         cpu->clearC();
         testMemory.write(0x2000, 0x6A); // ROR A
 
@@ -354,10 +493,10 @@ namespace m6502
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
-    TEST_F(InstructionShiftTest, ROR_ImmediateWithoutCarryLsb0)
+    TEST_F(InstructionShiftTest, ROR_AccumulatorWithoutCarryLsb0)
     {
         // --- given
-        cpu->A(0xF0);   // 0b1111 0000  -> 0111 1000  C:0
+        cpu->A(0xF0); // 0b1111 0000  -> 0111 1000  C:0
         cpu->clearC();
         testMemory.write(0x2000, 0x6A); // ROR A
 
@@ -374,9 +513,6 @@ namespace m6502
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
 
-    // ..... Implied
-    // ..... Accumulator
-
     // ----- ZeroPage $LL
     TEST_F(InstructionShiftTest, ROR_ZeroPageWithCarryLsb0)
     {
@@ -386,7 +522,7 @@ namespace m6502
         testMemory.write(0x2000, 0x66); // ROR $34
         testMemory.write(0x2001, 0x34);
 
-        testMemory.write(0x0034, 0xD0);     // 0b1101 0000 -> 1110 1000 C:0
+        testMemory.write(0x0034, 0xD0); // 0b1101 0000 -> 1110 1000 C:0
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -408,7 +544,7 @@ namespace m6502
         testMemory.write(0x2000, 0x66); // ROR $33
         testMemory.write(0x2001, 0x33);
 
-        testMemory.write(0x0033, 0x41);     // 0b0100 0001 -> 1010 0000 C:1
+        testMemory.write(0x0033, 0x41); // 0b0100 0001 -> 1010 0000 C:1
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -427,11 +563,10 @@ namespace m6502
         // --- given
         cpu->A(0xF0);
         cpu->clearC();
-//        cpu->clearN();
         testMemory.write(0x2000, 0x66); // ROR $34
         testMemory.write(0x2001, 0x34);
 
-        testMemory.write(0x0034, 0xD0);     // 0b1101 0000 -> 0110 1000 C:0
+        testMemory.write(0x0034, 0xD0); // 0b1101 0000 -> 0110 1000 C:0
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -450,11 +585,10 @@ namespace m6502
         // --- given
         cpu->A(0xF0);
         cpu->clearC();
-//        cpu->clearN();
         testMemory.write(0x2000, 0x66); // ROR $34
         testMemory.write(0x2001, 0x34);
 
-        testMemory.write(0x0034, 0x11);     // 0b0001 0000 -> 0000 1000 C:1
+        testMemory.write(0x0034, 0x11); // 0b0001 0000 -> 0000 1000 C:1
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -471,7 +605,26 @@ namespace m6502
     // ----- ZeroPage,X $LL,X
     TEST_F(InstructionShiftTest, ROR_ZeroPageX)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->A(0xF0);
+        cpu->X(0x04);
+        cpu->clearC();
+        testMemory.write(0x2000, 0x76); // ROR $34,X
+        testMemory.write(0x2001, 0x34);
+
+        testMemory.write(0x0038, 0x11); // 0b0001 0001 -> 0000 1000 C:1
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0xF0, cpu->A());
+        EXPECT_EQ(0x04, cpu->X());
+        EXPECT_EQ(0b00100001, cpu->P());
+        EXPECT_EQ(0x08, testMemory.read(0x0038));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
     }
 
     // ..... ZeroPage,Y $LL,Y
@@ -480,34 +633,59 @@ namespace m6502
     // ----- Absolute $LLHH
     TEST_F(InstructionShiftTest, ROR_Absolute)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->A(0xF0);
+        cpu->X(0x04);
+        cpu->clearC();
+        testMemory.write(0x2000, 0x6E); // ROR $3442
+        testMemory.write(0x2001, 0x42);
+        testMemory.write(0x2002, 0x34);
+
+        testMemory.write(0x3442, 0x12); // 0b0001 0010 -> 0000 1001 C:1
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2003, cpu->PC());
+        EXPECT_EQ(0xF0, cpu->A());
+        EXPECT_EQ(0x04, cpu->X());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(0x09, testMemory.read(0x3442));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
     }
 
     // ----- AbsoluteX $LLHH,X
     TEST_F(InstructionShiftTest, ROR_AbsoluteX)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->A(0xF0);
+        cpu->X(0x04);
+        cpu->clearC();
+        testMemory.write(0x2000, 0x7E); // ROR $3442,X
+        testMemory.write(0x2001, 0x42);
+        testMemory.write(0x2002, 0x34);
+
+        testMemory.write(0x3446, 0x01); // 0b0000 0001 -> 0000 0000 C:1
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2003, cpu->PC());
+        EXPECT_EQ(0xF0, cpu->A());
+        EXPECT_EQ(0x04, cpu->X());
+        EXPECT_EQ(0b00100011, cpu->P());
+        EXPECT_EQ(0x00, testMemory.read(0x3446));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
     }
 
-    // ----- AbsoluteY $LLHH,Y
-    TEST_F(InstructionShiftTest, ROR_AbsoluteY)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
+    // ..... AbsoluteY $LLHH,Y
     // ..... Indirect ($LLHH)
-
-    // ----- Indexed Indirect X ($LL,X)
-    TEST_F(InstructionShiftTest, ROR_IndirectX)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
-    // ----- Indirect Indexed Y ($LL),Y
-    TEST_F(InstructionShiftTest, ROR_IndirectY)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
+    // ..... Indexed Indirect X ($LL,X)
+    // ..... Indirect Indexed Y ($LL),Y
 
     // ----- Flag () -----
     // ----- Comparison () -----

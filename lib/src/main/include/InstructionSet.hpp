@@ -181,6 +181,19 @@ namespace m6502
     // --- ASL
     // --- LSR
     // --- ROL
+    class CPU::InstructionRotateLeft : public Instruction
+    {
+        // Constructors
+    public:
+        InstructionRotateLeft(CPU &cpu) : Instruction(cpu, "Rotate Left instruction", "ROL") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+
+    private:
+        hardware::Byte rotateLeft(hardware::Byte value);
+    };
     // --- ROR
     class CPU::InstructionRotateRight : public Instruction
     {

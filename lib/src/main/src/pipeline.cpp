@@ -922,7 +922,27 @@ namespace m6502
             {
             case 0b000: // c(2) a(0) - ASL
                 break;
-            case 0b001: // c(2) a(1) - ROL
+            case 0b001:                  // c(2) a(1) - ROL
+                switch (opCode.memory.b) // 3 bits
+                {
+                case 0b000: // c(2) a(1) b(0)   Illegal (JAM)
+                case 0b100: // c(2) a(1) b(4)   Illegal (JAM)
+                case 0b110: // c(2) a(1) b(6)   Illegal (NOP impl)
+                    break;
+                case 0b010: // c(2) a(1) b(2) - ROL A
+                    cpuInstruction = cpu._instructionRotateLeft;
+                    dst = InstructionTarget::A;
+                    src = InstructionTarget::A;
+                    break;
+                case 0b001: // c(2) a(1) b(1) - ROL $nn
+                case 0b011: // c(2) a(1) b(3) - ROL $nnnn
+                case 0b101: // c(2) a(1) b(5) - ROL $nn,X
+                case 0b111: // c(2) a(1) b(7) - ROL $nnnn,X
+                    cpuInstruction = cpu._instructionRotateLeft;
+                    dst = InstructionTarget::MEMORY;
+                    src = InstructionTarget::MEMORY;
+                    break;
+                }
                 break;
             case 0b010: // c(2) a(2) - LSR
                 break;

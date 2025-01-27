@@ -108,6 +108,7 @@ namespace m6502
         // --- ASL
         // --- LSR
         // --- ROL
+        _instructionRotateLeft = new InstructionRotateLeft(*this);
         // --- ROR
         _instructionRotateRight = new InstructionRotateRight(*this);
         // ===== Flag Instructions

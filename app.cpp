@@ -35,21 +35,29 @@ int main(int argc, char **argv)
     memory::Memory memory;
     m6502::CPU processor(memory);
 
-//    loadProgram(memory);
-    loadProgram(processor);
-    processor.reset();
+    
+    // Initialize memory with RESET vector
     memory.showMemory(0x0000, 0x32);
     memory.showMemory(0xFFFA, 6);
     memory.showMemory(0x2000, 0x20);
     memory.showMemory(0xFAD0, 16);
 
-    processor.A(0x21);
-    processor.X(0x38);
-    processor.Y(0x10);
-    processor.S(0xF1);
+    memory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
+    memory.write(0xFFFD, 0x20); //      MSB
 
-    memory.write( 0x01F1, 0x22);
-    memory.write( 0x01F2, 0x33);
+    processor.reset();
+
+    //    loadProgram(memory);
+    loadProgram(processor);
+
+
+//    processor.A(0x21);
+//    processor.X(0x38);
+//    processor.Y(0x10);
+//    processor.S(0xF1);
+
+//    memory.write( 0x01F1, 0x22);
+//    memory.write( 0x01F2, 0x33);
     
     // std::cout << memory.name() << std::endl;
     // std::cout << processor.currentMemory().name() << std::endl;
@@ -104,16 +112,20 @@ void loadProgram(m6502::CPU &processor )
     //    memory.write(0x2000, 0xBA); // TSX
     //    memory.write(0x2000, 0x9A); // TXS
 
-//    memory.write(0x2000, 0x2A); // ROL
-    memory.write(0x2000, 0x6A); // ROR
+    
+    processor.A(0x80); // 0b1000 0000 -> 0000 0000  C:1
+    processor.clearC();
+
+    memory.write(0x2000, 0x2A); // ROL
+//    memory.write(0x2000, 0x6A); // ROR
 
     
 
-    processor.clearC();
-    memory.write(0x2000, 0x66); // ROR $34
-    memory.write(0x2001, 0x34);
-
-    memory.write(0x0034, 0xD0);     // 0b1101 0000 -> 0110 1000 C:0
+//    processor.clearC();
+//    memory.write(0x2000, 0x66); // ROR $34
+//    memory.write(0x2001, 0x34);
+//
+//    memory.write(0x0034, 0xD0);     // 0b1101 0000 -> 0110 1000 C:0
 
     testSize = 1;
 
@@ -194,8 +206,8 @@ void loadProgram(m6502::CPU &processor )
     // memory.write(0x0023, 0x42); //
 
     // Reset vector points to start of memory
-    memory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
-    memory.write(0xFFFD, 0x20); //      MSB
+//    memory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
+//    memory.write(0xFFFD, 0x20); //      MSB
 
     /*
     memory.write(0x0000, 0x49); // LDA #00 // starting instruction after reset
