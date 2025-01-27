@@ -150,10 +150,47 @@ namespace m6502
 
     // Addressing Modes
     // ----- Immediate #$BB
-    TEST_F(InstructionShiftTest, LSR_Immediate)
+    TEST_F(InstructionShiftTest, LSR_Accumulator)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->A(0xF1);
+        cpu->clearC();
+        testMemory.write(0x2000, 0x4A); // LSR A
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_EQ(0x78, cpu->A());
+        EXPECT_EQ(0b00100001, cpu->P());
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
+
+    TEST_F(InstructionShiftTest, LSR_AccumulatorZero)
+    {
+        // --- given
+        cpu->A(0x01);
+        cpu->clearC();
+        testMemory.write(0x2000, 0x4A); // LSR A
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_EQ(0x00, cpu->A());
+        EXPECT_EQ(0b00100011, cpu->P());
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
+    }
+
+    // Not possible
+    // TEST_F(InstructionShiftTest, LSR_AccumulatorNegative)
+    // {
+    //     ADD_FAILURE_AT(__FILE__, __LINE__);
+    // }
 
     // ..... Implied
     // ..... Accumulator
@@ -161,13 +198,70 @@ namespace m6502
     // ----- ZeroPage $LL
     TEST_F(InstructionShiftTest, LSR_ZeroPage)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->A(0xF1);
+        cpu->setC();
+        testMemory.write(0x2000, 0x46); // LSR $nn
+        testMemory.write(0x2001, 0x56);
+
+        testMemory.write(0x0056, 0x56); // Data: 0101 0110 -> 0010 1011 C:0
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0xF1, cpu->A());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(0x2B, testMemory.read(0x0056));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionShiftTest, LSR_ZeroPageZero)
+    {
+        // --- given
+        cpu->A(0x01);
+        cpu->clearC();
+        testMemory.write(0x2000, 0x46); // LSR $nn
+        testMemory.write(0x2001, 0x50);
+
+        testMemory.write(0x0050, 0x01); // Data: 0101 0110 -> 0010 1011 C:0
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0x01, cpu->A());
+        EXPECT_EQ(0b00100011, cpu->P());
+        EXPECT_EQ(0x00, testMemory.read(0x0050));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
     }
 
     // ----- ZeroPage,X $LL,X
     TEST_F(InstructionShiftTest, LSR_ZeroPageX)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->A(0x01);
+        cpu->X(0x15);
+        cpu->clearC();
+        testMemory.write(0x2000, 0x56); // LSR $nn,X
+        testMemory.write(0x2001, 0x50);
+
+        testMemory.write(0x0065, 0x01); // Data: 0101 0110 -> 0010 1011 C:0
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0x01, cpu->A());
+        EXPECT_EQ(0x15, cpu->X());
+        EXPECT_EQ(0b00100011, cpu->P());
+        EXPECT_EQ(0x00, testMemory.read(0x0065));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
     }
 
     // ..... ZeroPage,Y $LL,Y
@@ -176,34 +270,59 @@ namespace m6502
     // ----- Absolute $LLHH
     TEST_F(InstructionShiftTest, LSR_Absolute)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->A(0x01);
+        cpu->X(0x15);
+        cpu->setC();
+        testMemory.write(0x2000, 0x4E); // LSR $nnnn
+        testMemory.write(0x2001, 0x50);
+        testMemory.write(0x2002, 0x50);
+
+        testMemory.write(0x5050, 0x92); // Data: 1001 0010 -> 0100 1001 C:0
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2003, cpu->PC());
+        EXPECT_EQ(0x01, cpu->A());
+        EXPECT_EQ(0x15, cpu->X());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(0x49, testMemory.read(0x5050));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
     }
 
     // ----- AbsoluteX $LLHH,X
     TEST_F(InstructionShiftTest, LSR_AbsoluteX)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->A(0x01);
+        cpu->X(0x15);
+        cpu->setC();
+        testMemory.write(0x2000, 0x5E); // LSR $nnnn,X
+        testMemory.write(0x2001, 0x50);
+        testMemory.write(0x2002, 0x50);
+
+        testMemory.write(0x5065, 0xD2); // Data: 1101 0010 -> 0100 1001 C:0
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2003, cpu->PC());
+        EXPECT_EQ(0x01, cpu->A());
+        EXPECT_EQ(0x15, cpu->X());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(0x69, testMemory.read(0x505065));
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
     }
 
-    // ----- AbsoluteY $LLHH,Y
-    TEST_F(InstructionShiftTest, LSR_AbsoluteY)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
+    // ..... AbsoluteY $LLHH,Y
     // ..... Indirect ($LLHH)
-
-    // ----- Indexed Indirect X ($LL,X)
-    TEST_F(InstructionShiftTest, LSR_IndirectX)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
-    // ----- Indirect Indexed Y ($LL),Y
-    TEST_F(InstructionShiftTest, LSR_IndirectY)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
+    // ..... Indexed Indirect X ($LL,X)
+    // ..... Indirect Indexed Y ($LL),Y
 
     //----------------------------------------
     // ROL (ROtate Left)

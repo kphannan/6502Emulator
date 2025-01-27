@@ -75,11 +75,74 @@ namespace m6502
     // LSR shifts all bits right one position. 0 is shifted into bit 7 and the original bit 0 is shifted into the Carry.
     //----------------------------------------
 
-    // Addressing Modes
-    // ----- Immediate #$BB
+    hardware::Byte CPU::InstructionShiftRight::shiftRight(hardware::Byte value)
+    {
+        // hardware::Byte originalValue = value;
+        // Set carry bit to the value of bit 0
+        value & 0x01 ? cpu.setC() : cpu.clearC();
 
+        // Shift the bits to the right
+        value >>= 1;
+
+        // // Copy the carry bit into bit 7
+        // if (cpu.isC())
+        //     value |= 0x80;
+
+        // Set the N flag to the value of bit 7
+        // 2's complement negative
+        // Never possible since msb is always 0
+        // value & 0x80 ? cpu.setN() : cpu.clearN();
+        cpu.clearN();
+
+        value == 0x00 ? cpu.setZ() : cpu.clearZ();
+
+        return value;
+    }
+
+    void CPU::InstructionShiftRight::execute(InstructionTarget dst, InstructionTarget src)
+    {
+        Instruction::execute(dst, src);
+        std::cout << "   GENERIC SHIFT RIGHT " << std::endl;
+
+        switch (dst)
+        {
+        case InstructionTarget::MEMORY: // M -> M
+            switch (src)
+            {
+            case InstructionTarget::MEMORY:
+            {
+                hardware::Address address = cpu.decodePipeline().addressMode->execute();
+                hardware::Byte value = cpu.addressSpace.read(address);
+
+                value = shiftRight(value);
+                cpu.addressSpace.write(address, value);
+                break;
+            }
+            default:
+                break;
+            }
+            break;
+
+        case InstructionTarget::A: // A -> A
+            switch (src)
+            {
+            case InstructionTarget::A:
+                cpu.A(shiftRight(cpu.A()));
+                break;
+            default:
+                break;
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    // Addressing Modes
+    // ..... Immediate #$BB
     // ..... Implied
-    // ..... Accumulator
+    // ----- Accumulator
 
     // ----- ZeroPage $LL
 
@@ -92,13 +155,10 @@ namespace m6502
 
     // ----- AbsoluteX $LLHH,X
 
-    // ----- AbsoluteY $LLHH,Y
-
+    // ..... AbsoluteY $LLHH,Y
     // ..... Indirect ($LLHH)
-
-    // ----- Indexed Indirect X ($LL,X)
-
-    // ----- Indirect Indexed Y ($LL),Y
+    // ..... Indexed Indirect X ($LL,X)
+    // ..... Indirect Indexed Y ($LL),Y
 
     //----------------------------------------
     // ROL (ROtate Left)

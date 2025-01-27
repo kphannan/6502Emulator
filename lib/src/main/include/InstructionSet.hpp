@@ -180,6 +180,19 @@ namespace m6502
     // ===== Shift & Rotate Instructions (shift, rotate both left and right)
     // --- ASL
     // --- LSR
+    class CPU::InstructionShiftRight : public Instruction
+    {
+        // Constructors
+    public:
+        InstructionShiftRight(CPU &cpu) : Instruction(cpu, "Shift Right instruction", "LSR") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+
+    private:
+        hardware::Byte shiftRight(hardware::Byte value);
+    };
     // --- ROL
     class CPU::InstructionRotateLeft : public Instruction
     {

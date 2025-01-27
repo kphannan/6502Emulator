@@ -107,6 +107,7 @@ namespace m6502
         // ===== Shift & Rotate Instructions
         // --- ASL
         // --- LSR
+        _instructionShiftRight = new InstructionShiftRight(*this);
         // --- ROL
         _instructionRotateLeft = new InstructionRotateLeft(*this);
         // --- ROR

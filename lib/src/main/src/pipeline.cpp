@@ -944,7 +944,29 @@ namespace m6502
                     break;
                 }
                 break;
-            case 0b010: // c(2) a(2) - LSR
+            case 0b010: // c(2) a(2) - LSR // TODO  LSR breakdown
+
+                switch (opCode.memory.b) // 3 bits
+                {
+                case 0b000: // c(2) a(2) b(0)   Illegal (JAM)
+                case 0b100: // c(2) a(2) b(4)   Illegal (JAM)
+                case 0b110: // c(2) a(2) b(6)   Illegal (NOP impl)
+                    break;
+                case 0b001: // c(2) a(2) b(1) - LSR $nn
+                case 0b011: // c(2) a(2) b(3) - LSR $nnnn
+                case 0b101: // c(2) a(2) b(5) - LSR $nn,X
+                case 0b111: // c(2) a(2) b(7) - LSR $nnnn,X
+                    cpuInstruction = cpu._instructionShiftRight;
+                    dst = InstructionTarget::MEMORY;
+                    src = InstructionTarget::MEMORY;
+                    break;
+                case 0b010: // c(2) a(2) b(2) - LSR A
+                    cpuInstruction = cpu._instructionShiftRight;
+                    dst = InstructionTarget::A;
+                    src = InstructionTarget::A;
+                    break;
+                }
+
                 break;
             case 0b011:                  // c(2) a(3) - ROR
                 switch (opCode.memory.b) // 3 bits
