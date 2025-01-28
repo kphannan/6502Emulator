@@ -517,6 +517,7 @@ namespace m6502
                 case 0b011: // c(0) a(0) b(3)   Illegal (NOP abs)
                 case 0b101: // c(0) a(0) b(5)   Illegal (NOP zpg,X)
                 case 0b111: // c(0) a(0) b(7)   Illegal (NOP abs,X)
+                    throw std::domain_error("Illegal OpCode: ");
                     break;
                 case 0b010: // c(0) a(0) b(2) - PHP impl
                     cpuInstruction = cpu._instructionStack;
@@ -524,6 +525,7 @@ namespace m6502
                     src = InstructionTarget::PSR;
                     break;
                 case 0b100: // c(0) a(0) b(4) - BPL rel
+                    throw std::domain_error("OpCode() - not yet implemented");
                     break;
                 case 0b110: // c(0) a(0) b(6) - CLC impl
                     cpuInstruction = cpu._instructionFlagClear;
@@ -537,6 +539,7 @@ namespace m6502
                 switch (opCode.memory.b) // 3 bits
                 {
                 case 0b000: // c(0) a(1) b(0) - JSR abs
+                    throw std::domain_error("OpCode() - not yet implemented");
                     break;
                 case 0b001: // c(0) a(1) b(1) - BIT zpg
                 case 0b011: // c(0) a(1) b(3) - BIT abs
@@ -550,6 +553,7 @@ namespace m6502
                     src = InstructionTarget::STACK; // TODO was memory
                     break;
                 case 0b100: // c(0) a(1) b(4) - BMI rel
+                    throw std::domain_error("OpCode() - not yet implemented");
                     break;
                 case 0b110: // c(0) a(1) b(6) - SEC impl
                     cpuInstruction = cpu._instructionFlagSet;
@@ -558,6 +562,7 @@ namespace m6502
                     break;
                 case 0b101: // c(0) a(1) b(5) - illegal (NOP zpg,X)
                 case 0b111: // c(0) a(1) b(7) - illegal (NOP abs,X)
+                    throw std::domain_error("Illegal OpCode: ");
                     break;
                 }
                 break;
@@ -565,10 +570,12 @@ namespace m6502
                 switch (opCode.memory.b) // 3 bits
                 {
                 case 0b000: // c(0) a(2) b(0) - RTI impl
+                    throw std::domain_error("OpCode() - not yet implemented");
                     break;
                 case 0b001: // c(0) a(2) b(1)   Illegal
                 case 0b101: // c(0) a(2) b(5)   Illegal
                 case 0b111: // c(0) a(2) b(7)   Illegal
+                    throw std::domain_error("Illegal OpCode: ");
                     break;
                 case 0b010: // c(0) a(2) b(2) - PHA impl
                     cpuInstruction = cpu._instructionStack;
@@ -576,8 +583,10 @@ namespace m6502
                     src = InstructionTarget::A;
                     break;
                 case 0b011: // c(0) a(2) b(3) - JMP abs
+                    throw std::domain_error("OpCode() - not yet implemented");
                     break;
                 case 0b100: // c(0) a(2) b(4) - BVC rel
+                    throw std::domain_error("OpCode() - not yet implemented");
                     break;
                 case 0b110: // c(0) a(2) b(6) - CLI impl
                     cpuInstruction = cpu._instructionFlagClear;
@@ -591,6 +600,7 @@ namespace m6502
                 {
                 case 0b000: // c(0) a(3) b(0) - RTS impl
                 case 0b001: // c(0) a(3) b(1)
+                    throw std::domain_error("OpCode() - not yet implemented");
                     break;
                 case 0b010: // c(0) a(3) b(2) - PLA impl
                     cpuInstruction = cpu._instructionStack;
@@ -606,6 +616,7 @@ namespace m6502
                     src = InstructionTarget::FLAG_I;
                     break;
                 case 0b111: // c(0) a(3) b(7)
+                    throw std::domain_error("OpCode() - not yet implemented");
                     // Illegal
                     break;
                 }
@@ -616,6 +627,7 @@ namespace m6502
                 {
                 case 0b000: // c(0) a(4) b(0)   Illegal
                 case 0b111: // c(0) a(4) b(7)   Illegal
+                    throw std::domain_error("Illegal OpCode: ");
                     break;
                 case 0b001: // c(0) a(4) b(1) - STY $nn
                 case 0b011: // c(0) a(4) b(3) - STY $nnnn
@@ -630,6 +642,7 @@ namespace m6502
                     src = InstructionTarget::Y;
                     break;
                 case 0b100: // c(0) a(4) b(4) - BCC $nn
+                    throw std::domain_error("OpCode() - not yet implemented");
                     break;
                 case 0b110: // c(0) a(4) b(6) - TYA impl
                     cpuInstruction = cpu._instructionTransferYtoA;
@@ -725,9 +738,11 @@ namespace m6502
                     src = InstructionTarget::Y;
                     break;
                 case 0b100: // c(0) a(6) b(4) - BNE $nn
+                    throw std::domain_error("OpCode() - not yet implemented");
                     break;
                 case 0b101: // c(0) a(6) b(5)   Illegal
                 case 0b111: // c(0) a(6) b(7)   Illegal
+                    throw std::domain_error("Illegal OpCode: ");
                     break;
                 case 0b110: // c(0) a(6) b(6) - CLD
                     cpuInstruction = cpu._instructionFlagClear;
@@ -749,9 +764,11 @@ namespace m6502
                     src = InstructionTarget::X;
                     break;
                 case 0b100: // c(0) a(7) b(4) - BEQ $nn
+                    throw std::domain_error("OpCode() - not yet implemented");
                     break;
                 case 0b101: // c(0) a(7) b(5)   Illegal
                 case 0b111: // c(0) a(7) b(7)   Illegal
+                    throw std::domain_error("Illegal OpCode: ");
                     break;
                 case 0b110: // c(0) a(7) b(6) - SED
                     cpuInstruction = cpu._instructionFlagSet;
@@ -783,6 +800,7 @@ namespace m6502
                     addressMode = cpu._addressModeImmediate;
                     break;
                 case 0b100: // b(0) a(4)        // TODO verify this for illegal instruction
+                    throw std::domain_error("OpCode() - not yet implemented");
                     break;
                 }
                 break;
@@ -894,6 +912,7 @@ namespace m6502
                 src = InstructionTarget::MEMORY;
                 break;
             case 0b011: // c(1) a(3) - ADC
+                throw std::domain_error("OpCode() - not yet implemented");
                 break;
             case 0b100: // c(1) a(4) - STA
                 // std::cout << "case 4 (" << std::bitset<3>(opCode.memory.a) << ")" << std::endl;
@@ -909,8 +928,10 @@ namespace m6502
                 src = InstructionTarget::MEMORY;
                 break;
             case 0b110: // c(1) a(6) - CMP
+                throw std::domain_error("OpCode() - not yet implemented");
                 break;
             case 0b111: // c(1) a(7) - SBC
+                throw std::domain_error("OpCode() - not yet implemented");
                 break;
             }
 
@@ -956,6 +977,7 @@ namespace m6502
                 case 0b000: // c(2) a(0) b(0)   Illegal (JAM)
                 case 0b100: // c(2) a(0) b(4)   Illegal (JAM)
                 case 0b110: // c(2) a(0) b(6)   Illegal (NOP impl)
+                    throw std::domain_error("Illegal OpCode: ");
                     break;
                 case 0b010: // c(2) a(1) b(2) - ASL A
                     cpuInstruction = cpu._instructionShiftLeft;
@@ -978,6 +1000,7 @@ namespace m6502
                 case 0b000: // c(2) a(1) b(0)   Illegal (JAM)
                 case 0b100: // c(2) a(1) b(4)   Illegal (JAM)
                 case 0b110: // c(2) a(1) b(6)   Illegal (NOP impl)
+                    throw std::domain_error("Illegal OpCode: ");
                     break;
                 case 0b010: // c(2) a(1) b(2) - ROL A
                     cpuInstruction = cpu._instructionRotateLeft;
@@ -1001,6 +1024,7 @@ namespace m6502
                 case 0b000: // c(2) a(2) b(0)   Illegal (JAM)
                 case 0b100: // c(2) a(2) b(4)   Illegal (JAM)
                 case 0b110: // c(2) a(2) b(6)   Illegal (NOP impl)
+                    throw std::domain_error("Illegal OpCode: ");
                     break;
                 case 0b001: // c(2) a(2) b(1) - LSR $nn
                 case 0b011: // c(2) a(2) b(3) - LSR $nnnn
@@ -1024,6 +1048,7 @@ namespace m6502
                 case 0b000: // c(2) a(3) b(0)    Illegal (JAM)
                 case 0b100: // c(2) a(3) b(4)    Illegal (JAM)
                 case 0b110: // c(2) a(3) b(6)    IIlegal (NOP impl)
+                    throw std::domain_error("Illegal OpCode: ");
                     break;
                 case 0b001: // c(2) a(3) b(1)  - ROR $nn
                 case 0b011: // c(2) a(3) b(3)  - ROR $nnnn
@@ -1101,6 +1126,7 @@ namespace m6502
                 case 0b000: // c(2) a(6) b(0)   Illegal
                 case 0b100: // c(2) a(6) b(4)   Illegal
                 case 0b110: // c(2) a(6) b(6)   Illegal
+                    throw std::domain_error("Illegal OpCode: ");
                     break;
                 case 0b001: // c(2) a(6) b(1) - DEC
                 case 0b011: // c(2) a(6) b(3) - DEC
@@ -1125,9 +1151,12 @@ namespace m6502
                 case 0b000: // c(2) a(7) b(0)  Illegal
                 case 0b100: // c(2) a(7) b(4)  Illegal
                 case 0b110: // c(2) a(7) b(6)  Illegal
+                    throw std::domain_error("Illegal OpCode: ");
+                    break;
+                case 0b010: // c(2) a(7) b(2) - NOP
+                    throw std::domain_error("OpCode() - not yet implemented");
                     break;
                 case 0b001: // c(2) a(7) b(1) - INC $nn
-                case 0b010: // c(2) a(7) b(2) - NOP
                 case 0b011: // c(2) a(7) b(3) - INC $nnnn
                 case 0b101: // c(2) a(7) b(5) - INC $nn,X
                 case 0b111: // c(2) a(7) b(7) - INC $nnnn,X
@@ -1227,6 +1256,7 @@ namespace m6502
             break;
         }
         case 0b11: // c(3)
+            throw std::domain_error("Invalid OpCode: ");
             break;
         }
 
