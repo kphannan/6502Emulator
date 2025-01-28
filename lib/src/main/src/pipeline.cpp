@@ -33,7 +33,7 @@ namespace m6502
      */
     void CPU::Pipeline::execute()
     {
-        std::cout << ">>>>> pipeline: single instruction cycle <<<<<" << std::endl;
+        // std::cout << ">>>>> pipeline: single instruction cycle <<<<<" << std::endl;
 
         dst = src = InstructionTarget::Undefined;
 
@@ -43,7 +43,7 @@ namespace m6502
         // fetchOperand(addressMode);
         evaluate();
         // cpu.decodePipeline().cpuInstruction->execute();
-        std::cout << "<<<<< ---------------------------------- >>>>>" << std::endl;
+        // std::cout << "<<<<< ---------------------------------- >>>>>" << std::endl;
     }
 
     /**
@@ -70,9 +70,9 @@ namespace m6502
 
         opCode.value = cpu.addressSpace.read(cpu.registers.PC++);
         // instruction = opcode;
-        std::cout.setf(std::ios::hex, std::ios::basefield);
-        std::cout << std::setfill('0') << std::setw(2) << " OpCode< " << (int)opCode.value << std::endl;
-        std::cout.unsetf(std::ios::basefield);
+        // std::cout.setf(std::ios::hex, std::ios::basefield);
+        // std::cout << std::setfill('0') << std::setw(2) << " OpCode< " << (int)opCode.value << std::endl;
+        // std::cout.unsetf(std::ios::basefield);
     }
 
     CPU::AddressMode &CPU::Pipeline::decodeAddressMode(const OpCode opCode)
@@ -533,17 +533,23 @@ namespace m6502
                 switch (opCode.memory.b) // 3 bits
                 {
                 case 0b000: // c(0) a(1) b(0) - JSR abs
+                    break;
                 case 0b001: // c(0) a(1) b(1) - BIT zpg
+                case 0b011: // c(0) a(1) b(3) - BIT abs
+                    cpuInstruction = cpu._instructionLogicalBit;
+                    dst = InstructionTarget::A;
+                    src = InstructionTarget::MEMORY;
+                    break;
                 case 0b010: // c(0) a(1) b(2) - PLP impl
                     cpuInstruction = cpu._instructionStack;
                     dst = InstructionTarget::PSR;
                     src = InstructionTarget::STACK; // TODO was memory
                     break;
-                case 0b011: // c(0) a(1) b(3) - BIT abs
                 case 0b100: // c(0) a(1) b(4) - BMI rel
-                case 0b101: // c(0) a(1) b(5) - illegal
                 case 0b110: // c(0) a(1) b(6) - SEC impl
-                case 0b111: // c(0) a(1) b(7) - illegal
+                    break;
+                case 0b101: // c(0) a(1) b(5) - illegal (NOP zpg,X)
+                case 0b111: // c(0) a(1) b(7) - illegal (NOP abs,X)
                     break;
                 }
                 break;
@@ -848,18 +854,18 @@ namespace m6502
             // Instruction
             switch (opCode.memory.a) // 3 bits
             {
-            case 0b000:                                   // c(1) a(0) - ORA
-                cpuInstruction = cpu._instructionLogical; // TOOD need ORA
+            case 0b000: // c(1) a(0) - ORA
+                cpuInstruction = cpu._instructionLogicalOr;
                 dst = InstructionTarget::A;
                 src = InstructionTarget::MEMORY;
                 break;
-            case 0b001:                                   // c(1) a(1) - AND
-                cpuInstruction = cpu._instructionLogical; // TOOD need AND
+            case 0b001: // c(1) a(1) - AND
+                cpuInstruction = cpu._instructionLogicalAnd;
                 dst = InstructionTarget::A;
                 src = InstructionTarget::MEMORY;
                 break;
-            case 0b010:                                   // c(1) a(2) - EOR
-                cpuInstruction = cpu._instructionLogical; // TOOD need EOR
+            case 0b010: // c(1) a(2) - EOR
+                cpuInstruction = cpu._instructionLogicalXor;
                 dst = InstructionTarget::A;
                 src = InstructionTarget::MEMORY;
                 break;
@@ -920,27 +926,27 @@ namespace m6502
             // Instruction
             switch (opCode.memory.a) // 3 bits
             {
-            case 0b000: // c(2) a(0) - ASL   // TODO ASL
-                    switch (opCode.memory.b) // 3 bits
-                    {
-                    case 0b000: // c(2) a(0) b(0)   Illegal (JAM)
-                    case 0b100: // c(2) a(0) b(4)   Illegal (JAM)
-                    case 0b110: // c(2) a(0) b(6)   Illegal (NOP impl)
-                        break;
-                    case 0b010: // c(2) a(1) b(2) - ASL A
-                        cpuInstruction = cpu._instructionShiftLeft;
-                        dst = InstructionTarget::A;
-                        src = InstructionTarget::A;
-                        break;
-                    case 0b001: // c(2) a(0) b(1) - ASL $nn
-                    case 0b011: // c(2) a(0) b(3) - ASL $nnnn
-                    case 0b101: // c(2) a(0) b(5) - ASL $nn,X
-                    case 0b111: // c(2) a(0) b(7) - ASL $nnnn,X
-                        cpuInstruction = cpu._instructionShiftLeft;
-                        dst = InstructionTarget::MEMORY;
-                        src = InstructionTarget::MEMORY;
-                        break;
-                    }
+            case 0b000:                  // c(2) a(0) - ASL   // TODO ASL
+                switch (opCode.memory.b) // 3 bits
+                {
+                case 0b000: // c(2) a(0) b(0)   Illegal (JAM)
+                case 0b100: // c(2) a(0) b(4)   Illegal (JAM)
+                case 0b110: // c(2) a(0) b(6)   Illegal (NOP impl)
+                    break;
+                case 0b010: // c(2) a(1) b(2) - ASL A
+                    cpuInstruction = cpu._instructionShiftLeft;
+                    dst = InstructionTarget::A;
+                    src = InstructionTarget::A;
+                    break;
+                case 0b001: // c(2) a(0) b(1) - ASL $nn
+                case 0b011: // c(2) a(0) b(3) - ASL $nnnn
+                case 0b101: // c(2) a(0) b(5) - ASL $nn,X
+                case 0b111: // c(2) a(0) b(7) - ASL $nnnn,X
+                    cpuInstruction = cpu._instructionShiftLeft;
+                    dst = InstructionTarget::MEMORY;
+                    src = InstructionTarget::MEMORY;
+                    break;
+                }
                 break;
             case 0b001:                  // c(2) a(1) - ROL
                 switch (opCode.memory.b) // 3 bits
@@ -1255,16 +1261,16 @@ namespace m6502
 
     void CPU::Pipeline::evaluate()
     {
-        std::cout << " evaluate instruction ";
+        // std::cout << " evaluate instruction ";
         // cpu.decodePipeline().operand;
         // cpu.decodePipeline().cpuInstruction->evaluate();
-        std::cout
-            << cpu.decodePipeline().cpuInstruction->mnemonic()
-            << "  "
-            << cpu.decodePipeline().addressMode->mnemonic()
-            << " ; "
-            << cpu.decodePipeline().operand
-            << std::endl;
+        // std::cout
+        //     << cpu.decodePipeline().cpuInstruction->mnemonic()
+        //     << "  "
+        //     << cpu.decodePipeline().addressMode->mnemonic()
+        //     << " ; "
+        //     << cpu.decodePipeline().operand
+        //     << std::endl;
 
         cpu.decodePipeline().cpuInstruction->execute(cpu.decodePipeline().dst, cpu.decodePipeline().src);
         // mode.execute();
@@ -1283,17 +1289,17 @@ namespace m6502
 
     void CPU::Pipeline::showPipeline() const
     {
-        std::cout.setf(std::ios::hex, std::ios::basefield);
+        // std::cout.setf(std::ios::hex, std::ios::basefield);
         // std::cout << " opcode: " << std::setfill('0') << std::setw(2) << instruction << std::endl;
-        std::cout << "Pipeline decode:: OpCode: "
-                  << (int)opCode.value
-                  << " : "
-                  << cpuInstruction->mnemonic()
-                  << "  "
-                  << addressMode->mnemonic()
-                  << " ~ "
-                  << std::endl;
-        std::cout.unsetf(std::ios::basefield);
+        // std::cout << "Pipeline decode:: OpCode: "
+        //           << (int)opCode.value
+        //           << " : "
+        //           << cpuInstruction->mnemonic()
+        //           << "  "
+        //           << addressMode->mnemonic()
+        //           << " ~ "
+        //           << std::endl;
+        // std::cout.unsetf(std::ios::basefield);
 
         // std::cout << addressMode.name() << "    " << addressMode.mnemonic() << std::endl;
 

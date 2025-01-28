@@ -39,7 +39,7 @@ namespace m6502
     void CPU::InstructionTransfer::execute(InstructionTarget dst, InstructionTarget src)
     {
         Instruction::execute(dst, src);
-        std::cout << "   GENERIC TRANSFER " << std::endl;
+        // std::cout << "   GENERIC TRANSFER " << std::endl;
 
         switch (dst)
         {
@@ -66,7 +66,7 @@ namespace m6502
             case InstructionTarget::A:
             case InstructionTarget::S:
             case InstructionTarget::X:
-                cpu.registers.S = cpu.registers.X;  // no status flags effected
+                cpu.registers.S = cpu.registers.X; // no status flags effected
                 break;
             case InstructionTarget::Y:
             default:
@@ -81,7 +81,7 @@ namespace m6502
                 break;
             case InstructionTarget::MEMORY:
             case InstructionTarget::S:
-                cpu.X( cpu.registers.S);  // flags effected
+                cpu.X(cpu.registers.S); // flags effected
                 break;
             case InstructionTarget::X:
             case InstructionTarget::Y:

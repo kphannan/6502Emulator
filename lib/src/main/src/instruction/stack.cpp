@@ -35,7 +35,7 @@ namespace m6502
     void CPU::InstructionStack::execute(InstructionTarget dst, InstructionTarget src)
     {
         Instruction::execute(dst, src);
-        std::cout << "   GENERIC STACK " << std::endl;
+        // std::cout << "   GENERIC STACK " << std::endl;
 
         switch (dst)
         {

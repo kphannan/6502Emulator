@@ -48,8 +48,8 @@ namespace m6502
 
         virtual void execute(InstructionTarget dst, InstructionTarget src)
         {
-            std::cout << name() << " ; " << mnemonic() << " " << cpu.decodePipeline().addressMode->mnemonic() << std::endl;
-            std::cout << targetName(dst) << " from " << targetName(src) << std::endl;
+            // std::cout << name() << " ; " << mnemonic() << " " << cpu.decodePipeline().addressMode->mnemonic() << std::endl;
+            // std::cout << targetName(dst) << " from " << targetName(src) << std::endl;
         }
 
     protected:
@@ -168,15 +168,45 @@ namespace m6502
     {
         // Constructors
     public:
-        InstructionLogical(CPU &cpu) : Instruction(cpu, "Logical instruction", "logical") {}
+        InstructionLogical(CPU &cpu, const char *name, const char *mnemonic) : Instruction(cpu, name, mnemonic) {}
 
         // methods
     public:
         virtual void execute(InstructionTarget dst, InstructionTarget src) override;
     };
     // --- AND
+    class CPU::InstructionLogicalAnd : public InstructionLogical
+    {
+        // Constructors
+    public:
+        InstructionLogicalAnd(CPU &cpu) : InstructionLogical(cpu, "Logical AND", "AND") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
     // --- EOR
+    class CPU::InstructionLogicalXor : public InstructionLogical
+    {
+        // Constructors
+    public:
+        InstructionLogicalXor(CPU &cpu) : InstructionLogical(cpu, "Logical Exclusive Or", "EOR") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
     // --- ORA
+    class CPU::InstructionLogicalOr : public InstructionLogical
+    {
+        // Constructors
+    public:
+        InstructionLogicalOr(CPU &cpu) : InstructionLogical(cpu, "Logical OR", "ORA") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
     // ===== Shift & Rotate Instructions (shift, rotate both left and right)
     // --- ASL
     class CPU::InstructionShiftLeft : public Instruction
@@ -265,6 +295,16 @@ namespace m6502
     // --- RTI
     // ===== Other Instructions
     // --- BIT
+    class CPU::InstructionLogicalBit : public InstructionLogical
+    {
+        // Constructors
+    public:
+        InstructionLogicalBit(CPU &cpu) : InstructionLogical(cpu, "Logical BIT", "BIT") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
     // --- NOP
 
     //

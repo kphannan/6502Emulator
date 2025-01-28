@@ -100,10 +100,13 @@ namespace m6502
         // --- ADC
         // --- SBC
         // ===== Logical Instructions
-        _instructionLogical = new InstructionLogical(*this);
+        // _instructionLogical = new InstructionLogical(*this);
         // --- AND
+        _instructionLogicalAnd = new InstructionLogicalAnd(*this);
         // --- EOR
+        _instructionLogicalXor = new InstructionLogicalXor(*this);
         // --- ORA
+        _instructionLogicalOr = new InstructionLogicalOr(*this);
         // ===== Shift & Rotate Instructions
         // --- ASL
         _instructionShiftLeft = new InstructionShiftLeft(*this);
@@ -143,6 +146,7 @@ namespace m6502
         // --- RTI
         // ===== Other Instructions
         // --- BIT
+        _instructionLogicalBit = new InstructionLogicalBit(*this);
         // --- NOP
 
         pipeline = new CPU::Pipeline(*this);

@@ -33,7 +33,7 @@ namespace m6502
         // src: memory - addressMode
         // dst: A register
         // cpu.A(cpu.decodePipeline().operand);
-        std::cout << "   GENERIC LOAD " << std::endl;
+        // std::cout << "   GENERIC LOAD " << std::endl;
 
         // TODO Need to deal with implied, Accumulator, Immediate addressingModes
         hardware::Address address = cpu.decodePipeline().addressMode->execute();

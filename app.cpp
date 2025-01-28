@@ -128,12 +128,25 @@ void loadProgram(m6502::CPU &processor )
 //    memory.write(0x2001, 0x08);
 //    memory.write(0x0018, 0x55);
 
-    memory.write(0x2000, 0x0E); // ASL $nnnn
-    memory.write(0x2001, 0x08);
-    memory.write(0x2002, 0x22);
+//    memory.write(0x2000, 0x0E); // ASL $nnnn
+//    memory.write(0x2001, 0x08);
+//    memory.write(0x2002, 0x22);
+//
+//    memory.write(0x2208, 0x22); // 0010 0010 -> 0100 0100
 
-    memory.write(0x2208, 0x22); // 0010 0010 -> 0100 0100
+    // AND ($60,X)
+    processor.A(0x6F);
+    processor.X(0x16);
+    // testMemory.write(0x2000, 0xA2); // LDX #$16
+    // testMemory.write(0x2001, 0x16); // Base of lookup table in page zero
+    memory.write(0x2000, 0x3D); // AND ($60,X)
+    memory.write(0x2001, 0x60); // offset from base address
 
+    // Lookup table of addresses
+    memory.write(0x0076, 0x23); // Entry 0, $LL Address lookup table
+    memory.write(0x0077, 0x30); //          $HH
+
+    memory.write(0x3023, 0x41); // Data
     
 
 //    processor.clearC();

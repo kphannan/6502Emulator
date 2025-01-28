@@ -135,15 +135,15 @@ namespace m6502
     // Accumulator         A
     // Immediate           #$nn
     // Zero Page           $nn        LO bits 4,5,6
-    // Zero Page, X        $nn, X     LO bits 4,5,6
-    // Zero Page, Y        $nn, Y     LO bits 4,5,6
+    // Zero Page,X         $nn,X      LO bits 4,5,6
+    // Zero Page,Y         $nn,Y      LO bits 4,5,6
     // Relative            $nnnn
     // Absolute            $nnnn
-    // Absolute, X         $nnnn, X
-    // Absolute, Y         $nnnn, Y
+    // Absolute,X          $nnnn,X
+    // Absolute,Y          $nnnn,Y
     // Indirect            ($nnnn)
-    // X Indexed Indirect  ($nn, X)   LO bit 1
-    // Y Indirect Indexed  ($nn), Y   LO bit 1
+    // X Indexed Indirect  ($nn,X)    LO bit 1
+    // Y Indirect Indexed  ($nn),Y    LO bit 1
 
     // Hardware / Software Vectors
     enum class HardwareVector
@@ -511,8 +511,11 @@ namespace m6502
         // ===== Logical Instructions
         class InstructionLogical;
         // --- AND *
+        class InstructionLogicalAnd;
         // --- EOR *
+        class InstructionLogicalXor;
         // --- ORA *
+        class InstructionLogicalOr;
         // ===== Shift & Rotate Instructions
         // --- ASL *
         class InstructionShiftLeft;
@@ -552,6 +555,7 @@ namespace m6502
         // --- RTI
         // ===== Other Instructions
         // --- BIT *
+        class InstructionLogicalBit;
         // --- NOP
 
     protected:
@@ -776,8 +780,11 @@ namespace m6502
         // ===== Logical Instructions
         CPU::InstructionLogical *_instructionLogical;
         // --- AND *
+        CPU::InstructionLogicalAnd *_instructionLogicalAnd;
         // --- EOR *
+        CPU::InstructionLogicalXor *_instructionLogicalXor;
         // --- ORA *
+        CPU::InstructionLogicalOr *_instructionLogicalOr;
         // ===== Shift & Rotate Instructions
         // --- ASL *
         CPU::InstructionShiftLeft *_instructionShiftLeft;
@@ -817,6 +824,7 @@ namespace m6502
         // --- RTI
         // ===== Other Instructions
         // --- BIT *
+        CPU::InstructionLogicalBit *_instructionLogicalBit;
         // --- NOP
 
         // ----- Constructors -----
@@ -872,6 +880,8 @@ namespace m6502
             // TODO - may change from Address to Byte and let addresMode handle the page
             registers.S = value;
         };
+
+        void PC(hardware::Address value) { registers.PC = value; };
 
         // Organize these constants better
         const uint8_t NegativeBit = 7;

@@ -44,13 +44,8 @@ namespace m6502
         // Shift the bits to the right
         value <<= 1;
 
-        // // Copy the carry bit into bit 7
-        // if (cpu.isC())
-        //     value |= 0x80;
-
         // Set the N flag to the value of bit 7
         // 2's complement negative
-        // Never possible since msb is always 0
         value & 0x80 ? cpu.setN() : cpu.clearN();
 
         value == 0x00 ? cpu.setZ() : cpu.clearZ();
@@ -61,7 +56,7 @@ namespace m6502
     void CPU::InstructionShiftLeft::execute(InstructionTarget dst, InstructionTarget src)
     {
         Instruction::execute(dst, src);
-        std::cout << "   GENERIC SHIFT LEFT " << std::endl;
+        // std::cout << "   GENERIC SHIFT LEFT " << std::endl;
 
         switch (dst)
         {
@@ -147,14 +142,7 @@ namespace m6502
         // Shift the bits to the right
         value >>= 1;
 
-        // // Copy the carry bit into bit 7
-        // if (cpu.isC())
-        //     value |= 0x80;
-
-        // Set the N flag to the value of bit 7
-        // 2's complement negative
-        // Never possible since msb is always 0
-        // value & 0x80 ? cpu.setN() : cpu.clearN();
+        // N is always clear as msb is set to zero
         cpu.clearN();
 
         value == 0x00 ? cpu.setZ() : cpu.clearZ();
@@ -165,7 +153,7 @@ namespace m6502
     void CPU::InstructionShiftRight::execute(InstructionTarget dst, InstructionTarget src)
     {
         Instruction::execute(dst, src);
-        std::cout << "   GENERIC SHIFT RIGHT " << std::endl;
+        // std::cout << "   GENERIC SHIFT RIGHT " << std::endl;
 
         switch (dst)
         {
@@ -263,7 +251,7 @@ namespace m6502
     void CPU::InstructionRotateLeft::execute(InstructionTarget dst, InstructionTarget src)
     {
         Instruction::execute(dst, src);
-        std::cout << "   GENERIC ROTATE LEFT " << std::endl;
+        // std::cout << "   GENERIC ROTATE LEFT " << std::endl;
 
         switch (dst)
         {
@@ -377,7 +365,7 @@ namespace m6502
     void CPU::InstructionRotateRight::execute(InstructionTarget dst, InstructionTarget src)
     {
         Instruction::execute(dst, src);
-        std::cout << "   GENERIC ROTATE RIGHT " << std::endl;
+        // std::cout << "   GENERIC ROTATE RIGHT " << std::endl;
 
         switch (dst)
         {

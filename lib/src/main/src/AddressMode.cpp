@@ -11,7 +11,7 @@ namespace m6502
     // ----- AddressMode -----
     hardware::Address CPU::AddressMode::execute()
     {
-        std::cout << name() << " ; " << mnemonic() << std::endl;
+        // std::cout << name() << " ; " << mnemonic() << std::endl;
         return hardware::Address(0xDEADBEEF);
     }
 
@@ -107,31 +107,100 @@ namespace m6502
     }
 
     // ----- AddressModeIndexedIndirectX -----
+    // $nn: $1234
+    //   X: $10
+    //        ┌───────┐
+    // $0070  │ $1234 │        $nn - points to a table of addresses ($1234)
+    //        └───────┘         │
+    //              ┌───────<───┘
+    //        ┌───────┐
+    // $1234  │ $8200 │         1st table entry
+    //   :    └───────┘
+    //   :    ┌───────┐
+    // $1236  │ $8230 │         2nd table entry
+    //   :    └───────┘
+    //   :    ┌───────┐
+    // $1244  │ $8260 │ ──>──┐  Xth entry in table  ----> $8260
+    //        └───────┘      │
+    //             ┌────<────┘
+    //        ┌─────┐
+    // $8260  │ $49 │
+    //        └─────┘
+    // ---------------------------------------------------------------------
     hardware::Address CPU::AddressModeIndexedIndirectX::execute()
     {
         // value = read( $nn + X )
         AddressMode::execute();
+        // Address of table of addresses
         hardware::Address zeroPageAddress = cpu.addressSpace.read(cpu.registers.PC++);
+        // get address contained in the n-th entry of the table
         hardware::Address address = cpu.addressSpace.readWord(zeroPageAddress + cpu.registers.X);
-        cpu.decodePipeline().operand = cpu.addressSpace.read(address);
 
-        // TODO return 'address'
+        cpu.decodePipeline().operand = cpu.addressSpace.read(address); // TODO not needed
+
         return address;
     }
 
     // ----- AddressModeIndirectIndexedY -----
+    // $nn: $70
+    //   Y: $10
+    //        ┌───────┐
+    // $0070  │ $1234 │        $nn - points to a table of addresses ($1234)
+    //        └───────┘         │
+    //                          │
+    //              ┌───────<───┘
+    //        ┌───────┐
+    // $1234  │ $8200 │             1st address table entry
+    //        └───────┘
+    //        ┌───────┐
+    // $1236  │ $8210 │             2nd address table entry
+    //   :    └───────┘
+    //   :        :
+    //   :        :
+    //   :    ┌───────┐
+    // $1244  │ $8260 │ ──>──┐     Y-th entry in table
+    //        └───────┘      │
+    //             ┌─<────<──┘
+    //        ┌─────┐
+    // $8260  │ $49 │
+    //        └─────┘
+    // -----------------------------------------------------------------------
     hardware::Address CPU::AddressModeIndirectIndexedY::execute()
     {
         AddressMode::execute();
         // read( read( $nn ) | (read( $nn + 1) << 8) + Y )
         // indirect pointer (PC | (PC+1)<<8) + Y
         // value = read( $nn + X )
-        hardware::Address zpOffset = cpu.addressSpace.read(cpu.registers.PC++);
-        hardware::Address address = cpu.addressSpace.readWord(zpOffset);
-        address += cpu.registers.Y;
-        cpu.decodePipeline().operand = cpu.addressSpace.read(address);
 
-        // TODO return 'address'
+        hardware::Address zpOffset = cpu.addressSpace.read(cpu.registers.PC++);
+
+        // std::cout.setf(std::ios::hex, std::ios::basefield);
+        // std::cout << " indirect address: "
+        //           << std::setfill('0') << std::setw(4) << (int)zpOffset
+        //           << " : " << cpu.addressSpace.readWord(zpOffset)
+        //           << std::endl
+        //           << std::endl;
+        // hardware::Address a = cpu.addressSpace.readWord(zpOffset);
+        // for (int i = cpu.registers.Y; i >= 0; i -= 2, a += 2)
+        // {
+        //     std::cout << "   "
+        //               << std::setfill('0') << std::setw(4) << (int)a
+        //               << " : " << cpu.addressSpace.readWord(a)
+        //               << std::endl;
+        // }
+        // std::cout.unsetf(std::ios::basefield);
+
+        hardware::Address address = cpu.addressSpace.readWord(zpOffset);
+        address = cpu.addressSpace.readWord(address + cpu.registers.Y);
+
+        cpu.decodePipeline().operand = cpu.addressSpace.read(address); // TODO remove this
+
+        // std::cout.setf(std::ios::hex, std::ios::basefield);
+        // std::cout << " final address "
+        //           << std::setfill('0') << std::setw(4) << (int)address
+        //           << std::endl;
+        // std::cout.unsetf(std::ios::basefield);
+
         return address;
     }
 
@@ -152,7 +221,7 @@ namespace m6502
     {
         AddressMode::execute();
 
-        return 0xFFFF;      // return address is always ignored.
+        return 0xFFFF; // return address is always ignored.
     }
 
     // ----- AddressModeStack -----
@@ -161,7 +230,7 @@ namespace m6502
         return AddressMode::execute();
 
         // decrement stack after calculating the address
-//        return (cpu.registers.S-- & stackMask) + stackPage;
+        //        return (cpu.registers.S-- & stackMask) + stackPage;
     }
 
     hardware::Address CPU::AddressModeStackPush::execute()
@@ -180,8 +249,6 @@ namespace m6502
         cpu.registers.S++;
         return (cpu.registers.S & stackMask) + stackPage;
     }
-
-
 
     //    }
 }

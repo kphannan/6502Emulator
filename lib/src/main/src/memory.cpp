@@ -94,12 +94,12 @@ namespace memory
     hardware::Word Memory::readWord(const hardware::Word address) const
     {
         hardware::Word value = contents[address] | contents[address + 1] << 8;
-        std::cout.setf(std::ios::hex, std::ios::basefield);
-        std::cout << "   read( " << std::setfill('0') << std::setw(4) << (int)address << " ) = "
-                  << " LSB:  " << (int)contents[address]
-                  << " MSB:  " << (int)contents[address + 1]
-                  << " Word: " << (int)value << std::endl;
-        std::cout.unsetf(std::ios::basefield);
+        // std::cout.setf(std::ios::hex, std::ios::basefield);
+        // std::cout << "   read( " << std::setfill('0') << std::setw(4) << (int)address << " ) = "
+        //           << " LSB:  " << (int)contents[address]
+        //           << " MSB:  " << (int)contents[address + 1]
+        //           << " Word: " << (int)value << std::endl;
+        // std::cout.unsetf(std::ios::basefield);
 
         return contents[address] | contents[address + 1] << 8;
     }

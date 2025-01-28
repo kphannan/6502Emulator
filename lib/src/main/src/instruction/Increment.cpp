@@ -123,7 +123,7 @@ namespace m6502
     void CPU::InstructionDecrement::execute(InstructionTarget dst, InstructionTarget src)
     {
         Instruction::execute(dst, src);
-        std::cout << "   GENERIC Decrement " << std::endl;
+        // std::cout << "   GENERIC Decrement " << std::endl;
 
         // TODO Need to deal with implied, Accumulator, Immediate addressingModes
         switch (dst)
@@ -172,7 +172,7 @@ namespace m6502
     void CPU::InstructionIncrement::execute(InstructionTarget dst, InstructionTarget src)
     {
         Instruction::execute(dst, src);
-        std::cout << "   GENERIC Increment " << std::endl;
+        // std::cout << "   GENERIC Increment " << std::endl;
 
         // TODO Need to deal with implied, Accumulator, Immediate addressingModes
         switch (dst)
