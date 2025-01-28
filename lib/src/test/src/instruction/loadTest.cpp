@@ -284,8 +284,6 @@ namespace m6502
     TEST_F(InstructionLoadTest, LDA_IndirectIndexedY)
     {
         cpu->Y(0x10);
-        // testMemory.write(0x2000, 0xA0); // LDY #$10         ; Offset into table
-        // testMemory.write(0x2001, 0x10);
         testMemory.write(0x2002, 0xB1); // LDA ($70),Y      ; Indirect table address
         testMemory.write(0x2003, 0x70);
 
@@ -293,6 +291,7 @@ namespace m6502
         testMemory.write(0x0070, 0x43); // Entry 0, $LL Address lookup table
         testMemory.write(0x0071, 0x35); //          $HH
 
+        // Indexed address table
         testMemory.write(0x3553, 0x00); // Data
         testMemory.write(0x3554, 0x90); // Data
 

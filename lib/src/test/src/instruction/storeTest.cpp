@@ -257,30 +257,33 @@ namespace m6502
     }
 
     // ----- Indirect Indexed Y ($LL),Y
-    TEST_F(InstructionStoreTest, STA_IndexedIndirectY)
+    TEST_F(InstructionStoreTest, STA_IndirectIndexedY)
     {
         // --- given
         cpu->A(0x23);
-        testMemory.write(0x2000, 0xA0); // LDY #$10         ; Offset into table
-        testMemory.write(0x2001, 0x10);
+        cpu->Y(0x10);
         testMemory.write(0x2002, 0x91); // STA ($70),Y      ; Indirect table address
         testMemory.write(0x2003, 0x70);
 
-        // Lookup table of addresses
-        testMemory.write(0x0070, 0x43); // Entry 0, $LL Address lookup table
+        // Indirect address of table
+        testMemory.write(0x0070, 0x40); // Entry 0, $LL Address lookup table
         testMemory.write(0x0071, 0x35); //          $HH
 
-        testMemory.write(0x3553, 0x25); // Data
+        // Lookup table of addresses
+        testMemory.write(0x3550, 0x25); // $10th address from table
+        testMemory.write(0x3551, 0x30);
+
+        testMemory.write(0x3025, 0x30); // Data
 
         // --- when
-        cpu->executeFromAddress(0x2000, 2);
+        cpu->executeFromAddress(0x2002, 1);
 
         // --- then
         EXPECT_EQ(0x2004, cpu->PC());
         EXPECT_EQ(0x23, cpu->A());
         EXPECT_EQ(0x10, cpu->Y());
         EXPECT_EQ(0b00100000, cpu->P());
-        EXPECT_EQ(0x23, testMemory.read(0x3553));
+        EXPECT_EQ(0x23, testMemory.read(0x3025));
         EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().dst);
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
     }
