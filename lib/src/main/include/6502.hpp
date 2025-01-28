@@ -526,6 +526,8 @@ namespace m6502
         // --- ROR *
         class InstructionRotateRight;
         // ===== Flag Instructions
+        class InstructionFlagClear;
+        class InstructionFlagSet;
         // --- CLC
         // --- CLD
         // --- CLI
@@ -795,6 +797,8 @@ namespace m6502
         // --- ROR *
         CPU::InstructionRotateRight *_instructionRotateRight;
         // ===== Flag Instructions
+        CPU::InstructionFlagClear *_instructionFlagClear;
+        CPU::InstructionFlagSet *_instructionFlagSet;
         // --- CLC
         // --- CLD
         // --- CLI

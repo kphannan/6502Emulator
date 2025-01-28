@@ -100,37 +100,121 @@ namespace m6502
     // ----- Implied
     TEST_F(InstructionFlagTest, CLC_Implied)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->setC();
+        testMemory.write(0x2000, 0x18); // CLC
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_FALSE(cpu->isC());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::FLAG_C, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::FLAG_C, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionFlagTest, SEC_Implied)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->clearC();
+        testMemory.write(0x2000, 0x38); // SEC
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_TRUE(cpu->isC());
+        EXPECT_EQ(0b00100001, cpu->P());
+        EXPECT_EQ(InstructionTarget::FLAG_C, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::FLAG_C, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionFlagTest, CLI_Implied)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->setI();
+        testMemory.write(0x2000, 0x58); // CLI
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_FALSE(cpu->isI());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::FLAG_I, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::FLAG_I, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionFlagTest, SEI_Implied)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->clearI();
+        testMemory.write(0x2000, 0x78); // SEI
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_TRUE(cpu->isI());
+        EXPECT_EQ(0b00100100, cpu->P());
+        EXPECT_EQ(InstructionTarget::FLAG_I, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::FLAG_I, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionFlagTest, CLV_Implied)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->setV();
+        testMemory.write(0x2000, 0xB8); // CLV
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_FALSE(cpu->isV());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::FLAG_V, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::FLAG_V, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionFlagTest, CLD_Implied)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->setD();
+        testMemory.write(0x2000, 0xD8); // CLD
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_FALSE(cpu->isD());
+        EXPECT_EQ(0b00100000, cpu->P());
+        EXPECT_EQ(InstructionTarget::FLAG_D, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::FLAG_D, cpu->decodePipeline().dst);
     }
 
     TEST_F(InstructionFlagTest, SED_Implied)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->setD();
+        testMemory.write(0x2000, 0xF8); // SED
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_TRUE(cpu->isD());
+        EXPECT_EQ(0b00101000, cpu->P());
+        EXPECT_EQ(InstructionTarget::FLAG_D, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::FLAG_D, cpu->decodePipeline().dst);
     }
 
     // ..... Accumulator

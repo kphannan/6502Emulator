@@ -2,6 +2,7 @@
 
 #include "6502.hpp"
 #include "memory.hpp"
+#include "InstructionSet.hpp"
 
 namespace m6502
 {
@@ -49,6 +50,75 @@ namespace m6502
     //   ADC #$FF ; +   -1
     // the overflow flag is 0 (-127 + -1 = -128). The overflow flag is not affected by increments, decrements, shifts and logical operations i.e. only ADC, BIT, CLV, PLP, RTI and SBC affect it. There is no op code to set the overflow but a BIT test on an RTS instruction will do the trick.
     //----------------------------------------
+    void CPU::InstructionFlagClear::execute(InstructionTarget dst, InstructionTarget src)
+    {
+        Instruction::execute(dst, src);
+
+        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+        hardware::Byte value = cpu.addressSpace.read(address);
+        switch (dst)
+        {
+        case InstructionTarget::FLAG_B:
+            cpu.clearB();
+            break;
+        case InstructionTarget::FLAG_C:
+            cpu.clearC();
+            break;
+        case InstructionTarget::FLAG_D:
+            cpu.clearD();
+            break;
+        case InstructionTarget::FLAG_I:
+            cpu.clearI();
+            break;
+        case InstructionTarget::FLAG_N:
+            cpu.clearN();
+            break;
+        case InstructionTarget::FLAG_V:
+            cpu.clearV();
+            break;
+        case InstructionTarget::FLAG_Z:
+            cpu.clearZ();
+            break;
+        default:
+            std::cout << "Illegal destination of a flag clear operation" << std::endl;
+            break;
+        }
+    }
+
+    void CPU::InstructionFlagSet::execute(InstructionTarget dst, InstructionTarget src)
+    {
+        Instruction::execute(dst, src);
+
+        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+        hardware::Byte value = cpu.addressSpace.read(address);
+        switch (dst)
+        {
+        case InstructionTarget::FLAG_B:
+            cpu.setB();
+            break;
+        case InstructionTarget::FLAG_C:
+            cpu.setC();
+            break;
+        case InstructionTarget::FLAG_D:
+            cpu.setD();
+            break;
+        case InstructionTarget::FLAG_I:
+            cpu.setI();
+            break;
+        case InstructionTarget::FLAG_N:
+            cpu.setN();
+            break;
+        case InstructionTarget::FLAG_V:
+            cpu.setV();
+            break;
+        case InstructionTarget::FLAG_Z:
+            cpu.setZ();
+            break;
+        default:
+            std::cout << "Illegal destination of a flag set operation" << std::endl;
+            break;
+        }
+    }
 
     // Addressing Modes
     // ..... Immediate #$BB

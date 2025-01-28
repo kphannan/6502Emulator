@@ -266,6 +266,26 @@ namespace m6502
     };
 
     // ===== Flag Instructions (set, clear)
+    class CPU::InstructionFlagClear : public Instruction
+    {
+        // Constructors
+    public:
+        InstructionFlagClear(CPU &cpu) : Instruction(cpu, "Logical BIT", "BIT") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
+    class CPU::InstructionFlagSet : public Instruction
+    {
+        // Constructors
+    public:
+        InstructionFlagSet(CPU &cpu) : Instruction(cpu, "Logical BIT", "BIT") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
     // --- CLC
     // --- CLD
     // --- CLI

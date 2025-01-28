@@ -117,6 +117,8 @@ namespace m6502
         // --- ROR
         _instructionRotateRight = new InstructionRotateRight(*this);
         // ===== Flag Instructions
+        _instructionFlagClear = new CPU::InstructionFlagClear(*this);
+        _instructionFlagSet = new CPU::InstructionFlagSet(*this);
         // --- CLC
         // --- CLD
         // --- CLI

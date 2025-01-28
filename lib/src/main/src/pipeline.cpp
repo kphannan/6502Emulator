@@ -512,23 +512,27 @@ namespace m6502
                 switch (opCode.memory.b) // 3 bits
                 {
                 case 0b000: // c(0) a(0) b(0) - BRK impl
-                case 0b001: // c(0) a(0) b(1)
+                    break;
+                case 0b001: // c(0) a(0) b(1)   Illegal (NOP zpg)
+                case 0b011: // c(0) a(0) b(3)   Illegal (NOP abs)
+                case 0b101: // c(0) a(0) b(5)   Illegal (NOP zpg,X)
+                case 0b111: // c(0) a(0) b(7)   Illegal (NOP abs,X)
                     break;
                 case 0b010: // c(0) a(0) b(2) - PHP impl
                     cpuInstruction = cpu._instructionStack;
                     dst = InstructionTarget::STACK; // TODO was memory
                     src = InstructionTarget::PSR;
                     break;
-                case 0b011: // c(0) a(0) b(3)
                 case 0b100: // c(0) a(0) b(4) - BPL rel
-                case 0b101: // c(0) a(0) b(5)
+                    break;
                 case 0b110: // c(0) a(0) b(6) - CLC impl
-                case 0b111: // c(0) a(0) b(7)
-                    // Illegal
+                    cpuInstruction = cpu._instructionFlagClear;
+                    dst = InstructionTarget::FLAG_C;
+                    src = InstructionTarget::FLAG_C;
                     break;
                 }
+                break;
             }
-            break;
             case 0b001:                  // c(0) a(1) - BIT
                 switch (opCode.memory.b) // 3 bits
                 {
@@ -546,7 +550,11 @@ namespace m6502
                     src = InstructionTarget::STACK; // TODO was memory
                     break;
                 case 0b100: // c(0) a(1) b(4) - BMI rel
+                    break;
                 case 0b110: // c(0) a(1) b(6) - SEC impl
+                    cpuInstruction = cpu._instructionFlagSet;
+                    dst = InstructionTarget::FLAG_C;
+                    src = InstructionTarget::FLAG_C;
                     break;
                 case 0b101: // c(0) a(1) b(5) - illegal (NOP zpg,X)
                 case 0b111: // c(0) a(1) b(7) - illegal (NOP abs,X)
@@ -572,6 +580,9 @@ namespace m6502
                 case 0b100: // c(0) a(2) b(4) - BVC rel
                     break;
                 case 0b110: // c(0) a(2) b(6) - CLI impl
+                    cpuInstruction = cpu._instructionFlagClear;
+                    dst = InstructionTarget::FLAG_I;
+                    src = InstructionTarget::FLAG_I;
                     break;
                 }
                 break;
@@ -590,6 +601,10 @@ namespace m6502
                 case 0b100: // c(0) a(3) b(4) - BVS rel
                 case 0b101: // c(0) a(3) b(5)
                 case 0b110: // c(0) a(3) b(6) - SEI impl
+                    cpuInstruction = cpu._instructionFlagSet;
+                    dst = InstructionTarget::FLAG_I;
+                    src = InstructionTarget::FLAG_I;
+                    break;
                 case 0b111: // c(0) a(3) b(7)
                     // Illegal
                     break;
@@ -691,6 +706,9 @@ namespace m6502
                     break;
                 case 0b100: // c(0) a(5) b(4) - BCS $nn
                 case 0b110: // c(0) a(5) b(6) - CLV
+                    cpuInstruction = cpu._instructionFlagClear;
+                    dst = InstructionTarget::FLAG_V;
+                    src = InstructionTarget::FLAG_V;
                     break;
                 }
                 break;
@@ -712,6 +730,9 @@ namespace m6502
                 case 0b111: // c(0) a(6) b(7)   Illegal
                     break;
                 case 0b110: // c(0) a(6) b(6) - CLD
+                    cpuInstruction = cpu._instructionFlagClear;
+                    dst = InstructionTarget::FLAG_D;
+                    src = InstructionTarget::FLAG_D;
                     break;
                 }
                 break;
@@ -733,6 +754,9 @@ namespace m6502
                 case 0b111: // c(0) a(7) b(7)   Illegal
                     break;
                 case 0b110: // c(0) a(7) b(6) - SED
+                    cpuInstruction = cpu._instructionFlagSet;
+                    dst = InstructionTarget::FLAG_D;
+                    src = InstructionTarget::FLAG_D;
                     break;
                 }
                 break;
