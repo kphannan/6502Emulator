@@ -294,6 +294,18 @@ namespace m6502
     // --- SED
     // --- SEI
     // ===== Comparison Instructions (compare)
+    class CPU::InstructionCompare : public Instruction
+    {
+        // Constructors
+    public:
+        InstructionCompare(CPU &cpu) : Instruction(cpu, "Compare (A,X,Y)", "cmp") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+
+        void compare(hardware::Byte v1, hardware::Byte v2);
+    };
     // --- CMP
     // --- CPX
     // --- CPY

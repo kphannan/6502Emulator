@@ -2,6 +2,7 @@
 
 #include "6502.hpp"
 #include "memory.hpp"
+#include "InstructionSet.hpp"
 
 namespace m6502
 {
@@ -38,6 +39,70 @@ namespace m6502
     //
     // Compare sets flags as if a subtraction had been carried out. If the value in the accumulator is equal or greater than the compared value, the Carry will be set. The equal (Z) and negative (N) flags will be set based on equality or lack thereof and the sign (i.e. A>=$80) of the accumulator.
     //----------------------------------------
+
+    void CPU::InstructionCompare::compare(hardware::Byte v1, hardware::Byte v2)
+    {
+        // Widen arguments
+        int vi1 = v1;
+        int vi2 = v2;
+        int value = vi1 - vi2;
+        // int value = v1 - v2;
+        // bit7 set indicates negative in 2's compliment
+        value & 0x80 ? cpu.setN() : cpu.clearN();
+
+        value == 0 ? cpu.setZ() : cpu.clearZ();
+
+        // check carry
+        // v1 - v2 is a 2's compliment addition
+        // v2 is complimented then add one  (1)
+
+        // value = (uint16_t)v1 + ~(uint16_t)v2 + 1;
+        value = vi1 + ~vi2 + 1;
+        // Carry occurs if there is any bit higher than bit 7 is set.
+        // mask out the low byte  (8 bits) from the int...
+        value &= ~0xFF;
+        value == 0 ? cpu.clearC() : cpu.setC();
+    }
+
+    void CPU::InstructionCompare::execute(InstructionTarget dst, InstructionTarget src)
+    {
+        Instruction::execute(dst, src);
+
+        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+        hardware::Byte value = cpu.addressSpace.read(address);
+//        hardware::Byte v1 = ....;
+
+        switch (dst)
+        {
+            case InstructionTarget::A:
+                compare( cpu.registers.A, value );
+                break;
+            case InstructionTarget::X:
+                compare( cpu.registers.X, value );
+                break;
+            case InstructionTarget::Y:
+                compare( cpu.registers.Y, value );
+                break;
+//            case InstructionTarget::A:
+//                switch( src )
+//                {
+//                    case InstructionTarget::A:
+//                        compare( cpu.registers.A, value );
+//                        break;
+//                    case InstructionTarget::X:
+//                        compare( cpu.registers.X, value );
+//                        break;
+//                    case InstructionTarget::Y:
+//                        compare( cpu.registers.Y, value );
+//                        break;
+//                }
+//            break;
+                
+            default:
+                std::cout << "Illegal destination of a flag compare operation" << std::endl;
+                break;
+        }
+    }
 
     // Addressing Modes
     // ----- Immediate #$BB

@@ -127,6 +127,7 @@ namespace m6502
         // --- SED
         // --- SEI
         // ===== Comparison Instructions
+        _instructionCompare = new CPU::InstructionCompare(*this);
         // --- CMP
         // --- CPX
         // --- CPY

@@ -536,6 +536,7 @@ namespace m6502
         // --- SED
         // --- SEI
         // ===== Comparison Instructions
+        class InstructionCompare;
         // --- CMP *
         // --- CPX *
         // --- CPY *
@@ -807,6 +808,7 @@ namespace m6502
         // --- SED
         // --- SEI
         // ===== Comparison Instructions
+        CPU::InstructionCompare *_instructionCompare;
         // --- CMP *
         // --- CPX *
         // --- CPY *

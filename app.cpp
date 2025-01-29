@@ -160,6 +160,13 @@ void loadProgram(m6502::CPU &processor)
 //    memory.write(0x2000, 0xD8); // CLD
 //    memory.write(0x2000, 0xF8); // SED
 
+    processor.A( 0xFF );
+    memory.write(0x2000, 0xC9); // CMP #$23
+    memory.write(0x2001, 0x23);
+
+    memory.write(0x0023, 0x71);
+
+    
     //    processor.clearC();
     //    memory.write(0x2000, 0x66); // ROR $34
     //    memory.write(0x2001, 0x34);
