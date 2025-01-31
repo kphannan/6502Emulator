@@ -109,11 +109,9 @@ namespace m6502
                 case 0b000: // b(0) c(0) a(0)
                 case 0b010: // b(0) c(0) a(2)
                 case 0b011: // b(0) c(0) a(3)
-                    //                    std::cout << "impl" << std::endl;
                     addressMode = cpu._addressModeImplied;
                     break;
                 case 0b001: // b(0) c(0) a(1)
-                    //                    std::cout << "abs" << std::endl;
                     addressMode = cpu._addressModeAbsolute;
                     break;
                 case 0b100: // b(0) c(0) a(4)
@@ -122,13 +120,11 @@ namespace m6502
                 case 0b101: // b(0) c(0) a(5)
                 case 0b110: // b(0) c(0) a(6)
                 case 0b111: // b(0) c(0) a(7)
-                    //                    std::cout << "# immediate" << std::endl;
                     addressMode = cpu._addressModeImmediate;
                     break;
                 }
                 break;
             case 0b01: // b(0) c(1)
-                //                std::cout << "X,ind" << std::endl;
                 addressMode = cpu._addressModeIndexedIndirectX;
                 break;
             case 0b10:                   // b(0) c(2)
@@ -142,7 +138,6 @@ namespace m6502
                     // n/a
                     break;
                 case 0b101: // c(2) a(5)
-                    //                    std::cout << "# immediate" << std::endl;
                     addressMode = cpu._addressModeImmediate;
                     break;
                 case 0b110: // c(2) a(6)
@@ -155,12 +150,10 @@ namespace m6502
                 break;
             }
             break;
-        case 0x001: // b(1)
-            // std::cout << " switch(c: " << std::bitset<2>(opCode.memory.c) << ")" << std::endl;
+        case 0x001:                  // b(1)
             switch (opCode.memory.c) // 2 bits
             {
-            case 0b00: // b(1) c(0)
-                // std::cout << " switch(a: " << std::bitset<3>(opCode.memory.a) << ")" << std::endl;
+            case 0b00:                   // b(1) c(0)
                 switch (opCode.memory.a) // 2 bits
                 {
                 case 0b000: // b(1) c(0) a(0)
@@ -173,14 +166,12 @@ namespace m6502
                 case 0b101: // b(1) c(0) a(5)
                 case 0b110: // b(1) c(0) a(6)
                 case 0b111: // b(1) c(0) a(7)
-                    //                    std::cout << "zero page" << std::endl;
                     addressMode = cpu._addressModeZeroPage;
                     break;
                 }
                 break;
             case 0b01: // b(1) c(1)
             case 0b10: // b(1) c(2)
-                //                std::cout << "zero page" << std::endl;
                 addressMode = cpu._addressModeZeroPage;
                 break;
             case 0b11: // b(1) c(3)
@@ -192,12 +183,9 @@ namespace m6502
             switch (opCode.memory.c) // 2 bits
             {
             case 0b00: // b(2) c(0)
-                       //                std::cout << "c(0) ";
-                       //                std::cout << "impl" << std::endl;
                 addressMode = cpu._addressModeImplied;
                 break;
             case 0b01:                             // b(2) c(1)
-                                                   //                std::cout << "c(1) ";
                 switch ((unsigned)opCode.memory.a) // 3 bits
                 {
                 case 0b000: // 0    b(2) c(1) a(0)
@@ -207,39 +195,28 @@ namespace m6502
                 case 0b101: // 5    b(2) c(1) a(5)
                 case 0b110: // 6    b(2) c(1) a(6)
                 case 0b111: // 7    b(2) c(1) a(7)
-                            //                    std::cout << "a(0,1,3,4,5,6,7) ";
-                            //                    std::cout << "immediate #" << std::endl;
-                    // addressModeKind = AddressModeKind::IMMEDIATE;
                     addressMode = cpu._addressModeImmediate;
-                    // addressMode = new CPU::AddressModeImmediate();
-                    // addressMode = new AddressMode::AddressModeImmediate();
-                    // addressMode = new CPU::AddressMode::AddressModeImmediate();
                     break;
                 case 0b100: // 4    b(2) c(1) a(4)
-                            //                    std::cout << "a(4) ";
                     // n/a
                     break;
                 default: //    b(2) c(1) a(?)
-                         //                    std::cout << "a(?): " << (unsigned)opCode.memory.a;
                     // error
                     break;
                 }
                 break;
             case 0b10:                   //    b(2) c(2)
-                                         //                std::cout << "c(2) ";
                 switch (opCode.memory.a) // 3 bits
                 {
-                case 0b000: // b(2) c(2) a(0)
+                case 0b000: // b(2) c(2) a(0)   // A
                 case 0b001: // b(2) c(2) a(1)
                 case 0b010: // b(2) c(2) a(2)
                 case 0b011: // b(2) c(2) a(3)
-                    //                    std::cout << "A" << std::endl;
                     break;
-                case 0b100: // b(2) c(2) a(4)
+                case 0b100: // b(2) c(2) a(4)   // impl
                 case 0b101: // b(2) c(2) a(5)
                 case 0b110: // b(2) c(2) a(6)
                 case 0b111: // b(2) c(2) a(7)
-                    //                    std::cout << "impl" << std::endl;
                     break;
                 default:
                     // error
@@ -247,7 +224,6 @@ namespace m6502
                 }
                 break;
             case 0b11: // b(2) c(3)
-                //                std::cout << "c(3) n/a ";
                 // n/a
                 break;
             }
@@ -261,14 +237,13 @@ namespace m6502
                 case 0b000: // b(3) c(0) a(0)
                     // n/a
                     break;
-                case 0b001: // b(3) c(0) a(1)
+                case 0b001: // b(3) c(0) a(1)       // Absolute
                 case 0b010: // b(3) c(0) a(2)
                 case 0b011: // b(3) c(0) a(3)
                 case 0b100: // b(3) c(0) a(4)
                 case 0b101: // b(3) c(0) a(5)
                 case 0b110: // b(3) c(0) a(6)
                 case 0b111: // b(3) c(0) a(7)
-                    //                    std::cout << "absolute" << std::endl;
                     addressMode = cpu._addressModeAbsolute;
                     break;
                 default:
@@ -277,9 +252,8 @@ namespace m6502
                     break;
                 }
                 break;
-            case 0b01: // b(3) c(1)
+            case 0b01: // b(3) c(1)     // Absolute
             case 0b10: // b(3) c(2)
-                //                std::cout << "absolute" << std::endl;
                 addressMode = cpu._addressModeAbsolute;
                 break;
             case 0b11: // b(3) c(3)
@@ -293,12 +267,10 @@ namespace m6502
         case 0b100:                  // b(4)
             switch (opCode.memory.c) // 2 bits
             {
-            case 0b00: // b(4) c(0)
-                //                std::cout << "rel" << std::endl;
+            case 0b00: // b(4) c(0)     // rel
                 addressMode = cpu._addressModeRelative;
                 break;
             case 0b01: // b(4) c(1)
-                //                std::cout << "ind, y" << std::endl;
                 addressMode = cpu._addressModeIndirectIndexedY;
                 break;
             case 0b10: // b(3) c(2)
@@ -307,8 +279,7 @@ namespace m6502
                 break;
             }
             break;
-        case 0b101: // b(5)
-            // std::cout << "switch(c: " << std::bitset<2>(opCode.memory.c) << ")" << std::endl;
+        case 0b101:                  // b(5)
             switch (opCode.memory.c) // 2 bits
             {
             case 0b00:                   // b(5) c(0)
@@ -321,7 +292,6 @@ namespace m6502
                     break;
                 case 0b100: // b(5) c(0) a(4)
                 case 0b101: // b(5) c(0) a(5)
-                            //                    std::cout << "zp,X  zero page - indexed" << std::endl;
                     addressMode = cpu._addressModeZeroPageIndexedX;
                     break;
                 case 0b110: // b(5) c(0) a(6)
@@ -334,7 +304,6 @@ namespace m6502
                 }
                 break;
             case 0b01: // b(5) c(1)
-                       //                std::cout << "zp,X  zero page - indexed" << std::endl;
                 addressMode = cpu._addressModeZeroPageIndexedX;
                 break;
             case 0b10:                   // b(5) c(2)
@@ -346,12 +315,10 @@ namespace m6502
                 case 0b011: // b(5) c(2) a(3)
                 case 0b110: // b(5) c(2) a(6)
                 case 0b111: // b(5) c(2) a(7)
-                            //                    std::cout << "zp,X  zero page - indexed" << std::endl;
                     addressMode = cpu._addressModeZeroPageIndexedX;
                     break;
                 case 0b100: // b(5) c(2) a(4)
                 case 0b101: // b(5) c(2) a(5)
-                            //                    std::cout << "zp,Y  zero page - indexed" << std::endl;
                     addressMode = cpu._addressModeZeroPageIndexedY;
                     break;
                 default:
@@ -371,11 +338,9 @@ namespace m6502
             switch (opCode.memory.c) // 2 bits
             {
             case 0b00: // b(6) c(0)
-                       //                std::cout << "impl" << std::endl;
                 addressMode = cpu._addressModeImplied;
                 break;
             case 0b01: // b(6) c(1)
-                       //                std::cout << "abs, y" << std::endl;
                 addressMode = cpu._addressModeAbsoluteIndexedY;
                 break;
             case 0b10:                   // b(6) c(2)
@@ -389,9 +354,8 @@ namespace m6502
                 case 0b111: // b(6) c(2) a(7)
                     // n/a
                     break;
-                case 0b100: // b(6) c(2) a(4)
+                case 0b100: // b(6) c(2) a(4)       // impl
                 case 0b101: // b(6) c(2) a(5)
-                            //                    std::cout << "impl" << std::endl;
                     break;
                 default:
                     // error
@@ -417,31 +381,27 @@ namespace m6502
                 case 0b111: // b(7) c(0) a(7)
                     // n/a
                     break;
-                case 0b101: // b(7) c(0) a(5)
-                            //                    std::cout << "abs,X   absoluute indexed" << std::endl;
+                case 0b101: // b(7) c(0) a(5)       // abs,X
                     break;
                 default:
                     // error
                     break;
                 }
                 break;
-            case 0b01: // b(7) c(1)
-                       //                std::cout << "abs,X   absoluute indexed" << std::endl;
+            case 0b01: // b(7) c(1)         // abs,X
                 addressMode = cpu._addressModeAbsoluteIndexedX;
                 break;
             case 0b10:                   // b(7) c(2)
                 switch (opCode.memory.a) // 3 bits
                 {
-                case 0b000: // b(7) c(2) a(0)
+                case 0b000: // b(7) c(2) a(0)       // abs,X
                 case 0b001: // b(7) c(2) a(1)
                 case 0b010: // b(7) c(2) a(2)
                 case 0b011: // b(7) c(2) a(3)
                 case 0b110: // b(7) c(2) a(6)
                 case 0b111: // b(7) c(2) a(7)
-                            //                    std::cout << "abs,X   absolute indexed" << std::endl;
                     break;
-                case 0b101: // b(7) c(2) a(5)
-                            //                    std::cout << "abs,Y   absolute indexed" << std::endl;
+                case 0b101: // b(7) c(2) a(5)       // abs,Y
                     break;
                 case 0b100: // b(7) c(2) a(4)
                     // n/a
@@ -522,7 +482,7 @@ namespace m6502
                     break;
                 case 0b010: // c(0) a(0) b(2) - PHP impl
                     cpuInstruction = cpu._instructionStack;
-                    dst = InstructionTarget::STACK; // TODO was memory
+                    dst = InstructionTarget::STACK;
                     src = InstructionTarget::PSR;
                     break;
                 case 0b100: // c(0) a(0) b(4) - BPL rel
@@ -551,7 +511,7 @@ namespace m6502
                 case 0b010: // c(0) a(1) b(2) - PLP impl
                     cpuInstruction = cpu._instructionStack;
                     dst = InstructionTarget::PSR;
-                    src = InstructionTarget::STACK; // TODO was memory
+                    src = InstructionTarget::STACK;
                     break;
                 case 0b100: // c(0) a(1) b(4) - BMI rel
                     std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
@@ -580,7 +540,7 @@ namespace m6502
                     break;
                 case 0b010: // c(0) a(2) b(2) - PHA impl
                     cpuInstruction = cpu._instructionStack;
-                    dst = InstructionTarget::STACK; // TODO was memory
+                    dst = InstructionTarget::STACK;
                     src = InstructionTarget::A;
                     break;
                 case 0b011: // c(0) a(2) b(3) - JMP abs
@@ -606,7 +566,7 @@ namespace m6502
                 case 0b010: // c(0) a(3) b(2) - PLA impl
                     cpuInstruction = cpu._instructionStack;
                     dst = InstructionTarget::A;
-                    src = InstructionTarget::STACK; // TODO was memory
+                    src = InstructionTarget::STACK;
                     break;
                 case 0b011: // c(0) a(3) b(3) - JMP ind
                 case 0b100: // c(0) a(3) b(4) - BVS rel
@@ -776,7 +736,6 @@ namespace m6502
                 case 0b101: // c(0) a(7) b(5)   Illegal
                 case 0b111: // c(0) a(7) b(7)   Illegal
                     throw std::domain_error(std::format("Illegal OpCode: '{}'", opcode.value));
-                    throw std::domain_error(std::format("Illegal OpCode: '{}'", opcode.value));
                     break;
                 case 0b110: // c(0) a(7) b(6) - SED
                     cpuInstruction = cpu._instructionFlagSet;
@@ -920,7 +879,9 @@ namespace m6502
                 src = InstructionTarget::MEMORY;
                 break;
             case 0b011: // c(1) a(3) - ADC
-                throw std::domain_error("OpCode() - not yet implemented");
+                cpuInstruction = cpu._instructionAdd;
+                dst = InstructionTarget::A;
+                src = InstructionTarget::MEMORY;
                 break;
             case 0b100: // c(1) a(4) - STA
                 // std::cout << "case 4 (" << std::bitset<3>(opCode.memory.a) << ")" << std::endl;
@@ -939,21 +900,6 @@ namespace m6502
                 cpuInstruction = cpu._instructionCompare;
                 dst = InstructionTarget::A;
                 src = InstructionTarget::MEMORY;
-
-                //  switch (opCode.memory.b) // 3 bits
-                //  {
-                //  case 0b000: // c(1) a(6) b(0)
-                //  case 0b001: // c(1) a(6) b(1)
-                //  case 0b010: // c(1) a(6) b(2)
-                //  case 0b011: // c(1) a(6) b(3)
-                //  case 0b100: // c(1) a(6) b(4)
-                //  case 0b101: // c(1) a(6) b(5)
-                //  case 0b110: // c(1) a(6) b(6)
-                //  case 0b111: // c(1) a(6) b(7)
-                //      break;
-                //  }
-
-                // throw std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
                 break;
             case 0b111: // c(1) a(7) - SBC
                 std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
@@ -979,8 +925,8 @@ namespace m6502
             case 0b100: // c(1) b(4) - (ZeroPage),Y
                 addressMode = cpu._addressModeIndirectIndexedY;
                 break;
-            case 0b101:                                         // c(1) b(5) - (ZeroPage,X)
-                addressMode = cpu._addressModeZeroPageIndexedX; // ???  AddressModeIndexedIndirectX
+            case 0b101: // c(1) b(5) - (ZeroPage,X)
+                addressMode = cpu._addressModeZeroPageIndexedX;
                 break;
             case 0b110: // c(1) b(6) - Absolute,Y
                 addressMode = cpu._addressModeAbsoluteIndexedY;
@@ -996,7 +942,7 @@ namespace m6502
             // Instruction
             switch (opCode.memory.a) // 3 bits
             {
-            case 0b000:                  // c(2) a(0) - ASL   // TODO ASL
+            case 0b000:                  // c(2) a(0) - ASL
                 switch (opCode.memory.b) // 3 bits
                 {
                 case 0b000: // c(2) a(0) b(0)   Illegal (JAM)
@@ -1261,7 +1207,7 @@ namespace m6502
 
                 switch (opCode.memory.a) // 3 bits
                 {
-                case 0b000: // c(2) b(7) a(0) - ASL  // TODO ASL
+                case 0b000: // c(2) b(7) a(0) - ASL
                 case 0b001: // c(2) b(7) a(1) - ROL
                 case 0b010: // c(2) b(7) a(2) - LSR
                 case 0b011: // c(2) b(7) a(3) - ROR

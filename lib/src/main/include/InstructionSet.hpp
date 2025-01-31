@@ -162,7 +162,31 @@ namespace m6502
     // --- INY
     // ===== Arithmetic Instructions (add, subtract)
     // --- ADC
+    class CPU::InstructionAdd : public Instruction
+    {
+        // Constructors
+    public:
+        InstructionAdd(CPU &cpu) : Instruction(cpu, "Add Instruction", "ADC") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+
+        void add(hardware::Byte v1, hardware::Byte v2);
+    };
     // --- SBC
+    class CPU::InstructionSubtract : public Instruction
+    {
+        // Constructors
+    public:
+        InstructionSubtract(CPU &cpu) : Instruction(cpu, "Subtract Instruction", "SBC") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+
+        void subtract(hardware::Byte v1, hardware::Byte v2);
+    };
     // ===== Logical Instructions (and, exlusive-or, or)
     class CPU::InstructionLogical : public Instruction
     {

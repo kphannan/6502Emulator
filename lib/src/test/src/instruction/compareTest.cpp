@@ -132,7 +132,7 @@ namespace m6502
 
         // --- then
         EXPECT_EQ(0x2002, cpu->PC());
-        EXPECT_EQ(0b10100001, cpu->P());
+        EXPECT_EQ(0b11100001, cpu->P());
         EXPECT_EQ(InstructionTarget::MEMORY, cpu->decodePipeline().src);
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
@@ -251,11 +251,6 @@ namespace m6502
         // Base
         testMemory.write(0x8028, 0x66); // table base address
 
-        // testMemory.write(0x0043, 0x6D); // X + $23
-        // testMemory.write(0x0044, 0x15);
-
-        // testMemory.write(0x156D, 0x18); // 0xFF - 0x18 = 0xE7  (Z:0, S:1, C:1)
-
         // --- when
         cpu->executeFromAddress(0x2000, 1);
 
@@ -276,7 +271,6 @@ namespace m6502
         cpu->X(0x20);
         testMemory.write(0x2000, 0xC1); // CMP ($54,X)
         testMemory.write(0x2001, 0x54);
-        // testMemory.write(0x2002, 0x23);
 
         // Base
         testMemory.write(0x2354, 0x11); // table base address
@@ -299,9 +293,8 @@ namespace m6502
         // --- given
         cpu->A(0xF0);
         cpu->Y(0x20);
-        testMemory.write(0x2000, 0xC1); // CMP ($54,X)
+        testMemory.write(0x2000, 0xC1); // CMP ($54),Y
         testMemory.write(0x2001, 0x54);
-        // testMemory.write(0x2002, 0x23);
 
         // Indirection
         testMemory.write(0x0054, 0x11);

@@ -98,7 +98,9 @@ namespace m6502
         _instructionIncrementY = _instructionIncrement;
         // ===== Arithmetic Instructions
         // --- ADC
+        _instructionAdd = new InstructionAdd(*this);
         // --- SBC
+        _instructionSubtract = new InstructionSubtract(*this);
         // ===== Logical Instructions
         // _instructionLogical = new InstructionLogical(*this);
         // --- AND

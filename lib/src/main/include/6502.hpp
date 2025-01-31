@@ -507,7 +507,9 @@ namespace m6502
         class InstructionIncrementY;
         // ===== Arithmetic Instructions
         // --- ADC *
+        class InstructionAdd;
         // --- SBC *
+        class InstructionSubtract;
         // ===== Logical Instructions
         class InstructionLogical;
         // --- AND *
@@ -779,7 +781,9 @@ namespace m6502
         CPU::InstructionIncrement *_instructionIncrementY; // TODO use general Increment
         // ===== Arithmetic Instructions
         // --- ADC *
+        CPU::InstructionAdd *_instructionAdd;
         // --- SBC *
+        CPU::InstructionSubtract *_instructionSubtract;
         // ===== Logical Instructions
         CPU::InstructionLogical *_instructionLogical;
         // --- AND *
