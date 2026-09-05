@@ -54,6 +54,8 @@ namespace m6502
         hardware::Address address = cpu.decodePipeline().addressMode->execute();
         // hardware::Address value = cpu.addressSpace.readWord(address);
 
+        // BRK has a 2nd byte that is skipped and often used as a 'signature' byte for interrupts
+        cpu.PC( cpu.PC() + 1 );
         // Push Program Counter (after reading instruction and pad byte)
         cpu.push(cpu.PC()); // Program Counter
         cpu.push(cpu.P());  // Status register
