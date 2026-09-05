@@ -46,13 +46,10 @@ namespace m6502
         _instructionLoad = new InstructionLoad(*this, "load instruction", "load");
         // _instructionLoad = new InstructionLoad(*this);
         // --- LDA
-        // _instructionLoadA = new InstructionLoadA(*this);
         _instructionLoadA = _instructionLoad;
         // --- LDX
-        // _instructionLoadX = new InstructionLoadX(*this);
         _instructionLoadX = _instructionLoad;
         // --- LDY
-        // _instructionLoadY = new InstructionLoadY(*this);
         _instructionLoadY = _instructionLoad;
         //
 
@@ -144,15 +141,21 @@ namespace m6502
         // --- BVS
         // ===== Jumps & Subroutines Instructions
         // --- JUMP
+        _instructionJump = new CPU::InstructionJump(*this);
         // --- JSR
+        _instructionJumpSubroutine = new CPU::InstructionJumpSubroutine(*this);
         // --- RTS
+        _instructionReturnFromSubroutine = new CPU::InstructionReturnFromSubroutine(*this);
         // ===== Interrupts Instructions
         // --- BRK
+        _instructionBreak = new CPU::InstructionBreak(*this);
         // --- RTI
+        _instructionReturnFromInterrupt = new CPU::InstructionReturnFromInterrupt(*this);
         // ===== Other Instructions
         // --- BIT
         _instructionLogicalBit = new InstructionLogicalBit(*this);
         // --- NOP
+        _instructionNoOp = new InstructionNoOp(*this);
 
         pipeline = new CPU::Pipeline(*this);
 
@@ -169,15 +172,8 @@ namespace m6502
         registers.S = StackPointerDefault;
         registers.P = 0b00100000; // TODO reset it properly...
 
-        // std::cout.setf(std::ios::hex, std::ios::basefield);
-        // std::cout << std::endl;
-        // std::cout << "----- Cpu(RESET) -----" << std::endl;
-
         // Reset the CPU / decode pipeline from the reset vector
         pipeline->reset(std::to_underlying(HardwareVector::RESET));
-
-        // std::cout << "PC: " << std::setfill('0') << std::setw(4) << (int)registers.PC << " reset vector" << std::endl;
-        // std::cout.unsetf(std::ios::basefield);
     }
 
     void CPU::showRegisters()
@@ -223,6 +219,51 @@ namespace m6502
     void CPU::execute(int numberOfInstructions)
     {
         pipeline->execute(numberOfInstructions);
+    }
+
+    // ===== CPU helper methods =====
+    // --- push byte on stack
+    void CPU::push(hardware::Byte value)
+    {
+        // stack grows down
+        addressSpace.write(registers.S, value);
+        registers.S--;
+    }
+
+    // --- push word on stack
+    // before      after
+    // SP --> hh
+    //        ll
+    //             <-- SP (after)
+    void CPU::push(hardware::Word value)
+    {
+        // stack grows down
+        addressSpace.writeWord(registers.S - 1, value);
+        registers.S -= 2;
+    }
+
+    //
+    hardware::Byte CPU::pop()
+    {
+        // TODO handle an invalid stack pointer ( > 0x1FFF)
+        registers.S += 1;
+        return addressSpace.read(registers.S);
+    }
+
+    // before      after
+    //        hh   <-- SP
+    //        ll
+    // SP -->
+    hardware::Word CPU::popWord()
+    {
+        hardware::Word value = addressSpace.readWord(registers.S + 1);
+        registers.S += 2;
+
+        // assert( registers.S <= 0x01FF);
+
+        // TODO handle an invalid stack pointer ( > 0x1FFF)
+
+        return value;
     }
 
 }

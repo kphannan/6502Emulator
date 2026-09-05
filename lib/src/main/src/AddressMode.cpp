@@ -98,12 +98,13 @@ namespace m6502
     hardware::Address CPU::AddressModeIndirect::execute()
     {
         AddressMode::execute();
-        hardware::Address indirectAddress = cpu.addressSpace.readWord(cpu.registers.PC++);
+        hardware::Address indirectAddress = cpu.addressSpace.readWord(cpu.registers.PC);
+        cpu.registers.PC += 2;
 
-        cpu.decodePipeline().operand = cpu.addressSpace.readWord(indirectAddress);
+        hardware::Address finalAddress = cpu.addressSpace.readWord(indirectAddress);
+//        cpu.decodePipeline().operand = cpu.addressSpace.readWord(indirectAddress);
 
-        // TODO return 'address'
-        return indirectAddress;
+        return finalAddress;
     }
 
     // ----- AddressModeIndexedIndirectX -----

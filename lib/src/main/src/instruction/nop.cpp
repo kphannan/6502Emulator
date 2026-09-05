@@ -2,6 +2,7 @@
 
 #include "6502.hpp"
 #include "memory.hpp"
+#include "InstructionSet.hpp"
 
 namespace m6502
 {
@@ -36,6 +37,21 @@ namespace m6502
     // Addressing Modes
     // ..... Immediate #$BB
     // ----- Implied
+    void CPU::InstructionNoOp::execute(InstructionTarget dst, InstructionTarget src)
+    {
+        Instruction::execute(dst, src);
+
+        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+        hardware::Byte value = cpu.addressSpace.read(address);
+        switch (dst)
+        {
+        case InstructionTarget::IMPLIED:
+            break;
+        default:
+            std::cout << "Illegal destination of a NOP operation" << std::endl;
+            break;
+        }
+    }
 
     // ..... Accumulator
     // ..... ZeroPage $LL

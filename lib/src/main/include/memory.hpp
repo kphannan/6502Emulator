@@ -52,6 +52,7 @@ namespace memory
         hardware::Byte read(const hardware::Address address) const;
         hardware::Word readWord(const hardware::Address address) const;
         hardware::Byte write(const hardware::Address address, hardware::Byte value);
+        hardware::Word writeWord(const hardware::Address address, hardware::Word value);
 
         void clear();
 
@@ -65,7 +66,7 @@ namespace memory
         // Get the number of bytes in the memory bank
         hardware::Word memorySize() const { return byteCount; }
 
-        void showMemory(const hardware::Address from, const int count) const;
+        void showMemory(const hardware::Address from, const int count, const char *text = "") const;
 
     protected:
     private:

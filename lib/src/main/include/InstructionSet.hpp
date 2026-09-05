@@ -343,12 +343,83 @@ namespace m6502
     // --- BVC
     // --- BVS
     // ===== Jumps & Subroutines Instructions (jump)
+    class CPU::InstructionChangeProgramCounter : public Instruction
+    {
+        // Constructors
+    public:
+        InstructionChangeProgramCounter(CPU &cpu, const char *name, const char *mnemonic) : Instruction(cpu, name, mnemonic) {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
     // --- JUMP
+    class CPU::InstructionJump : public InstructionChangeProgramCounter
+    {
+        // Constructors
+    public:
+        // InstructionJump(CPU &cpu, const char *name, const char *mnemonic) : InstructionChangeProgramCounter(cpu, name, mnemonic) {}
+        InstructionJump(CPU &cpu) : InstructionChangeProgramCounter(cpu, "Jump", "JMP") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
     // --- JSR
+    class CPU::InstructionJumpSubroutine : public InstructionChangeProgramCounter
+    {
+        // Constructors
+    public:
+        InstructionJumpSubroutine(CPU &cpu) : InstructionChangeProgramCounter(cpu, "Jump to Subroutine", "JSR") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
     // --- RTS
+    class CPU::InstructionReturnFromSubroutine : public InstructionChangeProgramCounter
+    {
+        // Constructors
+    public:
+        InstructionReturnFromSubroutine(CPU &cpu) : InstructionChangeProgramCounter(cpu, "Return from Subroutine", "RTS") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
     // ===== Interrupts Instructions (break, return)
+    class CPU::InstructionInterrupt : public Instruction
+    {
+        // Constructors
+    public:
+        InstructionInterrupt(CPU &cpu, const char *name, const char *mnemonic) : Instruction(cpu, name, mnemonic) {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
     // --- BRK
+    class CPU::InstructionBreak : public InstructionInterrupt
+    {
+        // Constructors
+    public:
+        InstructionBreak(CPU &cpu) : InstructionInterrupt(cpu, "Break", "BRK") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
     // --- RTI
+    class CPU::InstructionReturnFromInterrupt : public InstructionInterrupt
+    {
+        // Constructors
+    public:
+        InstructionReturnFromInterrupt(CPU &cpu) : InstructionInterrupt(cpu, "Return From Interrupt", "RTI") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
     // ===== Other Instructions
     // --- BIT
     class CPU::InstructionLogicalBit : public InstructionLogical
@@ -361,7 +432,19 @@ namespace m6502
     public:
         virtual void execute(InstructionTarget dst, InstructionTarget src) override;
     };
+
     // --- NOP
+    class CPU::InstructionNoOp : public Instruction
+    {
+        // Constructors
+    public:
+        InstructionNoOp(CPU &cpu) : Instruction(cpu, "No Operation", "NOP") {}
+        // InstructionLoad(CPU &cpu, const char *name, const char *mnemonic) {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+    };
 
     //
 

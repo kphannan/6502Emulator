@@ -1,5 +1,5 @@
 # TODO 1: Set the minimum required version of CMake to be 3.10
-cmake_minimum_required(VERSION 3.31)
+cmake_minimum_required(VERSION 4.0)
 
 set(PROJECT_NAME EMU)
 set(PROJECT_LIB lib${PROJECT_NAME})
@@ -46,7 +46,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 include(FetchContent)
 FetchContent_Declare(
     googletest
-    URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+    URL https://github.com/google/googletest/archive/c3e1e7fe8e6162b6fd14fdf1486d432a43eb553b.zip
+
+    # URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
 )
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings

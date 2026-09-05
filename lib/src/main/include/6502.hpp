@@ -15,26 +15,6 @@
 namespace m6502
 {
 
-    // class CPU;
-
-    // // ----- Forward Declarations of Inner classes
-    // // --- Address Modes
-    // class CPU::AddressMode; // base
-    // class CPU::AddressModeImplied;
-    // class CPU::AddressModeAccumulator;
-    // class CPU::AddressModeZeroPage;
-    // class CPU::AddressModeZeroPageIndexedX;
-    // class CPU::AddressModeZeroPageIndexedY;
-    // class CPU::AddressModeRelative;
-    // class CPU::AddressModeAbsolute;
-    // class CPU::AddressModeAbsoluteIndexedX;
-    // class CPU::AddressModeAbsoluteIndexedY;
-    // class CPU::AddressModeIndirect;
-    // class CPU::AddressModeIndexedIndirectX;
-    // class CPU::AddressModeIndirectIndexedY;
-    // class CPU::AddressModeImmediate;
-    // class CPU::AddressModeStack;
-
     // Identifies the source & destination of an operation
     enum class InstructionTarget
     {
@@ -55,7 +35,8 @@ namespace m6502
         FLAG_C, // carry
                 // Memory
         MEMORY, // Location in the address space (use addressing mode)
-        STACK   // Stack memory
+        STACK,  // Stack memory
+        IMPLIED // Implied - no target outside of the instruction
     };
 
     // http://www.6502.org/users/obelisk/6502/registers.html
@@ -181,10 +162,6 @@ namespace m6502
             const char *mnemonic() const { return modeMnemonic; }
             // TODO  this should return an address, a literal byte.... (flag bit, register(A,X,Y,PC,SP))
             virtual hardware::Address execute();
-            // {
-            //     std::cout << name() << " ; " << mnemonic() << std::endl;
-            //     return hardware::Address(0xDEADBEEF);
-            // }
         };
 
         //        Undefined,           // Catch illegal address mode
@@ -197,10 +174,6 @@ namespace m6502
             // Methods
         public:
             hardware::Address execute() override;
-            // {
-            //     std::cout << "AddressMode(Undefined): Not yet implemented" << std::endl;
-            //     return hardware::Address(0xFADEFACE);
-            // }
         };
 
         //        IMPLICIT,           // Implicit
@@ -212,10 +185,6 @@ namespace m6502
             // Methods
         public:
             hardware::Address execute() override;
-            // {
-            //     std::cout << "AddressMode(Implied): Not yet implemented" << std::endl;
-            //     return AddressMode::execute();
-            // };
         };
 
         //        ACCUMULATOR,        // Accumulator         A
@@ -324,16 +293,7 @@ namespace m6502
             AddressModeIndirect(CPU &cpu) : AddressMode(cpu, "Indirect", "($nnnn)") {}
             // Methods
         public:
-            virtual hardware::Address execute() override;
-            // {
-            //     AddressMode::execute();
-            //     hardware::Address indirectAddress = cpu.addressSpace.readWord(cpu.registers.PC++);
-
-            //     cpu.decodePipeline().operand = cpu.addressSpace.readWord(indirectAddress);
-
-            //     // TODO return 'address'
-            //     return indirectAddress;
-            // }
+            hardware::Address execute() override;
         };
 
         //        INDEXED_INDIRECT_X, // X Indexed Indirect  ($nn,X)    LO bit 1
@@ -423,38 +383,6 @@ namespace m6502
         public:
             hardware::Address execute() override;
         };
-
-        // // ----- Forward Declarations of Inner classes
-        // // --- Address Modes
-        // class AddressMode; // base
-        // class AddressModeImplied;
-        // class AddressModeAccumulator;
-        // class AddressModeZeroPage;
-        // class AddressModeZeroPageIndexedX;
-        // class AddressModeZeroPageIndexedY;
-        // class AddressModeRelative;
-        // class AddressModeAbsolute;
-        // class AddressModeAbsoluteIndexedX;
-        // class AddressModeAbsoluteIndexedY;
-        // class AddressModeIndirect;
-        // class AddressModeIndexedIndirectX;
-        // class AddressModeIndirectIndexedY;
-        // class AddressModeImmediate;
-
-        // friend class AddressMode; // base
-        // friend class AddressModeImplied;
-        // friend class AddressModeAccumulator;
-        // friend class AddressModeZeroPage;
-        // friend class AddressModeZeroPageIndexedX;
-        // friend class AddressModeZeroPageIndexedY;
-        // friend class AddressModeRelative;
-        // friend class AddressModeAbsolute;
-        // friend class AddressModeAbsoluteIndexedX;
-        // friend class AddressModeAbsoluteIndexedY;
-        // friend class AddressModeIndirect;
-        // friend class AddressModeIndexedIndirectX;
-        // friend class AddressModeIndirectIndexedY;
-        // friend class AddressModeImmediate;
 
         // --- Instruction
         class Instruction; // base
@@ -552,16 +480,24 @@ namespace m6502
         // --- BVC
         // --- BVS
         // ===== Jumps & Subroutines Instructions
+        class InstructionChangeProgramCounter;
         // --- JUMP *
+        class InstructionJump;
         // --- JSR
+        class InstructionJumpSubroutine;
         // --- RTS
+        class InstructionReturnFromSubroutine;
         // ===== Interrupts Instructions
+        class InstructionInterrupt;
         // --- BRK
+        class InstructionBreak;
         // --- RTI
+        class InstructionReturnFromInterrupt;
         // ===== Other Instructions
         // --- BIT *
         class InstructionLogicalBit;
         // --- NOP
+        class InstructionNoOp;
 
     protected:
     private:
@@ -672,8 +608,6 @@ namespace m6502
             void showAddressMode(const AddressMode &addressMode) const;
             void decodeOperation(const OpCode instruction);
 
-            // Decode  the opcode and determine the addressing mode and read the operand
-            void fetchOperand(AddressMode &addressMode);
             void evaluate();
 
             //  Registers
@@ -827,15 +761,21 @@ namespace m6502
         // --- BVS
         // ===== Jumps & Subroutines Instructions
         // --- JUMP *
+        CPU::InstructionJump *_instructionJump;
         // --- JSR
+        CPU::InstructionJumpSubroutine *_instructionJumpSubroutine;
         // --- RTS
+        CPU::InstructionReturnFromSubroutine *_instructionReturnFromSubroutine;
         // ===== Interrupts Instructions
         // --- BRK
+        CPU::InstructionBreak *_instructionBreak;
         // --- RTI
+        CPU::InstructionReturnFromInterrupt *_instructionReturnFromInterrupt;
         // ===== Other Instructions
         // --- BIT *
         CPU::InstructionLogicalBit *_instructionLogicalBit;
         // --- NOP
+        CPU::InstructionNoOp *_instructionNoOp;
 
         // ----- Constructors -----
     public:
@@ -969,6 +909,11 @@ namespace m6502
         void setN(bool value) { value == 1 ? setBit(registers.P, NegativeBit) : clearBit(registers.P, NegativeBit); };
         void setV(bool value) { value == 1 ? setBit(registers.P, OverflowBit) : clearBit(registers.P, OverflowBit); };
         void setZ(bool value) { value == 1 ? setBit(registers.P, ZeroBit) : clearBit(registers.P, ZeroBit); };
+
+        void push(hardware::Byte value);
+        void push(hardware::Word value);
+        hardware::Byte pop();
+        hardware::Word popWord();
     };
 
 }

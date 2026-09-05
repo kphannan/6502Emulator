@@ -64,6 +64,9 @@ namespace m6502
         case InstructionTarget::FLAG_C:
             name = "C";
             break;
+        case InstructionTarget::IMPLIED:
+            name = "Implied";
+            break;
         }
 
         return name;

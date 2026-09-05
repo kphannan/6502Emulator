@@ -41,7 +41,6 @@ namespace m6502
         fetchOpCode();
         AddressMode &addressMode = decodeAddressMode(opCode);
         decodeOperation(opCode);
-        // fetchOperand(addressMode);
         evaluate();
         // cpu.decodePipeline().cpuInstruction->execute();
         // std::cout << "<<<<< ---------------------------------- >>>>>" << std::endl;
@@ -235,16 +234,19 @@ namespace m6502
                 switch (opCode.memory.a) // 3 bits
                 {
                 case 0b000: // b(3) c(0) a(0)
-                    // n/a
+//                    // n/a
+                    // Invalid
                     break;
                 case 0b001: // b(3) c(0) a(1)       // Absolute
                 case 0b010: // b(3) c(0) a(2)
-                case 0b011: // b(3) c(0) a(3)
                 case 0b100: // b(3) c(0) a(4)
                 case 0b101: // b(3) c(0) a(5)
                 case 0b110: // b(3) c(0) a(6)
                 case 0b111: // b(3) c(0) a(7)
                     addressMode = cpu._addressModeAbsolute;
+                    break;
+                case 0b011: // b(3) c(0) a(3)       // Indirect
+                    addressMode = cpu._addressModeIndirect;
                     break;
                 default:
                     // n/a
@@ -473,6 +475,9 @@ namespace m6502
                 switch (opCode.memory.b) // 3 bits
                 {
                 case 0b000: // c(0) a(0) b(0) - BRK impl
+                    cpuInstruction = cpu._instructionBreak;
+                    dst = InstructionTarget::IMPLIED;
+                    src = InstructionTarget::IMPLIED;
                     break;
                 case 0b001: // c(0) a(0) b(1)   Illegal (NOP zpg)
                 case 0b011: // c(0) a(0) b(3)   Illegal (NOP abs)
@@ -500,7 +505,9 @@ namespace m6502
                 switch (opCode.memory.b) // 3 bits
                 {
                 case 0b000: // c(0) a(1) b(0) - JSR abs
-                    std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
+                    cpuInstruction = cpu._instructionJumpSubroutine;
+                    dst = InstructionTarget::PC;
+                    src = InstructionTarget::MEMORY;
                     break;
                 case 0b001: // c(0) a(1) b(1) - BIT zpg
                 case 0b011: // c(0) a(1) b(3) - BIT abs
@@ -531,7 +538,9 @@ namespace m6502
                 switch (opCode.memory.b) // 3 bits
                 {
                 case 0b000: // c(0) a(2) b(0) - RTI impl
-                    std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
+                    cpuInstruction = cpu._instructionReturnFromInterrupt;
+                    dst = InstructionTarget::IMPLIED;
+                    src = InstructionTarget::IMPLIED;
                     break;
                 case 0b001: // c(0) a(2) b(1)   Illegal
                 case 0b101: // c(0) a(2) b(5)   Illegal
@@ -544,7 +553,9 @@ namespace m6502
                     src = InstructionTarget::A;
                     break;
                 case 0b011: // c(0) a(2) b(3) - JMP abs
-                    std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
+                    cpuInstruction = cpu._instructionJump;
+                    dst = InstructionTarget::PC;
+                    src = InstructionTarget::MEMORY;
                     break;
                 case 0b100: // c(0) a(2) b(4) - BVC rel
                     std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
@@ -560,6 +571,10 @@ namespace m6502
                 switch (opCode.memory.b) // 3 bits
                 {
                 case 0b000: // c(0) a(3) b(0) - RTS impl
+                    cpuInstruction = cpu._instructionReturnFromSubroutine;
+                    dst = InstructionTarget::PC;
+                    src = InstructionTarget::STACK;
+                    break;
                 case 0b001: // c(0) a(3) b(1)
                     std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
                     break;
@@ -569,8 +584,17 @@ namespace m6502
                     src = InstructionTarget::STACK;
                     break;
                 case 0b011: // c(0) a(3) b(3) - JMP ind
+                    cpuInstruction = cpu._instructionJump;
+                    dst = InstructionTarget::PC;
+                    src = InstructionTarget::MEMORY;
+                    break;
                 case 0b100: // c(0) a(3) b(4) - BVS rel
+                    // TODO BVS 
+                    break;
                 case 0b101: // c(0) a(3) b(5)
+                    std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
+                    // Illegal
+                    break;
                 case 0b110: // c(0) a(3) b(6) - SEI impl
                     cpuInstruction = cpu._instructionFlagSet;
                     dst = InstructionTarget::FLAG_I;
@@ -756,10 +780,10 @@ namespace m6502
                 case 0b000: // b(0) a(0)
                 case 0b010: // b(0) a(2)
                 case 0b011: // b(0) a(3)
-                    addressMode = cpu._addressModeImmediate;
+                    addressMode = cpu._addressModeImplied;
                     break;
                 case 0b001: // b(0) a(1)
-                    addressMode = cpu._addressModeImplied;
+                    addressMode = cpu._addressModeAbsolute;
                     break;
                 case 0b101: // b(0) a(5)
                 case 0b110: // b(0) a(6)
@@ -801,18 +825,20 @@ namespace m6502
 
                 break;
             case 0b011: // c(0) b(3) - Absolute
-                        // TODO more modes
-                addressMode = cpu._addressModeAbsolute;
                 switch (opCode.memory.a) // 3 bits
                 {
-                case 0b000: // b(3) a(0)    // TODO  verify illegal instruction
+                case 0b000: // b(3) a(0)    // illegal instruction
+                    break;
                 case 0b001: // b(3) a(1)
                 case 0b010: // b(3) a(2)
-                case 0b011: // b(3) a(3)
                 case 0b100: // b(3) a(4)
                 case 0b101: // b(3) a(5)
                 case 0b110: // b(3) a(6)
                 case 0b111: // b(3) a(7)
+                    addressMode = cpu._addressModeAbsolute;
+                    break;
+                case 0b011: // b(3) a(3)
+                    addressMode = cpu._addressModeIndirect;
                     break;
                 }
                 break;
@@ -1262,26 +1288,6 @@ namespace m6502
         //           << "==== parsed: " << cpuInstruction->mnemonic() << " " << addressMode->mnemonic() << std::endl;
 
         // std::cout.unsetf(std::ios::basefield);
-    }
-
-    void CPU::Pipeline::fetchOperand(AddressMode &mode)
-    {
-        //        std::cout << "fetchOperand: "
-        //                  << " mode( " << mode.mnemonic() << " )"
-        //                  << " addressMode( " << addressMode->mnemonic() << " )";
-        // mode.execute();
-        // addressMode->execute();
-
-        // int operand = -1;
-
-        //        std::cout << " fetch operand "
-        //                  << std::endl;
-        ;
-
-        // std::cout.setf(std::ios::hex, std::ios::basefield);
-        // std::cout << " : 0x" << (int)cpu.decodePipeline().operand;
-        // std::cout.unsetf(std::ios::basefield);
-        // std::cout << " " << cpu.decodePipeline().operand << std::endl;
     }
 
     void CPU::Pipeline::evaluate()

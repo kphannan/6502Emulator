@@ -83,8 +83,37 @@ namespace m6502
     // ----- Implied
     TEST_F(InstructionNoOpTest, NOP_Implied)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+//        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        testMemory.write(0x2000, 0xEA); // NOP
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2001, cpu->PC());
+        EXPECT_EQ(0b00100000, cpu->P());
     }
+
+/*
+ // --- given
+ cpu->A(0x22); // 0010 0010 -> 0100 0100 C:0
+ cpu->setC();
+ testMemory.write(0x2000, 0x0A); // ASL A
+
+ // --- when
+ cpu->executeFromAddress(0x2000, 1);
+
+ // --- then
+ EXPECT_EQ(0x2001, cpu->PC());
+ EXPECT_EQ(0x44, cpu->A());
+ EXPECT_EQ(0b00100000, cpu->P());
+ EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
+ EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
+
+ */
+
+
 
     // ..... Accumulator
     // ..... ZeroPage $LL

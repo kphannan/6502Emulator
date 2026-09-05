@@ -2,6 +2,7 @@
 
 #include "6502.hpp"
 #include "memory.hpp"
+#include "InstructionSet.hpp"
 
 namespace m6502
 {
@@ -139,15 +140,10 @@ namespace m6502
             cpu.addressSpace.write(address, value);
         }
         break;
-        // case InstructionTarget::A:
-        // cpu.A(cpu.registers.A - 1);
-        // break;
-        // case InstructionTarget::S: // TODO xfer to S
-        //     break;
-        case InstructionTarget::X: // TODO xfer to X
+        case InstructionTarget::X:
             cpu.X(cpu.registers.X - 1);
             break;
-        case InstructionTarget::Y: // TODO xfer to Y
+        case InstructionTarget::Y:
             cpu.Y(cpu.registers.Y - 1);
             break;
         default:
@@ -188,15 +184,10 @@ namespace m6502
             cpu.addressSpace.write(address, value);
         }
         break;
-        // case InstructionTarget::A:
-        // cpu.A(cpu.registers.A - 1);
-        // break;
-        // case InstructionTarget::S: // TODO xfer to S
-        //     break;
-        case InstructionTarget::X: // TODO xfer to X
+        case InstructionTarget::X:
             cpu.X(cpu.registers.X + 1);
             break;
-        case InstructionTarget::Y: // TODO xfer to Y
+        case InstructionTarget::Y:
             cpu.Y(cpu.registers.Y + 1);
             break;
         default:

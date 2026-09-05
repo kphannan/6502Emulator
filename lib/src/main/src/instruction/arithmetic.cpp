@@ -43,11 +43,6 @@ namespace m6502
 
         cpu.A(value);
 
-        // bit7 set indicates negative in 2's compliment
-        // value & 0x80 ? cpu.setN() : cpu.clearN();
-
-        // value == 0 ? cpu.setZ() : cpu.clearZ();
-
         // Carry occurs if there is any bit higher than bit 7 is set.
         // mask out the low byte  (8 bits) from the int...
         //        value &= ~0xFF;
@@ -108,6 +103,7 @@ namespace m6502
             case InstructionTarget::FLAG_Z:
             case InstructionTarget::FLAG_C:
             case InstructionTarget::STACK:
+            case InstructionTarget::IMPLIED:
             case InstructionTarget::Undefined:
                 std::domain_error("Illegal addend (source) of ADC operation");
                 break;

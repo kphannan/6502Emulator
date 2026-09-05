@@ -110,20 +110,29 @@ namespace memory
         return contents[address] = value;
     }
 
-    void Memory::showMemory(const hardware::Address from, const int count) const
+    hardware::Word Memory::writeWord(const hardware::Word address, hardware::Word value)
+    {
+        contents[address] = (hardware::Byte)(value & 0x00FF);
+        contents[address + 1] = (hardware::Byte)((value & 0xFF00) >> 8);
+
+        return contents[address] | (contents[address + 1] << 8);
+    }
+
+    void Memory::showMemory(const hardware::Address from, const int count, const char *text) const
     {
         std::cout.setf(std::ios::hex, std::ios::basefield);
         std::cout << bankName << "  contents "
                   << std::setfill('0') << std::setw(4) << from << ".."
                   << std::setfill('0') << std::setw(4) << from + count
+                  << " " << text
                   << std::endl;
 
         hardware::Address addr = from;
         std::cout << std::setfill('0') << std::setw(4) << addr << ": ";
-        for (int i = 1; i <= count; i++)
+        for (int i = 0; i <= count; i++)
         {
             std::cout << " " << std::setw(2) << (int)contents[addr++];
-            if (((i % 8) == 0) && ((addr - 1) != from))
+            if ((((i + 1) % 8) == 0) && ((addr - 1) != from))
             {
                 std::cout << std::endl;
                 if (i > 0)
