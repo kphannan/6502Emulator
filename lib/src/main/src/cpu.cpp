@@ -214,7 +214,7 @@ namespace m6502
     void CPU::executeFromAddress(hardware::Address address, uint32_t stepCount)
     {
         // set PC and execute 1 instruction
-        registers.PC.address = address;
+        registers.PC = address;
         execute(stepCount);
     }
 
