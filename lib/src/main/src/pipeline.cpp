@@ -68,7 +68,8 @@ namespace m6502
         addressMode = cpu._addressModeUndefined;
         cpuInstruction = cpu._instructionUndefined;
 
-        opCode.value = cpu.addressSpace.read(cpu.registers.PC++);
+        opCode.value = cpu.addressSpace.read(cpu.registers.PC);
+        cpu.registers.PC++;
         // instruction = opcode;
         // std::cout.setf(std::ios::hex, std::ios::basefield);
         // std::cout << std::setfill('0') << std::setw(2) << " OpCode< " << (int)opCode.value << std::endl;
@@ -211,11 +212,13 @@ namespace m6502
                 case 0b001: // b(2) c(2) a(1)
                 case 0b010: // b(2) c(2) a(2)
                 case 0b011: // b(2) c(2) a(3)
+                    addressMode = cpu._addressModeAccumulator;
                     break;
                 case 0b100: // b(2) c(2) a(4)   // impl
                 case 0b101: // b(2) c(2) a(5)
                 case 0b110: // b(2) c(2) a(6)
                 case 0b111: // b(2) c(2) a(7)
+                    addressMode = cpu._addressModeImplied;
                     break;
                 default:
                     // error

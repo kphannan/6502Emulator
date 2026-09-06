@@ -22,9 +22,11 @@ namespace hardware
         unsigned short word;
         struct
         {
-            // TODO verify / test byte ordering....
-            unsigned char hi;
+            // For Little-Endian 'lo' must be declared
+            // before 'hi'
+            // (at least on apple silicon)
             unsigned char lo;
+            unsigned char hi;
         };
 
         // ===== Constructors =====
@@ -142,12 +144,14 @@ namespace hardware
     // includes reference to the upper and lower bytes of the address word
     union Address
     {
+        static const unsigned int BIT_MASK = 0xFFFF;
+
         Word address;
         struct
         {
             // TODO verify order of these in the Word address
-            Byte pch;
             Byte pcl;
+            Byte pch;
         };
 
         // ===== Constructors =====
@@ -159,7 +163,7 @@ namespace hardware
         }
         Address(const int vector)
         {
-            address = vector;
+            address = vector & BIT_MASK;
         }
         // Address( const m6502::HardwareVector vector )
         // {
