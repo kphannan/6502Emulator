@@ -181,7 +181,7 @@ namespace m6502
         {
             // Constructors
         public:
-            AddressModeImplied(CPU &cpu) : AddressMode(cpu, "Implicit", "") {}
+            AddressModeImplied(CPU &cpu) : AddressMode(cpu, "Implied", "") {}
             // Methods
         public:
             hardware::Address execute() override;
