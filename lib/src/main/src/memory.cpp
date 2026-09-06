@@ -31,7 +31,7 @@ namespace memory
     Memory::Memory(const char *name, const hardware::Address lowerBound, const hardware::Address upperBound)
         : lowerBound(lowerBound),
           upperBound(upperBound),
-          byteCount(upperBound - lowerBound)
+          byteCount(upperBound.address - lowerBound.address)
     {
         // TODO null checks
         strncpy(this->bankName, name, sizeof(bankName) - 1);
@@ -57,7 +57,7 @@ namespace memory
     }
 
     // read a byte from memory
-    hardware::Byte Memory::read(const hardware::Word address) const
+    hardware::Byte Memory::read(const hardware::Address address) const
     {
         // addres - lowerBound;
         // hardware::Word
@@ -91,9 +91,23 @@ namespace memory
         }
     }
 
-    hardware::Word Memory::readWord(const hardware::Word address) const
+    // hardware::Word Memory::readWord(const m6502::hardwareVector address) const
+    // {
+    // }
+
+    hardware::Word Memory::readWord(const hardware::Address address) const
     {
-        hardware::Word value = contents[address] | contents[address + 1] << 8;
+        hardware::Word addr(contents[address], contents[address + 1]);
+
+        return addr;
+        // hardware::Address xx;
+        // xx.pch = contents[address.address];
+        // xx.pcl = contents[address.address + 1];
+
+        // TODO setup union for Byte and Word with lo and hi bytes
+        // return (hardware::Word)xx.address;
+
+        // hardware::Word value = contents[address] | contents[address + 1] << 8;
         // std::cout.setf(std::ios::hex, std::ios::basefield);
         // std::cout << "   read( " << std::setfill('0') << std::setw(4) << (int)address << " ) = "
         //           << " LSB:  " << (int)contents[address]
@@ -101,21 +115,42 @@ namespace memory
         //           << " Word: " << (int)value << std::endl;
         // std::cout.unsetf(std::ios::basefield);
 
-        return contents[address] | contents[address + 1] << 8;
+        // return contents[address] | contents[address + 1] << 8;
     }
 
+    // hardware::Word Memory::readWord(const hardware::Address address) const
+    // {
+    //     hardware::Word addr(contents[address], contents[address + 1]);
+    //     // hardware::Word value = contents[address] | contents[address + 1] << 8;
+    //     // std::cout.setf(std::ios::hex, std::ios::basefield);
+    //     // std::cout << "   read( " << std::setfill('0') << std::setw(4) << (int)address << " ) = "
+    //     //           << " LSB:  " << (int)contents[address]
+    //     //           << " MSB:  " << (int)contents[address + 1]
+    //     //           << " Word: " << (int)value << std::endl;
+    //     // std::cout.unsetf(std::ios::basefield);
+
+    //     // return contents[address] | contents[address + 1] << 8;
+    //     return addr;
+    // }
+
     // write a byte to memory, returning the value written
-    hardware::Byte Memory::write(const hardware::Word address, hardware::Byte value)
+    hardware::Byte Memory::write(const hardware::Address address, hardware::Byte value)
     {
         return contents[address] = value;
     }
 
-    hardware::Word Memory::writeWord(const hardware::Word address, hardware::Word value)
+    hardware::Word Memory::writeWord(const hardware::Address address, hardware::Word value)
     {
-        contents[address] = (hardware::Byte)(value & 0x00FF);
-        contents[address + 1] = (hardware::Byte)((value & 0xFF00) >> 8);
+        contents[address] = value.lo;
+        contents[address + 1] = value.hi;
 
-        return contents[address] | (contents[address + 1] << 8);
+        hardware::Word word(contents[address], contents[address + 1]);
+
+        return word;
+        // contents[address] = (hardware::Byte)(value & 0x00FF);
+        // contents[address + 1] = (hardware::Byte)((value & 0xFF00) >> 8);
+
+        // return contents[address] | (contents[address + 1] << 8);
     }
 
     void Memory::showMemory(const hardware::Address from, const int count, const char *text) const
@@ -143,5 +178,4 @@ namespace memory
         std::cout << std::endl;
         std::cout.unsetf(std::ios::basefield);
     }
-
 }

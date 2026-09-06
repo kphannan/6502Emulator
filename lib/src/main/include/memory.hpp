@@ -48,6 +48,7 @@ namespace memory
     private:
         // Methods
     public:
+        // hardware::Byte read(const hardware::Word address) const;
         // Read a single byte from memory
         hardware::Byte read(const hardware::Address address) const;
         hardware::Word readWord(const hardware::Address address) const;

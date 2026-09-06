@@ -353,8 +353,8 @@ namespace m6502
         class AddressModeStack : public AddressMode
         {
         public:
-            const static hardware::Address stackPage = 0x0100;
-            const static hardware::Address stackMask = 0x00FF;
+            const inline static hardware::Address stackPage = 0x0100;
+            const inline static hardware::Address stackMask = 0x00FF;
 
             // Constructors
         public:
@@ -792,7 +792,11 @@ namespace m6502
         hardware::Byte &A() { return registers.A; };
         hardware::Byte &X() { return registers.X; };
         hardware::Byte &Y() { return registers.Y; };
+        //        hardware::Address &PC() { return registers.PC.address; };
         hardware::Address &PC() { return registers.PC; };
+        hardware::Byte &PCH() { return registers.PC.pch; };
+        hardware::Byte &PCL() { return registers.PC.pcl; };
+        //        Registers::ProgramCounter &PC() { return registers.PC; };
         hardware::Address &S() { return registers.S; };
         // Processor status byte
         hardware::Byte &P() { return registers.P; };
@@ -831,25 +835,39 @@ namespace m6502
             registers.S = value;
         };
 
-        void PC(hardware::Address value) { registers.PC = value; };
+        void PC(const hardware::Address value) { registers.PC = value; };
+        void PC(const hardware::Byte hi, const hardware::Byte lo)
+        {
+            registers.PC.pch = hi;
+            registers.PC.pcl = lo;
+        };
 
+        // This could be accomplished with a Union and bit fields.
         // Organize these constants better
-        const uint8_t NegativeBit = 7;
-        const uint8_t OverflowBit = 6;
-        const uint8_t BrkBit = 4;
-        const uint8_t DecimalModeBit = 3;
-        const uint8_t IrqDisableBit = 2;
-        const uint8_t ZeroBit = 1;
-        const uint8_t CarryBit = 0;
+        static const uint8_t NegativeBit = 7;
+        static const uint8_t OverflowBit = 6;
+        static const uint8_t BrkBit = 4;
+        static const uint8_t DecimalModeBit = 3;
+        static const uint8_t IrqDisableBit = 2;
+        static const uint8_t ZeroBit = 1;
+        static const uint8_t CarryBit = 0;
+        // Masks for status bits
+        static const uint8_t NegativeBitMask = 1 << NegativeBit;
+        static const uint8_t OverflowBitMask = 1 << OverflowBit;
+        static const uint8_t BrkBitMask = 1 << BrkBit;
+        static const uint8_t DecimalModeBitMask = 1 << DecimalModeBit;
+        static const uint8_t IrqDisableBitMask = 1 << IrqDisableBit;
+        static const uint8_t ZeroBitMask = 1 << ZeroBit;
+        static const uint8_t CarryBitMask = 1 << CarryBit;
 
         // Processor status flags
-        bool isB() { return registers.P & 1 << BrkBit; };         // BRK
-        bool isC() { return registers.P & 1 << CarryBit; };       // Carry
-        bool isD() { return registers.P & 1 << DecimalModeBit; }; // Decimal mode
-        bool isI() { return registers.P & 1 << IrqDisableBit; };  // IRQ disable
-        bool isN() { return registers.P & 1 << NegativeBit; };    // Negative
-        bool isV() { return registers.P & 1 << OverflowBit; };    // Overflow
-        bool isZ() { return registers.P & 1 << ZeroBit; };        // Zero
+        bool isB() { return registers.P & BrkBitMask; };         // BRK
+        bool isC() { return registers.P & CarryBitMask; };       // Carry
+        bool isD() { return registers.P & DecimalModeBitMask; }; // Decimal mode
+        bool isI() { return registers.P & IrqDisableBitMask; };  // IRQ disable
+        bool isN() { return registers.P & NegativeBitMask; };    // Negative
+        bool isV() { return registers.P & OverflowBitMask; };    // Overflow
+        bool isZ() { return registers.P & ZeroBitMask; };        // Zero
 
         void setB() { setBit(registers.P, BrkBit); };
         void setC() { setBit(registers.P, CarryBit); };

@@ -134,7 +134,8 @@ namespace m6502
 
         hardware::Address address = cpu.decodePipeline().addressMode->execute();
 
-        cpu.push(cpu.PC());
+        cpu.push( cpu.PCL() );
+        cpu.push( cpu.PCH() );
         cpu.PC(address);
     }
 

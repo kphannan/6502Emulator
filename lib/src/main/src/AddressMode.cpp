@@ -60,9 +60,9 @@ namespace m6502
     hardware::Address CPU::AddressModeAbsolute::execute()
     {
         AddressMode::execute();
-        hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC);
+        hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC.address);
         cpu.decodePipeline().operand = cpu.addressSpace.read(absolute);
-        cpu.registers.PC += 2;
+        cpu.registers.PC.address += 2;
 
         // TODO return 'address'
         return absolute;
@@ -73,9 +73,9 @@ namespace m6502
     {
         // value = read( $nnnn + X)
         AddressMode::execute();
-        hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC);
+        hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC.address);
         cpu.decodePipeline().operand = cpu.addressSpace.read(absolute + cpu.registers.X);
-        cpu.registers.PC += 2;
+        cpu.registers.PC.address += 2;
 
         // TODO return 'address'
         return absolute + cpu.registers.X;
@@ -86,9 +86,9 @@ namespace m6502
     {
         // value = read( $nnnn + Y)
         AddressMode::execute();
-        hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC);
+        hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC.address);
         cpu.decodePipeline().operand = cpu.addressSpace.read(absolute + cpu.registers.Y);
-        cpu.registers.PC += 2;
+        cpu.registers.PC.address += 2;
 
         // TODO return 'address'
         return absolute + cpu.registers.Y;
@@ -98,11 +98,11 @@ namespace m6502
     hardware::Address CPU::AddressModeIndirect::execute()
     {
         AddressMode::execute();
-        hardware::Address indirectAddress = cpu.addressSpace.readWord(cpu.registers.PC);
-        cpu.registers.PC += 2;
+        hardware::Address indirectAddress = cpu.addressSpace.readWord(cpu.registers.PC.address);
+        cpu.registers.PC.address += 2;
 
         hardware::Address finalAddress = cpu.addressSpace.readWord(indirectAddress);
-//        cpu.decodePipeline().operand = cpu.addressSpace.readWord(indirectAddress);
+        //        cpu.decodePipeline().operand = cpu.addressSpace.readWord(indirectAddress);
 
         return finalAddress;
     }
@@ -226,6 +226,9 @@ namespace m6502
     }
 
     // ----- AddressModeStack -----
+    // const static hardware::Address stackPage = 0x0100;
+    // const static hardware::Address stackMask = 0x00FF;
+
     hardware::Address CPU::AddressModeStack::execute()
     {
         return AddressMode::execute();

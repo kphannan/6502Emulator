@@ -186,22 +186,24 @@ namespace m6502
         std::cout << "         Y: " << std::setfill('0') << std::setw(2) << (int)(registers.Y) << " Index register Y" << std::endl;
         std::cout << "         S: " << std::setfill('0') << std::setw(2) << (int)(registers.S) << " Stack pointer" << std::endl;
         std::cout << "        PC: " << std::setfill('0') << std::setw(4) << (int)(registers.PC) << " Program Counter" << std::endl;
+//        std::cout << "         S: " << std::setw(2) << registers.S << " Stack pointer" << std::endl;
+//        std::cout << "        PC: " << registers.PC << " Program Counter" << std::endl;
         std::cout << "         P: N V 1 B D I Z C  CPU Status Register" << std::endl
-                  << "            "
-                  << std::setw(1)
-                  << (isN() ? 1 : 0) << " "
-                  << (isV() ? 1 : 0) << " "
-                  << 1 << " "
-                  << (isB() ? 1 : 0) << " "
-                  << (isD() ? 1 : 0) << " "
-                  << (isI() ? 1 : 0) << " "
-                  << (isZ() ? 1 : 0) << " "
-                  << (isC() ? 1 : 0) << " "
-                  << std::endl
-                  << std::resetiosflags(std::ios::basefield) << std::setiosflags(std::ios::oct)
-                  //   << setf(std::ios::binary)
-                  //   << std::bitset<8>(model.P)
-                  << std::endl;
+                 << "            "
+                 << std::setw(1)
+                 << (isN() ? 1 : 0) << " "
+                 << (isV() ? 1 : 0) << " "
+                 << 1 << " "
+                 << (isB() ? 1 : 0) << " "
+                 << (isD() ? 1 : 0) << " "
+                 << (isI() ? 1 : 0) << " "
+                 << (isZ() ? 1 : 0) << " "
+                 << (isC() ? 1 : 0) << " "
+                 << std::endl
+                 << std::resetiosflags(std::ios::basefield) << std::setiosflags(std::ios::oct)
+                 //   << setf(std::ios::binary)
+                 //   << std::bitset<8>(model.P)
+                 << std::endl;
         std::cout.unsetf(std::ios::basefield);
 
         pipeline->showPipeline();
@@ -212,7 +214,7 @@ namespace m6502
     void CPU::executeFromAddress(hardware::Address address, uint32_t stepCount)
     {
         // set PC and execute 1 instruction
-        registers.PC = address;
+        registers.PC.address = address;
         execute(stepCount);
     }
 
@@ -225,6 +227,7 @@ namespace m6502
     // --- push byte on stack
     void CPU::push(hardware::Byte value)
     {
+            // TODO review stack
         // stack grows down
         addressSpace.write(registers.S, value);
         registers.S--;
@@ -237,6 +240,7 @@ namespace m6502
     //             <-- SP (after)
     void CPU::push(hardware::Word value)
     {
+        // TODO review stack
         // stack grows down
         addressSpace.writeWord(registers.S - 1, value);
         registers.S -= 2;
@@ -245,6 +249,7 @@ namespace m6502
     //
     hardware::Byte CPU::pop()
     {
+            // TODO review stack
         // TODO handle an invalid stack pointer ( > 0x1FFF)
         registers.S += 1;
         return addressSpace.read(registers.S);
@@ -256,6 +261,7 @@ namespace m6502
     // SP -->
     hardware::Word CPU::popWord()
     {
+        // TODO review stack
         hardware::Word value = addressSpace.readWord(registers.S + 1);
         registers.S += 2;
 

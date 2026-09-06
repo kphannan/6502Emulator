@@ -55,7 +55,7 @@ namespace m6502
         // hardware::Address value = cpu.addressSpace.readWord(address);
 
         // BRK has a 2nd byte that is skipped and often used as a 'signature' byte for interrupts
-        cpu.PC( cpu.PC() + 1 );
+        cpu.PC(cpu.PC() + 1);
         // Push Program Counter (after reading instruction and pad byte)
         cpu.push(cpu.PC()); // Program Counter
         cpu.push(cpu.P());  // Status register
@@ -65,7 +65,8 @@ namespace m6502
         cpu.setB();
 
         // Load the IRQ vector to the ProgramCounter
-        hardware::Address irqVector = cpu.addressSpace.readWord((hardware::Address)HardwareVector::IRQ);
+//        hardware::Address irqVector = cpu.addressSpace.readWord((hardware::Address)HardwareVector::IRQ);
+        hardware::Address irqVector = cpu.addressSpace.readWord((int)HardwareVector::IRQ);
         cpu.PC(irqVector);
 
         // TODO check this no stack manipulation....
