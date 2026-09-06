@@ -19,12 +19,12 @@ namespace m6502
         InstructionTransferTest()
         {
             // Destination of the reset vector - leaves zeroPage available for testing
-            testMemory.write(0x2000, 0x49); // LDA #00 // starting instruction after reset
-            testMemory.write(0x2001, 0x5A);
+            testMemory[0x2000] = 0x49; // LDA #00 // starting instruction after reset
+            testMemory[0x2001] = 0x5A;
 
             // Reset vector points to start of memory
-            testMemory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
-            testMemory.write(0xFFFD, 0x20); //      MSB
+            testMemory[0xFFFC] = 0x00;  // LSB cpu::HardwareVector::RESET
+            testMemory[0xFFFD] = 0x20;  // MSB
 
             cpu = new CPU(testMemory);
         }
@@ -68,7 +68,8 @@ namespace m6502
         cpu->A(0x99);
         cpu->X(0x10);
         cpu->Y(0x10);
-        testMemory.write(0x2000, 0xAA); // TAX
+        testMemory[0x2000] = 0xAA; // TAX
+//        testMemory.showMemory(0x2000, 3);
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -78,8 +79,11 @@ namespace m6502
         EXPECT_EQ(0x99, cpu->X());
         EXPECT_EQ(0x99, cpu->A());
         EXPECT_EQ(0b10100000, cpu->P());
+
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
         EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().dst);
+//        EXPECT_TRUE(typeid(CPU::AddressModeImplied) == typeid(cpu->decodePipeline().addressMode));
+        // EXPECT_TRUE(typeid(CPU::InstructionTransfer) == typeid(cpu->decodePipeline().cpuInstruction));
     }
 
     TEST_F(InstructionTransferTest, TXA_Implied)
@@ -88,7 +92,8 @@ namespace m6502
         cpu->A(0x99);
         cpu->X(0x10);
         cpu->Y(0x10);
-        testMemory.write(0x2000, 0x8A); // TXA
+
+        testMemory[0x2000] = 0x8A; // TXA
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -98,6 +103,8 @@ namespace m6502
         EXPECT_EQ(0x10, cpu->X());
         EXPECT_EQ(0x10, cpu->A());
         EXPECT_EQ(0b00100000, cpu->P());
+
+//        EXPECT_TRUE(typeid(CPU::AddressModeImplied) == typeid(cpu->decodePipeline().addressMode));
         EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().src);
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
@@ -108,7 +115,8 @@ namespace m6502
         cpu->A(0x99);
         cpu->X(0x10);
         cpu->Y(0x10);
-        testMemory.write(0x2000, 0xA8); // TAY
+
+        testMemory[0x2000] = 0xA8; // TAY
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -118,6 +126,8 @@ namespace m6502
         EXPECT_EQ(0x99, cpu->Y());
         EXPECT_EQ(0x99, cpu->A());
         EXPECT_EQ(0b10100000, cpu->P());
+
+//        EXPECT_TRUE(typeid(CPU::AddressModeImplied) == typeid(cpu->decodePipeline().addressMode));
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
         EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().dst);
     }
@@ -128,7 +138,8 @@ namespace m6502
         cpu->A(0x99);
         cpu->X(0x10);
         cpu->Y(0x30);
-        testMemory.write(0x2000, 0x98); // TYA
+
+        testMemory[0x2000] = 0x98; // TYA
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -138,6 +149,8 @@ namespace m6502
         EXPECT_EQ(0x30, cpu->Y());
         EXPECT_EQ(0x30, cpu->A());
         EXPECT_EQ(0b00100000, cpu->P());
+
+//        EXPECT_TRUE(typeid(CPU::AddressModeImplied) == typeid(cpu->decodePipeline().addressMode));
         EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().src);
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
