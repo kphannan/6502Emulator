@@ -11,6 +11,7 @@
 
 namespace memory
 {
+    // TODO possibly convert to template with Memory<Address A, Byte D>.....
     class Memory
     {
         // Constants
@@ -23,10 +24,10 @@ namespace memory
     public:
     protected:
     private:
-        char bankName[32 + 1];
+        char bankName[32 + 1]; // TODO could be std::string
         const hardware::Address lowerBound;
         const hardware::Address upperBound;
-        const hardware::Word byteCount;
+        const int_fast32_t byteCount;
 
         hardware::Byte *contents;
 
@@ -56,6 +57,7 @@ namespace memory
         hardware::Word writeWord(const hardware::Address address, hardware::Word value);
 
         void clear();
+        void fill(hardware::Byte value);
 
         // const char *name() const;
         char *name() { return bankName; };
@@ -65,9 +67,21 @@ namespace memory
         // Get the ending address of the memory bank
         hardware::Address highAddress() const { return upperBound; }
         // Get the number of bytes in the memory bank
-        hardware::Word memorySize() const { return byteCount; }
+        int_fast32_t memorySize() const { return byteCount; }
 
         void showMemory(const hardware::Address from, const int count, const char *text = "") const;
+
+        // ===== Operator Overloads
+        // --- operator [] (array)
+        hardware::Byte &operator[](size_t index);
+        hardware::Byte &operator[](size_t index) const;
+
+        // --- operator = (assignment)
+        // Memory& operator=(const int rhs )
+        // {
+        //     // TODO range check
+
+        // }
 
     protected:
     private:

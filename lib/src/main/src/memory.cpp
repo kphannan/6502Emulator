@@ -31,7 +31,7 @@ namespace memory
     Memory::Memory(const char *name, const hardware::Address lowerBound, const hardware::Address upperBound)
         : lowerBound(lowerBound),
           upperBound(upperBound),
-          byteCount(upperBound.address - lowerBound.address)
+          byteCount(upperBound.address - lowerBound.address + 1)
     {
         // TODO null checks
         strncpy(this->bankName, name, sizeof(bankName) - 1);
@@ -53,7 +53,32 @@ namespace memory
     void Memory::clear()
     {
         // std::cout << "clear contents: " << contents << " size: " << byteCount << std::endl;
-        memset(contents, 0, byteCount);
+        fill(0);
+    }
+
+    void Memory::fill(hardware::Byte value)
+    {
+        memset(contents, value, byteCount);
+    }
+
+    hardware::Byte &Memory::operator[](size_t index)
+    {
+        if (index >= byteCount)
+        {
+            throw std::out_of_range("Index out of bounds");
+        }
+
+        return contents[index];
+    }
+
+    hardware::Byte &Memory::operator[](size_t index) const
+    {
+        if (index >= byteCount)
+        {
+            throw std::out_of_range("Index out of bounds");
+        }
+
+        return contents[index];
     }
 
     // read a byte from memory
@@ -97,7 +122,7 @@ namespace memory
 
     hardware::Word Memory::readWord(const hardware::Address address) const
     {
-        hardware::Word addr(contents[address], contents[address + 1]);
+        hardware::Word addr(contents[address + 1], contents[address]);
 
         return addr;
         // hardware::Address xx;
@@ -144,7 +169,7 @@ namespace memory
         contents[address] = value.lo;
         contents[address + 1] = value.hi;
 
-        hardware::Word word(contents[address], contents[address + 1]);
+        hardware::Word word(contents[address + 1], contents[address]);
 
         return word;
         // contents[address] = (hardware::Byte)(value & 0x00FF);
@@ -164,13 +189,20 @@ namespace memory
 
         hardware::Address addr = from;
         std::cout << std::setfill('0') << std::setw(4) << addr << ": ";
-        for (int i = 0; i <= count; i++)
+        //        auto end = from + count;
+        //        auto diff = addr - from;
+        //        for (int i = 0; i <= count; i++)
+        int limit = count + 1;
+        for (auto diff = addr - from + 1; diff < limit; ++diff)
         {
-            std::cout << " " << std::setw(2) << (int)contents[addr++];
-            if ((((i + 1) % 8) == 0) && ((addr - 1) != from))
+            std::cout << " " << std::setw(2) << (int)contents[addr];
+            //            ++diff;
+            ++addr;
+            if (diff != 0 && ((diff % 8) == 0))
+            //            if (((diff % 8) == 0))
             {
                 std::cout << std::endl;
-                if (i > 0)
+                if (diff < count)
                     std::cout << std::setfill('0') << std::setw(4) << addr << ": ";
             }
         }
