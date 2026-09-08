@@ -353,7 +353,7 @@ namespace m6502
         class AddressModeStack : public AddressMode
         {
         public:
-            const inline static hardware::Address stackPage = 0x01;
+            const inline static hardware::Byte stackPage = 0x01;
             const inline static hardware::Address stackMask = 0x01FF;
 
             // Constructors
@@ -918,12 +918,12 @@ namespace m6502
 
             hardware::Byte tmp(value);
 
-                // bit value 0 to 7
+            // bit value 0 to 7
             tmp |= 1 << bit;
 
             return tmp;
         }
-        
+
         hardware::Byte setBit(hardware::Byte &value, int bit)
         {
             statusFlagCheck(bit);
@@ -964,10 +964,12 @@ namespace m6502
         hardware::Byte setV(bool value) { return value == 1 ? setBit(registers.P, OverflowBit) : clearBit(registers.P, OverflowBit); };
         hardware::Byte setZ(bool value) { return value == 1 ? setBit(registers.P, ZeroBit) : clearBit(registers.P, ZeroBit); };
 
-        void push(hardware::Byte value);
-        void push(hardware::Word value);
+        void push(const hardware::Byte &value);
+        void push(const hardware::Word &value);
+        void push(const hardware::Address &value);
         hardware::Byte pop();
         hardware::Word popWord();
+        hardware::Address popAddress();
     };
 
 }

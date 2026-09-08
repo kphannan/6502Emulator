@@ -51,10 +51,10 @@ namespace memory
     public:
         // hardware::Byte read(const hardware::Word address) const;
         // Read a single byte from memory
-        hardware::Byte read(const hardware::Address address) const;
-        hardware::Word readWord(const hardware::Address address) const;
-        hardware::Byte write(const hardware::Address address, hardware::Byte value);
-        hardware::Word writeWord(const hardware::Address address, hardware::Word value);
+        hardware::Byte read(const hardware::Address &address) const;
+        hardware::Word readWord(const hardware::Address &address) const;
+        hardware::Byte write(const hardware::Address &address, hardware::Byte value);
+        hardware::Word writeWord(const hardware::Address &address, hardware::Word value);
 
         void clear();
         void fill(hardware::Byte value);
@@ -75,6 +75,8 @@ namespace memory
         // --- operator [] (array)
         hardware::Byte &operator[](size_t index);
         hardware::Byte &operator[](size_t index) const;
+        hardware::Byte &operator[](hardware::Address &index);
+        hardware::Byte &operator[](hardware::Address &index) const;
 
         // --- operator = (assignment)
         // Memory& operator=(const int rhs )

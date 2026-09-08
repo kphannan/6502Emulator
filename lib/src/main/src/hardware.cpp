@@ -29,7 +29,7 @@ namespace hardware
     // --- operator = (assignment)
     Word Word::operator=(const Word &value)
     {
-        word = value;
+        word = value.word;
         return *this;
     }
 
@@ -43,9 +43,9 @@ namespace hardware
     // --- operator + (addition)
     Word Word::operator+(const unsigned int value)
     {
-//        word = (unsigned short)((word + value) & BIT_MASK);
-//
-//        return *this;
+        //        word = (unsigned short)((word + value) & BIT_MASK);
+        //
+        //        return *this;
         Word tmp = (unsigned short)((word + value) & BIT_MASK);
 
         return tmp;
@@ -60,7 +60,7 @@ namespace hardware
 
     Word Word::operator+(const Byte value)
     {
-//        word = (unsigned short)((word + value) & BIT_MASK);
+        //        word = (unsigned short)((word + value) & BIT_MASK);
         Word tmp = (unsigned short)((word + value) & BIT_MASK);
 
         return tmp;
@@ -70,9 +70,32 @@ namespace hardware
         Word tmp = (word + value.word) & BIT_MASK;
 
         return tmp;
-//        word = word + (unsigned short)value;
-//
-//        return *this;
+        //        word = word + (unsigned short)value;
+        //
+        //        return *this;
+    }
+
+    // --- operator - (subtraction)
+    // Word Word::operator-(const Address value)
+    Word Word::operator-(const Word value)
+    {
+        Word tmp(this->word - value.word);
+
+        return tmp;
+    }
+
+    Word Word::operator-(const Byte value)
+    {
+        Word tmp(this->word - value);
+
+        return tmp;
+    }
+
+    Word Word::operator-(const int value)
+    {
+        Word tmp(this->word - value);
+
+        return tmp;
     }
 
     // --- operator ++ (increment)
@@ -167,7 +190,8 @@ namespace hardware
 
     Address::Address(const Word value)
     {
-        address = value & 0xFFFF;
+        address = value; // Simplify / performance
+                         //        address = value & 0xFFFF;   // Simplify / performance
     }
 
     // ===== Operator overloads =====
@@ -217,6 +241,33 @@ namespace hardware
     }
 
     // --- operator - (subtraction)
+    Address Address::operator-(const Address value)
+    {
+        Address tmp(this->address - value.address);
+
+        return tmp;
+    }
+
+    Address Address::operator-(const Word value)
+    {
+        Address tmp(this->address - value.word);
+
+        return tmp;
+    }
+
+    Address Address::operator-(const Byte value)
+    {
+        Address tmp(this->address - value);
+
+        return tmp;
+    }
+
+    Address Address::operator-(const int value)
+    {
+        Address tmp(this->address - value);
+
+        return tmp;
+    }
 
     // --- operator ++ (increment)
     Address &Address::operator++() // prefix operator

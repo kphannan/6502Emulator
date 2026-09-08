@@ -81,8 +81,28 @@ namespace memory
         return contents[index];
     }
 
+    hardware::Byte &Memory::operator[](hardware::Address &index)
+    {
+        if ((index.address - lowerBound) >= byteCount)
+        {
+            throw std::out_of_range("Index out of bounds");
+        }
+
+        return contents[index.address - lowerBound];
+    }
+
+    hardware::Byte &Memory::operator[](hardware::Address &index) const
+    {
+        if ((index.address - lowerBound) >= byteCount)
+        {
+            throw std::out_of_range("Index out of bounds");
+        }
+
+        return contents[index.address - lowerBound];
+    }
+
     // read a byte from memory
-    hardware::Byte Memory::read(const hardware::Address address) const
+    hardware::Byte Memory::read(const hardware::Address &address) const
     {
         // addres - lowerBound;
         // hardware::Word
@@ -120,7 +140,7 @@ namespace memory
     // {
     // }
 
-    hardware::Word Memory::readWord(const hardware::Address address) const
+    hardware::Word Memory::readWord(const hardware::Address &address) const
     {
         hardware::Word addr(contents[address + 1], contents[address]);
 
@@ -159,19 +179,19 @@ namespace memory
     // }
 
     // write a byte to memory, returning the value written
-    hardware::Byte Memory::write(const hardware::Address address, hardware::Byte value)
+    hardware::Byte Memory::write(const hardware::Address &address, hardware::Byte value)
     {
         return contents[address] = value;
     }
 
-    hardware::Word Memory::writeWord(const hardware::Address address, hardware::Word value)
+    hardware::Word Memory::writeWord(const hardware::Address &address, hardware::Word value)
     {
         contents[address] = value.lo;
         contents[address + 1] = value.hi;
 
         hardware::Word word(contents[address + 1], contents[address]);
 
-        return word;
+        return word;  // TODO return the original word argument
         // contents[address] = (hardware::Byte)(value & 0x00FF);
         // contents[address + 1] = (hardware::Byte)((value & 0xFF00) >> 8);
 

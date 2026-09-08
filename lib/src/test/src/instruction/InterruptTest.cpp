@@ -19,8 +19,8 @@ namespace m6502
         InstructionInterruptTest()
         {
             // Destination of the reset vector - leaves zeroPage available for testing
-            testMemory.write(0x2000, 0x49); // LDA #00 // starting instruction after reset
-            testMemory.write(0x2001, 0x5A);
+            testMemory[0x2000] = 0x49; // LDA #00 // starting instruction after reset
+            testMemory[0x2001] = 0x5A;
 
             // testMemory.writeWord(0x01FA, 0x0102); // NMI
             // testMemory.writeWord(0x01FC, 0x5566); // RESET
@@ -33,8 +33,8 @@ namespace m6502
             // testMemory.showMemory(0x1f0, 0x000f, "Stack - Peppered");
 
             // Reset vector points to start of memory
-            testMemory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
-            testMemory.write(0xFFFD, 0x20); //      MSB
+            testMemory[0xFFFC] = 0x00; // cpu::HardwareVector::RESET
+            testMemory[0xFFFD] = 0x20; //      MSB
             // testMemory.writeWord(0xFFFC, 0x2000); // cpu::HardwareVector::RESET
 
             testMemory.writeWord(0xFFFE, 0xDEAD); // cpu::HardwareVector::IRQ
@@ -96,7 +96,9 @@ namespace m6502
     // MODE           SYNTAX       HEX LEN TIM
     // Implied       BRK           $00  1   7
     //
-    // BRK causes a non-maskable interrupt and increments the program counter by one. Therefore an RTI will go to the address of the BRK +2 so that BRK may be used to replace a two-byte instruction for debugging and the subsequent RTI will be correct.
+    // BRK causes a non-maskable interrupt and increments the program counter by one.
+    // Therefore an RTI will go to the address of the BRK +2 so that BRK may be used to
+    // replace a two-byte instruction for debugging and the subsequent RTI will be correct.
     //----------------------------------------
 
     // Addressing Modes
@@ -105,8 +107,12 @@ namespace m6502
     TEST_F(InstructionInterruptTest, BRK_Implied)
     {
         // --- given
-        testMemory.write(0x2000, 0x00); // BRK
-        testMemory.write(0x2001, 0x42); // signature byte
+        testMemory.writeWord(0xFFFC, 0x2000); // cpu::HardwareVector::RESET
+        testMemory.writeWord(0xFFFE, 0xDEAD); // cpu::HardwareVector::IRQ
+        testMemory.writeWord(0xFFFA, 0xBEEF); // cpu::HardwareVector::NMI
+
+        testMemory[0x2000] = 0x00; // BRK
+        testMemory[0x2001] = 0x42; // signature byte
         // --- when
         cpu->executeFromAddress(0x2000, 1);
 
@@ -129,7 +135,7 @@ namespace m6502
         EXPECT_EQ(0xDEAD, cpu->PC()); // PC loaded with IRQ vector
 
         EXPECT_EQ(0x2002, (hardware::Address)(testMemory.readWord(0x01FE))); // TODO PC was pushed to stack
-        EXPECT_EQ(0b00100000, testMemory.read(0x01FD));                      // status register pushed
+        EXPECT_EQ(0b00100000, testMemory[0x01FD]);                           // status register pushed
         EXPECT_EQ(0b00110100, cpu->P());                                     // final status register
     }
 
@@ -164,14 +170,14 @@ namespace m6502
     {
         // ADD_FAILURE_AT(__FILE__, __LINE__);
         // --- given
-        testMemory.write(0x2000, 0x40); // RTI
-        testMemory.write(0x2001, 0x42); // signature byte
-        testMemory.write(0x2002, 0xA9); // LDA      <-  resume here
+        testMemory[0x2000] = 0x40; // RTI
+        testMemory[0x2001] = 0x42; // signature byte
+        testMemory[0x2002] = 0xA9; // LDA      <-  resume here
 
         // stack
         // Setup a stack frame of a BRK with P and PC on stack.
         // stack pointer is 3 bytes from the top
-        cpu->S(0x01FC);
+        cpu->S(0xFC);
         testMemory.writeWord(0x01FE, 0x2002); // Program counter
         testMemory.write(0x01FD, 0b00110101); // status flags
 

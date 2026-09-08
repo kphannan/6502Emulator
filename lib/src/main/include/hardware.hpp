@@ -30,72 +30,33 @@ namespace hardware
         };
 
         // ===== Constructors =====
-        Word(); // : word(0);
-        //{}
+        Word();
 
         // --- Copy constructor
         Word(const Word &value);
-        // {
-        //     word = value;
-        // }
-
         Word(const Byte upper, const Byte lower);
-        // {
-        //     hi = upper;
-        //     lo = lower;
-        // }
-
-        Word(const int value); // : word(value & BIT_MASK);
-        // {}
+        Word(const int value);
 
         // ===== Operator overloads =====
 
         // --- operator = (assignment)
         Word operator=(const Word &value);
-        // {
-        //     word = value;
-        //     return *this;
-        // }
         Word operator=(const unsigned int value);
-        // {
-        //     word = (unsigned short)(value & BIT_MASK);
-
-        //     return *this;
-        // }
 
         // --- operator + (addition)
         Word operator+(const unsigned int value);
-        // {
-        //     word = (unsigned short)((word + value) & BIT_MASK);
-
-        //     return *this;
-        // }
         Word operator+(const unsigned short value);
-        // {
-        //     word = word + value;
-
-        //     return *this;
-        // }
         Word operator+(const Byte value);
-        // {
-        //     word = (unsigned short)((word + value) & BIT_MASK);
-
-        //     return *this;
-        // }
         Word operator+(const Word value);
-        // {
-        //     word = word + (unsigned short)value;
 
-        //     return *this;
-        // }
+        // --- operator - (subtraction)
+        // Word operator-(const Address value);
+        Word operator-(const Word value);
+        Word operator-(const Byte value);
+        Word operator-(const int value);
 
         // --- operator ++ (increment)
         Word operator++();
-        // {
-        //     ++word;
-
-        //     return *this;
-        // }
         // Word operator++(int)
         // {
         //     ++word;
@@ -105,41 +66,16 @@ namespace hardware
 
         // --- operator -- (decrement)
         Word operator--();
-        // {
-        //     --word;
-
-        //     return *this;
-        // }
 
         // --- operator += (addition assignment)
         Word &operator+=(const Word rhs);
-        // {
-        //     word += rhs;
-
-        //     return *this;
-        // }
         Word &operator+=(const int rhs);
-        // {
-        //     word += rhs;
-        //     word &= BIT_MASK;
-
-        //     return *this;
-        // }
 
         // --- operator -= (subtraction assignment)
         Word &operator-=(const int rhs);
-        // {
-        //     word -= rhs;
-        //     word &= BIT_MASK;
-
-        //     return *this;
-        // }
 
         // --- operator () (type conversion)
         operator unsigned short() const;
-        // {
-        //     return word;
-        // }
     };
 
     // Type safe definition of a 16 bit address
@@ -184,6 +120,10 @@ namespace hardware
         Address operator+(const int value);
 
         // --- operator - (subtraction)
+        Address operator-(const Address value);
+        Address operator-(const Word value);
+        Address operator-(const Byte value);
+        Address operator-(const int value);
 
         // --- operator ++ (increment)
         Address &operator++(); // prefix operator

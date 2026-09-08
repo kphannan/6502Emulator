@@ -19,12 +19,12 @@ namespace m6502
         InstructionJumpTest()
         {
             // Destination of the reset vector - leaves zeroPage available for testing
-            testMemory.write(0x2000, 0xA9); // LDA #00 // starting instruction after reset
-            testMemory.write(0x2001, 0x00);
+            testMemory[0x2000] = 0xA9; // LDA #00 // starting instruction after reset
+            testMemory[0x2001] = 0x00;
 
             // Reset vector points to start of memory
-            testMemory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
-            testMemory.write(0xFFFD, 0x20); //      MSB
+            testMemory[0xFFFC] = 0x00; // cpu::HardwareVector::RESET
+            testMemory[0xFFFD] = 0x20; //      MSB
 
             cpu = new CPU(testMemory);
         }
@@ -103,9 +103,9 @@ namespace m6502
         // ADD_FAILURE_AT(__FILE__, __LINE__);
         // testMemory.writeWord(0x2001, 0x5A81);
         // --- given
-        testMemory.write(0x2000, 0x4C); // JMP $5597 // starting instruction after reset
-        testMemory.write(0x2001, 0x97); // low byte of target address
-        testMemory.write(0x2002, 0x55); // high byte of target address
+        testMemory[0x2000] = 0x4C; // JMP $5597 // starting instruction after reset
+        testMemory[0x2001] = 0x97; // low byte of target address
+        testMemory[0x2002] = 0x55; // high byte of target address
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -121,9 +121,9 @@ namespace m6502
     TEST_F(InstructionJumpTest, JMP_Indirect)
     {
         // --- given
-        testMemory.write(0x2000, 0x6C); // JMP $5597 // starting instruction after reset
-        testMemory.write(0x2001, 0x10); // low byte of target address
-        testMemory.write(0x2002, 0xA0); // high byte of target address
+        testMemory[0x2000] = 0x6C; // JMP $5597 // starting instruction after reset
+        testMemory[0x2001] = 0x10; // low byte of target address
+        testMemory[0x2002] = 0xA0; // high byte of target address
 
         testMemory.writeWord(0xA010, 0x3366); // high byte of target address
         testMemory.writeWord(0x10A0, 0xAABB); // high byte of target address
@@ -161,14 +161,13 @@ namespace m6502
     TEST_F(InstructionJumpTest, JSR_Absolute)
     {
         // --- given
-        testMemory.write(0x2000, 0x20); // JMP $5597 // starting instruction after reset
-        testMemory.write(0x2001, 0x10); // low byte of target address
-        testMemory.write(0x2002, 0xA0); // high byte of target address
+        testMemory.[0x2000] = 0x20; // JMP $5597 // starting instruction after reset
+        testMemory.[0x2001] = 0x10; // low byte of target address
+        testMemory.[0x2002] = 0xA0; // high byte of target address
         // 0x2003 --- execution resumes here ---
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
-
 
         // --- then
         EXPECT_EQ(0xA010, cpu->PC());
@@ -178,39 +177,6 @@ namespace m6502
         EXPECT_EQ(0x2003, (hardware::Address)(testMemory.readWord(0x01FE))); // TODO PC was pushed to stack
         EXPECT_EQ(0b00100000, cpu->P());                                     // final status register
     }
-
-/*
- // --- given
- testMemory.write(0x2000, 0x00); // BRK
- testMemory.write(0x2001, 0x42); // signature byte
- // --- when
- cpu->executeFromAddress(0x2000, 1);
-
- // Push current PC 2002 on stack
- //         0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
- // 0x01F8: 00 00 01 02 55 66 02 20
-
- //         0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
- // 0x01F0: 00 00 00 00 00 00 00 00
- // 0x01F8: 00 00 01 02 55 66 02 20
- testMemory.showMemory(0x1f0, 0x000f, "Stack - post execution"); // Stack
-
- // Stack ff: 02         PC low
- //       fe: 20         PC high
- //       fd: 0b00100000 status register
- //       fc: <- stack pointer
-
- // --- then
- EXPECT_EQ(0x01FC, cpu->S());  // PC and status pused
- EXPECT_EQ(0xDEAD, cpu->PC()); // PC loaded with IRQ vector
-
- EXPECT_EQ(0x2002, (hardware::Address)(testMemory.readWord(0x01FE))); // TODO PC was pushed to stack
- EXPECT_EQ(0b00100000, testMemory.read(0x01FD));                      // status register pushed
- EXPECT_EQ(0b00110100, cpu->P());                                     // final status register
-
- */
-
-
 
     // ..... AbsoluteX $LLHH,X
     // ..... AbsoluteY $LLHH,Y
@@ -256,7 +222,6 @@ namespace m6502
     // ----- Implied
     TEST_F(InstructionJumpTest, RTS_Implied)
     {
-        // ADD_FAILURE_AT(__FILE__, __LINE__);
         // --- given
         // Program          Stack
         // 0x2000 0x20      0x01FF:   0x03
@@ -265,19 +230,19 @@ namespace m6502
         //    . . . .
         // 0xA010 <-- PC
 
-        testMemory.write(0x2000, 0x20); // JMP $5597 // starting instruction after reset
-        testMemory.write(0x2001, 0x10); // low byte of target address
-        testMemory.write(0x2002, 0xA0); // high byte of target address
+        // testMemory[0x2000] = 0x20; // JMP $5597 // starting instruction after reset
+        // testMemory[0x2001] = 0x10; // low byte of target address
+        // testMemory[0x2002] = 0xA0; // high byte of target address
         // 0x2003 --- execution resumes here ---
 
         // TODO revisit how bytes are  pushed / popped from the stack.
-        testMemory.write(0x01FF, 0x20); // 0x2003 // starting instruction after reset
-        testMemory.write(0x01FE, 0x03); //
-        cpu->S( 0x01FD );
+        testMemory[0x01FF] = 0x20; // 0x2003 // starting instruction after reset
+        testMemory[0x01FE] = 0x03; //
+        cpu->S(0xFD);
 
-        testMemory.write(0xA010, 0x60); // RTS -- starting instruction 
-//        cpu->PC( 0xA010 );
-        
+        testMemory[0xA010] = 0x60; // RTS -- starting instruction
+                                   //        cpu->PC( 0xA010 );
+
         // --- when
         cpu->executeFromAddress(0xA010, 1);
 
@@ -294,7 +259,7 @@ namespace m6502
         // verify stack contents and stack pointer
         EXPECT_EQ(0x01FF, cpu->S());
 
-        EXPECT_EQ(0b00100000, cpu->P());                                     // final status register
+        EXPECT_EQ(0b00100000, cpu->P()); // final status register
     }
 
     // ..... Accumulator
