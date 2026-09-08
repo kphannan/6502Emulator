@@ -20,12 +20,12 @@ namespace m6502
         CpuTest()
         {
             // Destination of the reset vector - leaves zeroPage available for testing
-            testMemory.write(0x2000, 0x49); // LDA #00 // starting instruction after reset
-            testMemory.write(0x2001, 0x5A); //
+            testMemory[0x2000] = 0x49; // LDA #00 // starting instruction after reset
+            testMemory[0x2001] = 0x5A; //
 
             // Reset vector points to start of memory
-            testMemory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
-            testMemory.write(0xFFFD, 0x20); //      MSB
+            testMemory[0xFFFC] = 0x00; // cpu::HardwareVector::RESET
+            testMemory[0xFFFD] = 0x20; //      MSB
 
             cpu = new CPU(testMemory);
         }
@@ -43,8 +43,7 @@ namespace m6502
 
         // --- Make sure there is a full memory by default
         EXPECT_STREQ("DefaultMemory", memory.name());
-        EXPECT_EQ(0xFFFF, memory.memorySize());
-        EXPECT_EQ(0xFFFF, memory.memorySize());
+        EXPECT_EQ(0x10000, memory.memorySize());
         EXPECT_EQ(0x0000, memory.lowAddress());
         EXPECT_EQ(0xFFFF, memory.highAddress());
 
@@ -52,6 +51,7 @@ namespace m6502
         EXPECT_EQ(0x00, cpu->A());
         EXPECT_EQ(0x00, cpu->X());
         EXPECT_EQ(0x00, cpu->Y());
+        EXPECT_EQ(0b00100000, cpu->P());
     }
 
     TEST_F(CpuTest, ConstructTestFixture)
@@ -60,8 +60,7 @@ namespace m6502
 
         // --- Make sure there is a full memory by default
         EXPECT_STREQ("UnitTestMemory", memory.name());
-        EXPECT_EQ(0xFFFF, memory.memorySize());
-        EXPECT_EQ(0xFFFF, memory.memorySize());
+        EXPECT_EQ(0xFFFF + 1, memory.memorySize());
         EXPECT_EQ(0x0000, memory.lowAddress());
         EXPECT_EQ(0xFFFF, memory.highAddress());
 
@@ -69,7 +68,6 @@ namespace m6502
         EXPECT_EQ(0x00, cpu->A());
         EXPECT_EQ(0x00, cpu->X());
         EXPECT_EQ(0x00, cpu->Y());
-        // EXPECT_EQ(0x20, cpu->P());
         EXPECT_EQ(0b00100000, cpu->P());
     }
 

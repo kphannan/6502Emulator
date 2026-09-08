@@ -353,8 +353,8 @@ namespace m6502
         class AddressModeStack : public AddressMode
         {
         public:
-            const inline static hardware::Address stackPage = 0x0100;
-            const inline static hardware::Address stackMask = 0x00FF;
+            const inline static hardware::Address stackPage = 0x01;
+            const inline static hardware::Address stackMask = 0x01FF;
 
             // Constructors
         public:
@@ -780,6 +780,7 @@ namespace m6502
         // ----- Constructors -----
     public:
         CPU();
+        // CPU(const CPU *other);
         CPU(memory::Memory &memory);
 
         // ----- Methods -----
@@ -829,10 +830,18 @@ namespace m6502
 
         void S(hardware::Address value)
         {
+            // value &= CPU::AddressModeStack::stackMask;
+            // value.pch &= CPU::AddressModeStack::stackPage;
+            // value.pcl &= CPU::AddressModeStack::stackMask;
             // TODO address the fact the stack pointer is 8 bits and lives in page 1
             // TODO mask / set the value
             // TODO - may change from Address to Byte and let addresMode handle the page
-            registers.S = value;
+            registers.S = value & CPU::AddressModeStack::stackMask;
+        };
+        void S(hardware::Byte value)
+        {
+            hardware::Address address = hardware::Address(CPU::AddressModeStack::stackPage, value);
+            registers.S = address;
         };
 
         void PC(const hardware::Address value) { registers.PC = value; };
@@ -869,21 +878,21 @@ namespace m6502
         bool isV() { return registers.P & OverflowBitMask; };    // Overflow
         bool isZ() { return registers.P & ZeroBitMask; };        // Zero
 
-        void setB() { setBit(registers.P, BrkBit); };
-        void setC() { setBit(registers.P, CarryBit); };
-        void setD() { setBit(registers.P, DecimalModeBit); };
-        void setI() { setBit(registers.P, IrqDisableBit); };
-        void setN() { setBit(registers.P, NegativeBit); };
-        void setV() { setBit(registers.P, OverflowBit); };
-        void setZ() { setBit(registers.P, ZeroBit); };
+        hardware::Byte setB() { return setBit(registers.P, BrkBit); };
+        hardware::Byte setC() { return setBit(registers.P, CarryBit); };
+        hardware::Byte setD() { return setBit(registers.P, DecimalModeBit); };
+        hardware::Byte setI() { return setBit(registers.P, IrqDisableBit); };
+        hardware::Byte setN() { return setBit(registers.P, NegativeBit); };
+        hardware::Byte setV() { return setBit(registers.P, OverflowBit); };
+        hardware::Byte setZ() { return setBit(registers.P, ZeroBit); };
 
-        void clearB() { clearBit(registers.P, BrkBit); };
-        void clearC() { clearBit(registers.P, CarryBit); };
-        void clearD() { clearBit(registers.P, DecimalModeBit); };
-        void clearI() { clearBit(registers.P, IrqDisableBit); };
-        void clearN() { clearBit(registers.P, NegativeBit); };
-        void clearV() { clearBit(registers.P, OverflowBit); };
-        void clearZ() { clearBit(registers.P, ZeroBit); };
+        hardware::Byte clearB() { return clearBit(registers.P, BrkBit); };
+        hardware::Byte clearC() { return clearBit(registers.P, CarryBit); };
+        hardware::Byte clearD() { return clearBit(registers.P, DecimalModeBit); };
+        hardware::Byte clearI() { return clearBit(registers.P, IrqDisableBit); };
+        hardware::Byte clearN() { return clearBit(registers.P, NegativeBit); };
+        hardware::Byte clearV() { return clearBit(registers.P, OverflowBit); };
+        hardware::Byte clearZ() { return clearBit(registers.P, ZeroBit); };
 
         void showRegisters();
 
@@ -895,7 +904,7 @@ namespace m6502
 
     protected:
     private:
-        void statusFlagCheck(int bit)
+        void statusFlagCheck(int bit) const
         {
             if (!(bit >= 0 && bit <= 7))
             {
@@ -903,30 +912,57 @@ namespace m6502
             }
         }
 
-        void setBit(hardware::Byte &value, int bit)
+        hardware::Byte setBit(const hardware::Byte &value, int bit) const
+        {
+            statusFlagCheck(bit);
+
+            hardware::Byte tmp(value);
+
+                // bit value 0 to 7
+            tmp |= 1 << bit;
+
+            return tmp;
+        }
+        
+        hardware::Byte setBit(hardware::Byte &value, int bit)
         {
             statusFlagCheck(bit);
 
             // bit value 0 to 7
             value |= 1 << bit;
+
+            return value;
         }
 
-        void clearBit(hardware::Byte &value, int bit)
+        hardware::Byte clearBit(const hardware::Byte &value, int bit) const
+        {
+            statusFlagCheck(bit);
+
+            hardware::Byte tmp(value);
+            // bit value 0 to 7
+            tmp &= ~(1 << bit);
+
+            return tmp;
+        }
+
+        hardware::Byte clearBit(hardware::Byte &value, int bit)
         {
             statusFlagCheck(bit);
 
             // bit value 0 to 7
             value &= ~(1 << bit);
+
+            return value;
         }
 
         // maybe remove these and only use set/clear methods with no args
-        void setB(bool value) { value == 1 ? setBit(registers.P, BrkBit) : clearBit(registers.P, BrkBit); };
-        void setC(bool value) { value == 1 ? setBit(registers.P, CarryBit) : clearBit(registers.P, CarryBit); };
-        void setD(bool value) { value == 1 ? setBit(registers.P, DecimalModeBit) : clearBit(registers.P, DecimalModeBit); };
-        void setI(bool value) { value == 1 ? setBit(registers.P, IrqDisableBit) : clearBit(registers.P, IrqDisableBit); };
-        void setN(bool value) { value == 1 ? setBit(registers.P, NegativeBit) : clearBit(registers.P, NegativeBit); };
-        void setV(bool value) { value == 1 ? setBit(registers.P, OverflowBit) : clearBit(registers.P, OverflowBit); };
-        void setZ(bool value) { value == 1 ? setBit(registers.P, ZeroBit) : clearBit(registers.P, ZeroBit); };
+        hardware::Byte setB(bool value) { return value == 1 ? setBit(registers.P, BrkBit) : clearBit(registers.P, BrkBit); };
+        hardware::Byte setC(bool value) { return value == 1 ? setBit(registers.P, CarryBit) : clearBit(registers.P, CarryBit); };
+        hardware::Byte setD(bool value) { return value == 1 ? setBit(registers.P, DecimalModeBit) : clearBit(registers.P, DecimalModeBit); };
+        hardware::Byte setI(bool value) { return value == 1 ? setBit(registers.P, IrqDisableBit) : clearBit(registers.P, IrqDisableBit); };
+        hardware::Byte setN(bool value) { return value == 1 ? setBit(registers.P, NegativeBit) : clearBit(registers.P, NegativeBit); };
+        hardware::Byte setV(bool value) { return value == 1 ? setBit(registers.P, OverflowBit) : clearBit(registers.P, OverflowBit); };
+        hardware::Byte setZ(bool value) { return value == 1 ? setBit(registers.P, ZeroBit) : clearBit(registers.P, ZeroBit); };
 
         void push(hardware::Byte value);
         void push(hardware::Word value);

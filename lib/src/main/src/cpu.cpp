@@ -186,24 +186,24 @@ namespace m6502
         std::cout << "         Y: " << std::setfill('0') << std::setw(2) << (int)(registers.Y) << " Index register Y" << std::endl;
         std::cout << "         S: " << std::setfill('0') << std::setw(2) << (int)(registers.S) << " Stack pointer" << std::endl;
         std::cout << "        PC: " << std::setfill('0') << std::setw(4) << (int)(registers.PC) << " Program Counter" << std::endl;
-//        std::cout << "         S: " << std::setw(2) << registers.S << " Stack pointer" << std::endl;
-//        std::cout << "        PC: " << registers.PC << " Program Counter" << std::endl;
+        //        std::cout << "         S: " << std::setw(2) << registers.S << " Stack pointer" << std::endl;
+        //        std::cout << "        PC: " << registers.PC << " Program Counter" << std::endl;
         std::cout << "         P: N V 1 B D I Z C  CPU Status Register" << std::endl
-                 << "            "
-                 << std::setw(1)
-                 << (isN() ? 1 : 0) << " "
-                 << (isV() ? 1 : 0) << " "
-                 << 1 << " "
-                 << (isB() ? 1 : 0) << " "
-                 << (isD() ? 1 : 0) << " "
-                 << (isI() ? 1 : 0) << " "
-                 << (isZ() ? 1 : 0) << " "
-                 << (isC() ? 1 : 0) << " "
-                 << std::endl
-                 << std::resetiosflags(std::ios::basefield) << std::setiosflags(std::ios::oct)
-                 //   << setf(std::ios::binary)
-                 //   << std::bitset<8>(model.P)
-                 << std::endl;
+                  << "            "
+                  << std::setw(1)
+                  << (isN() ? 1 : 0) << " "
+                  << (isV() ? 1 : 0) << " "
+                  << 1 << " "
+                  << (isB() ? 1 : 0) << " "
+                  << (isD() ? 1 : 0) << " "
+                  << (isI() ? 1 : 0) << " "
+                  << (isZ() ? 1 : 0) << " "
+                  << (isC() ? 1 : 0) << " "
+                  << std::endl
+                  << std::resetiosflags(std::ios::basefield) << std::setiosflags(std::ios::oct)
+                  //   << setf(std::ios::binary)
+                  //   << std::bitset<8>(model.P)
+                  << std::endl;
         std::cout.unsetf(std::ios::basefield);
 
         pipeline->showPipeline();
@@ -227,10 +227,15 @@ namespace m6502
     // --- push byte on stack
     void CPU::push(hardware::Byte value)
     {
-            // TODO review stack
+        // TODO review stack
         // stack grows down
-        addressSpace.write(registers.S, value);
-        registers.S--;
+
+        // Extra work done here to contain the stack ponter to page one.
+        hardware::Address stackAddress =
+            hardware::Address(CPU::AddressModeStack::stackPage, registers.S & CPU::AddressModeStack::stackMask);
+
+        addressSpace[stackAddress] = value;
+        registers.S = --stackAddress;
     }
 
     // --- push word on stack
@@ -241,18 +246,22 @@ namespace m6502
     void CPU::push(hardware::Word value)
     {
         // TODO review stack
+        hardware::Address stackAddress = hardware::Address(CPU::AddressModeStack::stackPage, registers.S);
         // stack grows down
-        addressSpace.writeWord(registers.S - 1, value);
-        registers.S -= 2;
+        addressSpace.writeWord(stackAddress - 1, value);
+        // registers.S -= 2;
+        registers.S = stackAddress - 2;
     }
 
     //
     hardware::Byte CPU::pop()
     {
-            // TODO review stack
+        // TODO review stack
         // TODO handle an invalid stack pointer ( > 0x1FFF)
-        registers.S += 1;
-        return addressSpace.read(registers.S);
+        hardware::Address stackAddress = hardware::Address(CPU::AddressModeStack::stackPage, registers.S + 1);
+        registers.S = stackAddress;
+
+        return addressSpace[stackAddress];
     }
 
     // before      after
@@ -262,7 +271,9 @@ namespace m6502
     hardware::Word CPU::popWord()
     {
         // TODO review stack
-        hardware::Word value = addressSpace.readWord(registers.S + 1);
+        hardware::Address stackAddress = hardware::Address(CPU::AddressModeStack::stackPage, registers.S + 1);
+        hardware::Word value = addressSpace.readWord(stackAddress);
+
         registers.S += 2;
 
         // assert( registers.S <= 0x01FF);

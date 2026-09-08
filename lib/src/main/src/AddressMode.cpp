@@ -5,9 +5,6 @@
 
 namespace m6502
 {
-    //    namespace CPU
-    //    {
-
     // ----- AddressMode -----
     hardware::Address CPU::AddressMode::execute()
     {
@@ -19,6 +16,7 @@ namespace m6502
     hardware::Address CPU::AddressModeUndefined::execute()
     {
         std::cout << "AddressMode(Undefined): Not yet implemented" << std::endl;
+        throw std::domain_error("AddressMode(Undefined)");
         return hardware::Address(0xFADEFACE);
     }
 
@@ -26,45 +24,50 @@ namespace m6502
     hardware::Address CPU::AddressModeZeroPage::execute()
     {
         AddressMode::execute();
-        hardware::Address zpOffset = cpu.addressSpace.read(cpu.registers.PC++);
 
-        cpu.decodePipeline().operand = cpu.addressSpace.read(0x0000 + zpOffset);
+        hardware::Byte zpOffset = cpu.addressSpace[cpu.registers.PC];
+        cpu.registers.PC++;
 
-        // TODO return 'address'
-        return zpOffset;
+        hardware::Address address(zpOffset);
+
+        return address;
     }
 
     // ----- AddressModeZeroPageIndexedX -----
     hardware::Address CPU::AddressModeZeroPageIndexedX::execute()
     {
         AddressMode::execute();
-        hardware::Address zpOffset = cpu.addressSpace.read(cpu.registers.PC++);
-        cpu.decodePipeline().operand = cpu.addressSpace.read(zpOffset + cpu.registers.X);
 
-        // TODO return 'address'
-        return zpOffset + cpu.registers.X;
+        hardware::Byte zpOffset = cpu.addressSpace[cpu.registers.PC]; // operand
+        cpu.registers.PC++;
+        zpOffset += cpu.registers.X; // add offset
+
+        hardware::Address address(zpOffset);
+
+        return address;
     }
 
     // ----- AddressModeZeroPageIndexedY -----
     hardware::Address CPU::AddressModeZeroPageIndexedY::execute()
     {
         AddressMode::execute();
-        hardware::Address zpOffset = cpu.addressSpace.read(cpu.registers.PC++);
-        cpu.decodePipeline().operand = cpu.addressSpace.read(zpOffset + cpu.registers.Y);
 
-        // TODO return 'address'
-        return zpOffset + cpu.registers.Y;
+        hardware::Byte zpOffset = cpu.addressSpace[cpu.registers.PC]; // operand
+        cpu.registers.PC++;
+
+        hardware::Address address(zpOffset + cpu.registers.Y);
+
+        return address;
     }
 
     // ----- AddressModeAbsolute -----
     hardware::Address CPU::AddressModeAbsolute::execute()
     {
         AddressMode::execute();
-        hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC.address);
-        cpu.decodePipeline().operand = cpu.addressSpace.read(absolute);
+        hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC);
+        // cpu.decodePipeline().operand = cpu.addressSpace.read(absolute);
         cpu.registers.PC.address += 2;
 
-        // TODO return 'address'
         return absolute;
     }
 
@@ -73,12 +76,13 @@ namespace m6502
     {
         // value = read( $nnnn + X)
         AddressMode::execute();
-        hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC.address);
-        cpu.decodePipeline().operand = cpu.addressSpace.read(absolute + cpu.registers.X);
-        cpu.registers.PC.address += 2;
 
-        // TODO return 'address'
-        return absolute + cpu.registers.X;
+        hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC);
+        cpu.registers.PC.address += 2;
+        hardware::Address address(absolute + cpu.registers.X);
+        // cpu.decodePipeline().operand = cpu.addressSpace.read(absolute + cpu.registers.X);
+
+        return address;
     }
 
     // ----- AddressModeAbsoluteIndexedY -----
@@ -87,11 +91,10 @@ namespace m6502
         // value = read( $nnnn + Y)
         AddressMode::execute();
         hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC.address);
-        cpu.decodePipeline().operand = cpu.addressSpace.read(absolute + cpu.registers.Y);
         cpu.registers.PC.address += 2;
+        hardware::Address address(absolute + cpu.registers.Y);
 
-        // TODO return 'address'
-        return absolute + cpu.registers.Y;
+        return address;
     }
 
     // ----- AddressModeIndirect -----
@@ -131,13 +134,22 @@ namespace m6502
     hardware::Address CPU::AddressModeIndexedIndirectX::execute()
     {
         // value = read( $nn + X )
-        AddressMode::execute();
-        // Address of table of addresses
-        hardware::Address zeroPageAddress = cpu.addressSpace.read(cpu.registers.PC++);
-        // get address contained in the n-th entry of the table
-        hardware::Address address = cpu.addressSpace.readWord(zeroPageAddress + cpu.registers.X);
 
-        cpu.decodePipeline().operand = cpu.addressSpace.read(address); // TODO not needed
+        // X is an index into zero page
+        // the 16 bit address is found at:
+        // pcl: zp + x
+        // pch: zp + x + 1
+        // value = read( $nnnn + X)
+
+        AddressMode::execute();
+
+        // Base address in zeroPage
+        hardware::Address zeroPageBase(cpu.addressSpace[cpu.registers.PC]);
+        cpu.registers.PC++;
+        // index from the base address
+        hardware::Address zeroPageAddress = zeroPageBase + cpu.registers.X;
+        // Get the address from the indexed address
+        hardware::Address address = cpu.addressSpace.readWord(zeroPageAddress);
 
         return address;
     }
@@ -173,34 +185,11 @@ namespace m6502
         // indirect pointer (PC | (PC+1)<<8) + Y
         // value = read( $nn + X )
 
-        hardware::Address zpOffset = cpu.addressSpace.read(cpu.registers.PC++);
-
-        // std::cout.setf(std::ios::hex, std::ios::basefield);
-        // std::cout << " indirect address: "
-        //           << std::setfill('0') << std::setw(4) << (int)zpOffset
-        //           << " : " << cpu.addressSpace.readWord(zpOffset)
-        //           << std::endl
-        //           << std::endl;
-        // hardware::Address a = cpu.addressSpace.readWord(zpOffset);
-        // for (int i = cpu.registers.Y; i >= 0; i -= 2, a += 2)
-        // {
-        //     std::cout << "   "
-        //               << std::setfill('0') << std::setw(4) << (int)a
-        //               << " : " << cpu.addressSpace.readWord(a)
-        //               << std::endl;
-        // }
-        // std::cout.unsetf(std::ios::basefield);
-
-        hardware::Address address = cpu.addressSpace.readWord(zpOffset);
-        address = cpu.addressSpace.readWord(address + cpu.registers.Y);
-
-        cpu.decodePipeline().operand = cpu.addressSpace.read(address); // TODO remove this
-
-        // std::cout.setf(std::ios::hex, std::ios::basefield);
-        // std::cout << " final address "
-        //           << std::setfill('0') << std::setw(4) << (int)address
-        //           << std::endl;
-        // std::cout.unsetf(std::ios::basefield);
+        // Base address in zeroPage
+        hardware::Address zeroPageAddress(cpu.addressSpace[cpu.registers.PC]);
+        cpu.registers.PC++;
+        hardware::Address tableBase(cpu.addressSpace.readWord(zeroPageAddress));
+        hardware::Address address(cpu.addressSpace.readWord(tableBase + cpu.registers.Y));
 
         return address;
     }
@@ -210,11 +199,10 @@ namespace m6502
     {
         AddressMode::execute();
 
-        // cpu.decodePipeline().operand = cpu.addressSpace.read(cpu.registers.PC++);
+        hardware::Address address = cpu.registers.PC;
+        cpu.registers.PC++;
 
-        // // TODO return 'byte - literal'
-        // return cpu.addressSpace.read(cpu.registers.PC - 1); // TODO watch the PC value when opeand fetch is removed from this method
-        return cpu.registers.PC++;
+        return address;
     }
 
     // ----- AddressModeImplied -----
@@ -222,13 +210,11 @@ namespace m6502
     {
         AddressMode::execute();
 
-        return 0xFFFF; // return address is always ignored.
+        return cpu.registers.PC; // return address is always ignored.
+        // return 0xFFFF; // return address is always ignored.
     }
 
     // ----- AddressModeStack -----
-    // const static hardware::Address stackPage = 0x0100;
-    // const static hardware::Address stackMask = 0x00FF;
-
     hardware::Address CPU::AddressModeStack::execute()
     {
         return AddressMode::execute();
@@ -239,10 +225,16 @@ namespace m6502
 
     hardware::Address CPU::AddressModeStackPush::execute()
     {
-        AddressMode::execute();
+        // AddressMode::execute();
 
-        // decrement stack after calculating the address
-        return (cpu.registers.S-- & stackMask) + stackPage;
+        // The memory address to write to is the current Stack Pointer
+        // Stack pointer is modified (decremented) after the push
+        // AddressMode returns the address to be acted upon
+        hardware::Address address(stackPage, cpu.registers.S.pcl);
+        // hardware::Address address = (cpu.registers.S) & stackMask;
+        cpu.registers.S--; // TODO create a StackAddress class (fixed pch of 0x01)
+
+        return address;
     }
 
     hardware::Address CPU::AddressModeStackPull::execute()
@@ -251,8 +243,9 @@ namespace m6502
 
         // increment stack before calculating the address
         cpu.registers.S++;
-        return (cpu.registers.S & stackMask) + stackPage;
+        // return cpu.registers.S & stackMask;
+        hardware::Address address(stackPage, cpu.registers.S.pcl);
+        return address;
     }
 
-    //    }
 }

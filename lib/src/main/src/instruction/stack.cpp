@@ -37,120 +37,65 @@ namespace m6502
         Instruction::execute(dst, src);
         // std::cout << "   GENERIC STACK " << std::endl;
 
-        switch (dst)
+        switch (dst) // stack, accumulator, status register
         {
-        case InstructionTarget::X:
+        case InstructionTarget::STACK: // To stack; push (PHA, PHP, PHX, PHY)
             switch (src)
             {
-            case InstructionTarget::X:
+            case InstructionTarget::X:  // TXS -- should be in transfer.cpp
+                cpu.S(cpu.registers.X); // TODO wrong dst/src
                 break;
-            case InstructionTarget::Y:
-                break;
-            case InstructionTarget::MEMORY:
-                break;
-            case InstructionTarget::STACK:
-                break;
-            case InstructionTarget::A:
-                break;
-            case InstructionTarget::S:
-                cpu.X(cpu.registers.S);
-                break;
-            default:
-                break;
-            }
-            break;
-        case InstructionTarget::Y:
-            switch (src)
-            {
-            case InstructionTarget::X:
-                break;
-            case InstructionTarget::Y:
-                break;
-            case InstructionTarget::MEMORY:
-                break;
-            case InstructionTarget::STACK:
-                break;
-            case InstructionTarget::A:
-                break;
-            case InstructionTarget::S:
-                break;
-            default:
-                break;
-            }
-            break;
-        case InstructionTarget::MEMORY:
-            switch (src)
-            {
-            case InstructionTarget::X:
-                break;
-            case InstructionTarget::Y:
-                break;
-            case InstructionTarget::MEMORY:
-                break;
-            case InstructionTarget::STACK:
-                break;
-            case InstructionTarget::A:
-                break;
-            case InstructionTarget::S:
-                break;
-            default:
-                break;
-            }
-            break;
-        case InstructionTarget::STACK: // To stack
-            switch (src)
-            {
-            case InstructionTarget::X:
-                break;
-            case InstructionTarget::Y:
-                break;
-            case InstructionTarget::MEMORY:
-                break;
-            case InstructionTarget::STACK:
-                break;
-            case InstructionTarget::A: // PHA
+            case InstructionTarget::A: // PHA - Push Accumulator
             {
                 hardware::Address address = cpu.decodePipeline().addressMode->execute();
+                cpu.addressSpace[address] = cpu.registers.A;
                 // hardware::Byte value = cpu.addressSpace.read(address);
-                cpu.addressSpace.write(address, cpu.registers.A);
+                // cpu.addressSpace.write(address, cpu.registers.A);
+                // cpu.push(cpu.registers.A);
                 break;
             }
+            case InstructionTarget::PSR: // PHP - Push Processor Status
+            {
+                // There is a reference that says the B bit is set in the byte
+                // pushed.
+                // https://www.nesdev.org/wiki/Instruction_reference#PHA
+                // The original MOSTEC document on pg 122 says it it pushed
+                // unchanged.
+                // https://archive.org/details/6500-50a_mcs6500pgmmanjan76/page/n135/mode/2up
+                hardware::Address address = cpu.decodePipeline().addressMode->execute();
+                cpu.addressSpace[address] = cpu.registers.P;
+                // cpu.addressSpace[address] = cpu.setBit(cpu.registers.P, BrkBit );
+                // hardware::Byte value = cpu.addressSpace.read(address);
+                // cpu.addressSpace.write(address, cpu.registers.P);
+                // cpu.push(cpu.setB(cpu.registers.P));
+                break;
+            }
+            case InstructionTarget::Y:
+            case InstructionTarget::MEMORY:
             case InstructionTarget::S: // Nonsense to push stack pointer to stack
-                break;
-            case InstructionTarget::PSR: // PHP
-            {
-                hardware::Address address = cpu.decodePipeline().addressMode->execute();
-                // hardware::Byte value = cpu.addressSpace.read(address);
-                cpu.addressSpace.write(address, cpu.registers.P);
-                break;
-            }
+            case InstructionTarget::STACK:
             default:
                 break;
             }
             break;
 
-        case InstructionTarget::PSR: // To stack
+        case InstructionTarget::PSR: // To Processor Status Flag Register
             switch (src)
             {
-            case InstructionTarget::X:
-                break;
-            case InstructionTarget::Y:
-                break;
-            case InstructionTarget::MEMORY:
-                break;
-            case InstructionTarget::STACK:
+            case InstructionTarget::STACK: // PLP - Pull status from Stack
             {
                 hardware::Address address = cpu.decodePipeline().addressMode->execute();
-                hardware::Byte value = cpu.addressSpace.read(address);
+                hardware::Byte value = cpu.addressSpace[address]; //cpu.addressSpace.read(address);
                 cpu.registers.P = value;
+//                cpu.P(cpu.pop());
                 break;
             }
-            case InstructionTarget::A: // PHA
-                break;
-            case InstructionTarget::S: // Nonsense to push stack pointer to stack
-                break;
-            case InstructionTarget::PSR: // PHP
-                break;
+            case InstructionTarget::X:
+            case InstructionTarget::Y:
+            case InstructionTarget::MEMORY:
+            case InstructionTarget::A:
+            case InstructionTarget::S:
+            case InstructionTarget::PSR:
             default:
                 break;
             }
@@ -159,45 +104,80 @@ namespace m6502
         case InstructionTarget::A: // To accumulator
             switch (src)
             {
-            case InstructionTarget::X:
-                break;
-            case InstructionTarget::Y:
-                break;
-            case InstructionTarget::MEMORY:
-                break;
             case InstructionTarget::STACK: // from stack PLA
             {
                 hardware::Address address = cpu.decodePipeline().addressMode->execute();
-                hardware::Byte value = cpu.addressSpace.read(address);
+                cpu.A(cpu.addressSpace[address]);
+                // hardware::Byte value = cpu.addressSpace.read(address);
                 // cpu.addressSpace.write(address, cpu.registers.A);
                 // cpu.A( cpu.addressSpace.read(address));
-                cpu.A(value);
+                // cpu.A(cpu.pop());
                 break;
             }
+            case InstructionTarget::X:
+            case InstructionTarget::Y:
+            case InstructionTarget::MEMORY:
             case InstructionTarget::A:
-                break;
             case InstructionTarget::S:
-                break;
             default:
                 break;
             }
             break;
-        case InstructionTarget::S:
+
+        case InstructionTarget::S: // n/a
             switch (src)
             {
-            case InstructionTarget::X:
+            case InstructionTarget::X:             // -- should be in transfer.cpp
                 cpu.registers.S = cpu.registers.X; // no flags affected
                 break;
             case InstructionTarget::Y:
-                break;
             case InstructionTarget::MEMORY:
-                break;
             case InstructionTarget::STACK:
-                break;
             case InstructionTarget::A:
-                break;
             case InstructionTarget::S:
+            default:
                 break;
+            }
+            break;
+        case InstructionTarget::X: // n/a
+            switch (src)
+            {
+            case InstructionTarget::S: // TSX      X <- S -- should be in transfer.cpp
+                cpu.X(cpu.registers.S);
+                break;
+            case InstructionTarget::X:
+            case InstructionTarget::Y:
+            case InstructionTarget::MEMORY:
+            case InstructionTarget::STACK: //
+                                           // no instruction to pop stack into X register
+                                           // cpu.X(cpu.pop());
+            case InstructionTarget::A:
+            default:
+                break;
+            }
+            break;
+        case InstructionTarget::Y: // n/a
+            switch (src)
+            {
+            case InstructionTarget::X:
+            case InstructionTarget::Y:
+            case InstructionTarget::MEMORY:
+            case InstructionTarget::STACK:
+            case InstructionTarget::A:
+            case InstructionTarget::S:
+            default:
+                break;
+            }
+            break;
+        case InstructionTarget::MEMORY: // n/a
+            switch (src)
+            {
+            case InstructionTarget::X:
+            case InstructionTarget::Y:
+            case InstructionTarget::MEMORY:
+            case InstructionTarget::STACK:
+            case InstructionTarget::A:
+            case InstructionTarget::S:
             default:
                 break;
             }

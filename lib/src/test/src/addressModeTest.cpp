@@ -7,6 +7,9 @@
 
 namespace m6502
 {
+
+    // Address Mode classes execute() method will return the address
+    // the processor will act on, not the value of the program counter.
     class AddressModeTest : public testing::Test
     {
     public:
@@ -19,12 +22,12 @@ namespace m6502
         AddressModeTest()
         {
             // Destination of the reset vector - leaves zeroPage available for testing
-            memory.write(0x2000, 0x49); // LDA #00 // starting instruction after reset
-            memory.write(0x2001, 0x5A); //
+            memory[0x2000] = 0x49; // LDA #00 // starting instruction after reset
+            memory[0x2001] = 0x5A; //
 
             // Reset vector points to start of memory
-            memory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
-            memory.write(0xFFFD, 0x20); //      MSB
+            memory[0xFFFC] = 0x00; // cpu::HardwareVector::RESET
+            memory[0xFFFD] = 0x20; //      MSB
 
             cpu = new CPU(memory);
         }
@@ -40,8 +43,13 @@ namespace m6502
     TEST_F(AddressModeTest, Immediate)
     {
         // --- given
+
         CPU::AddressMode *mode = new CPU::AddressModeImmediate(*cpu);
-        memory.write(0x3216, 0x98);
+
+        memory[0x3215] = 0x97;
+        memory[0x3216] = 0x98;
+        memory[0x3217] = 0x99;
+
         cpu->PC(0x3216);
 
         // --- when
@@ -50,7 +58,7 @@ namespace m6502
         // --- then
         EXPECT_EQ(0x3217, cpu->PC());
         EXPECT_EQ(0x3216, address);
-        EXPECT_EQ(0x98, memory.read(address));
+        EXPECT_EQ(0x98, memory[address]);
     }
 
     // ..... Implied
@@ -61,8 +69,13 @@ namespace m6502
     {
         // --- given
         CPU::AddressMode *mode = new CPU::AddressModeZeroPage(*cpu);
-        memory.write(0x0064, 0x76); // data
-        memory.write(0x3210, 0x64); // Address Mode
+
+        memory[0x0064] = 0x76; // data
+        memory[0x0065] = 0xDD; // data
+
+        memory[0x3210] = 0x64; // Address Mode
+        memory[0x3211] = 0x65; // Address Mode
+
         cpu->PC(0x3210);
 
         // --- when
@@ -71,7 +84,7 @@ namespace m6502
         // --- then
         EXPECT_EQ(0x3211, cpu->PC());
         EXPECT_EQ(0x0064, address);
-        EXPECT_EQ(0x76, memory.read(address));
+        EXPECT_EQ(0x76, memory[address]);
     }
 
     // ----- ZeroPage,X $LL,X
@@ -79,8 +92,9 @@ namespace m6502
     {
         // --- given
         CPU::AddressMode *mode = new CPU::AddressModeZeroPageIndexedX(*cpu);
-        memory.write(0x0064, 0x44); // data
-        memory.write(0x3210, 0x60); // Address Mode
+        memory[0x0064] = 0x44; // data
+        memory[0x3210] = 0x60; // Address Mode
+
         cpu->PC(0x3210);
         cpu->X(0x04);
 
@@ -90,7 +104,7 @@ namespace m6502
         // --- then
         EXPECT_EQ(0x3211, cpu->PC());
         EXPECT_EQ(0x0064, address);
-        EXPECT_EQ(0x44, memory.read(address));
+        EXPECT_EQ(0x44, memory[address]);
     }
 
     // ----- ZeroPage,Y $LL,Y
@@ -98,8 +112,9 @@ namespace m6502
     {
         // --- given
         CPU::AddressMode *mode = new CPU::AddressModeZeroPageIndexedY(*cpu);
-        memory.write(0x0074, 0x66); // data
-        memory.write(0x3210, 0x64); // Address Mode
+        memory[0x0074] = 0x66; // data
+        memory[0x3210] = 0x64; // Address Mode
+
         cpu->PC(0x3210);
         cpu->Y(0x10);
 
@@ -109,7 +124,7 @@ namespace m6502
         // --- then
         EXPECT_EQ(0x3211, cpu->PC());
         EXPECT_EQ(0x0074, address);
-        EXPECT_EQ(0x66, memory.read(address));
+        EXPECT_EQ(0x66, memory[address]);
     }
 
     // ----- Relative $BB
@@ -139,11 +154,14 @@ namespace m6502
     {
         // --- given
         CPU::AddressMode *mode = new CPU::AddressModeAbsoluteIndexedX(*cpu);
-        memory.write(0x8874, 0x60); // data
-        memory.write(0x8875, 0x05); // data
+        memory[0x8864] = 0xAD; // data
+        memory[0x8865] = 0xDE; // data
+        memory[0x8874] = 0x60; // data
+        memory[0x8875] = 0x05; // data
 
-        memory.write(0x3210, 0x64); // Address Mode
-        memory.write(0x3211, 0x88); // Address Mode
+        memory[0x3210] = 0x64; // pcl
+        memory[0x3211] = 0x88; // pch
+
         cpu->PC(0x3210);
         cpu->X(0x10);
 
@@ -153,7 +171,7 @@ namespace m6502
         // --- then
         EXPECT_EQ(0x3212, cpu->PC());
         EXPECT_EQ(0x8874, address);
-        EXPECT_EQ(0x60, memory.read(address));
+        EXPECT_EQ(0x60, memory[address]);
     }
 
     // ----- AbsoluteY $LLHH,Y
@@ -167,12 +185,13 @@ namespace m6502
         // $8884: $50  - the data
         // --- given
         CPU::AddressMode *mode = new CPU::AddressModeAbsoluteIndexedY(*cpu);
-        memory.write(0x8864, 0x99); // data
-        memory.write(0x8874, 0x05); // data
-        memory.write(0x8884, 0x50); // data
+        memory[0x8864] = 0x99; // data
+        memory[0x8874] = 0x05; // data
+        memory[0x8884] = 0x50; // data
 
-        memory.write(0x3210, 0x64); // Address Mode
-        memory.write(0x3211, 0x88); // Address Mode
+        memory[0x3210] = 0x64; // Address Mode pcl
+        memory[0x3211] = 0x88; // Address Mode pch
+
         cpu->PC(0x3210);
         cpu->Y(0x20);
 
@@ -182,7 +201,7 @@ namespace m6502
         // --- then
         EXPECT_EQ(0x3212, cpu->PC());
         EXPECT_EQ(0x8884, address);
-        EXPECT_EQ(0x50, memory.read(address));
+        EXPECT_EQ(0x50, memory[address]);
     }
 
     // ----- Indirect ($LLHH)
@@ -225,26 +244,26 @@ namespace m6502
         // memory.write(0x2000, 0xA2); // LDX #$05
         // memory.write(0x2001, 0x05); // Base of lookup table in page zero
         // memory.write(0x2002, 0xA1); // LDA ($70,X)
-        memory.write(0x2003, 0x70); // offset from base address
+        memory[0x2003] = 0x70; // offset from base address
 
         // Lookup table of addresses
-        memory.write(0x0070, 0x11); // Entry $00, $LL Address lookup table
-        memory.write(0x0071, 0x11); //            $HH
-        memory.write(0x0072, 0x22); // Entry $00, $LL Address lookup table
-        memory.write(0x0073, 0x22); //            $HH
+        memory[0x0070] = 0x11; // Entry $00, $LL Address lookup table
+        memory[0x0071] = 0x11; //            $HH
+        memory[0x0072] = 0x22; // Entry $00, $LL Address lookup table
+        memory[0x0073] = 0x22; //            $HH
         // .. ... ... ... ...
-        memory.write(0x0080, 0x23); // Entry $10, $LL Address lookup table
-        memory.write(0x0081, 0x30); //            $HH
+        memory[0x0080] = 0x23; // Entry $10, $LL Address lookup table
+        memory[0x0081] = 0x30; //            $HH
 
         // Data pointed to from the table.
-        memory.write(0x1111, 0x20); // Data
-        memory.write(0x2222, 0x82); // Data
-        memory.write(0x3023, 0xA5); // Data
+        memory[0x1111] = 0x20; // Data
+        memory[0x2222] = 0x82; // Data
+        memory[0x3023] = 0xA5; // Data
 
         // --- when
         hardware::Address address = mode->execute();
 
-        hardware::Byte value = memory.read(address);
+        hardware::Byte value = memory[address];
 
         // --- then
         EXPECT_EQ(0x2004, cpu->PC());
@@ -316,41 +335,43 @@ namespace m6502
         EXPECT_EQ(0x49, value);
     }
 
+    // push value then move stack pointer (-)
     TEST_F(AddressModeTest, StackPush)
     {
         // --- given
         cpu->S(0xF2);
         CPU::AddressMode *mode = new CPU::AddressModeStackPush(*cpu);
 
-        memory.write(0x01F2, 0x99);
-        memory.write(0x01F1, 0xAA);
+        memory[0x01F2] = 0x99;
+        memory[0x01F1] = 0xAA;
 
         // --- when
         hardware::Address address = mode->execute();
 
         // --- then
-        EXPECT_EQ(0xF1, cpu->S());
+        EXPECT_EQ(0x01F1, cpu->S());
         EXPECT_EQ(0x01F2, address);
-        EXPECT_EQ(0x99, memory.read(address));
+        EXPECT_EQ(0x99, memory[address]);
     }
 
+    // Move stack pointer (+) then read value
     TEST_F(AddressModeTest, StackPull)
     {
         // --- given
         cpu->S(0xF2);
         CPU::AddressMode *mode = new CPU::AddressModeStackPull(*cpu);
 
-        memory.write(0x01F3, 0x11);
-        memory.write(0x01F2, 0x99);
-        memory.write(0x01F1, 0xAA);
+        memory[0x01F1] = 0xAA;
+        memory[0x01F2] = 0x99;
+        memory[0x01F3] = 0x11;
 
         // --- when
         hardware::Address address = mode->execute();
 
         // --- then
-        EXPECT_EQ(0xF3, cpu->S());
+        EXPECT_EQ(0x01F3, cpu->S());
         EXPECT_EQ(0x01F3, address);
-        EXPECT_EQ(0x11, memory.read(address));
+        EXPECT_EQ(0x11, memory[address]);
     }
 
     // TEST_F(AddressModeTest, ZeroPage)
