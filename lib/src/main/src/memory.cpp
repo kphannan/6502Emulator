@@ -189,13 +189,7 @@ namespace memory
         contents[address] = value.lo;
         contents[address + 1] = value.hi;
 
-        hardware::Word word(contents[address + 1], contents[address]);
-
-        return word;  // TODO return the original word argument
-        // contents[address] = (hardware::Byte)(value & 0x00FF);
-        // contents[address + 1] = (hardware::Byte)((value & 0xFF00) >> 8);
-
-        // return contents[address] | (contents[address + 1] << 8);
+        return value;
     }
 
     void Memory::showMemory(const hardware::Address from, const int count, const char *text) const

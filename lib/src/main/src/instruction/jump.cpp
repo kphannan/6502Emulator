@@ -134,8 +134,11 @@ namespace m6502
 
         hardware::Address address = cpu.decodePipeline().addressMode->execute();
 
-        cpu.push( cpu.PCL() );
-        cpu.push( cpu.PCH() );
+        hardware::Address returnAddress(cpu.registers.PC - 1); // RTS increments PC before next instruction is fetched
+
+        cpu.push(returnAddress.pch);
+        cpu.push(returnAddress.pcl);
+
         cpu.PC(address);
     }
 
@@ -180,26 +183,29 @@ namespace m6502
         Instruction::execute(dst, src);
 
         hardware::Address address = cpu.decodePipeline().addressMode->execute();
-//        hardware::Address value = cpu.addressSpace.readWord(address);
+        //        hardware::Address value = cpu.addressSpace.readWord(address);
 
-        cpu.PC(cpu.popWord()); // Program Counter
+        hardware::Address resumeAddress(cpu.popWord());
+        ++resumeAddress;
+        cpu.PC(resumeAddress);
+        // cpu.PC(cpu.popWord()); // Program Counter
 
         // TODO Finish implementation
-//        switch (dst)
-//        {
-//        case InstructionTarget::PC:
-//            switch (src)
-//            {
-//            case InstructionTarget::MEMORY:
-//                cpu.PC(value);
-//                break;
-//            default:
-//                break;
-//            }
-//            break;
-//        default:
-//            break;
-//        }
+        //        switch (dst)
+        //        {
+        //        case InstructionTarget::PC:
+        //            switch (src)
+        //            {
+        //            case InstructionTarget::MEMORY:
+        //                cpu.PC(value);
+        //                break;
+        //            default:
+        //                break;
+        //            }
+        //            break;
+        //        default:
+        //            break;
+        //        }
     }
 
     // ..... Accumulator

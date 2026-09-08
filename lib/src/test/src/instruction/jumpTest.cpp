@@ -161,20 +161,21 @@ namespace m6502
     TEST_F(InstructionJumpTest, JSR_Absolute)
     {
         // --- given
-        testMemory.[0x2000] = 0x20; // JMP $5597 // starting instruction after reset
-        testMemory.[0x2001] = 0x10; // low byte of target address
-        testMemory.[0x2002] = 0xA0; // high byte of target address
+        testMemory[0x2000] = 0x20; // JMP $5597 // starting instruction after reset
+        testMemory[0x2001] = 0x10; // low byte of target address
+        testMemory[0x2002] = 0xA0; // high byte of target address
         // 0x2003 --- execution resumes here ---
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
 
         // --- then
+        testMemory.showMemory(0x01f8, 0x08, "Stack after JSR absolute");
         EXPECT_EQ(0xA010, cpu->PC());
         // verify stack contents and stack pointer
         EXPECT_EQ(0x01FD, cpu->S());
 
-        EXPECT_EQ(0x2003, (hardware::Address)(testMemory.readWord(0x01FE))); // TODO PC was pushed to stack
+        EXPECT_EQ(0x2002, (hardware::Address)(testMemory.readWord(0x01FE))); // TODO PC was pushed to stack
         EXPECT_EQ(0b00100000, cpu->P());                                     // final status register
     }
 
@@ -224,7 +225,7 @@ namespace m6502
     {
         // --- given
         // Program          Stack
-        // 0x2000 0x20      0x01FF:   0x03
+        // 0x2000 0x20      0x01FF:   0x02
         // 0x2001 0x10      0x01FE:   0x20
         // 0x2002 0xA0      0x01FD:    <-- Stack Pointer
         //    . . . .
@@ -236,8 +237,8 @@ namespace m6502
         // 0x2003 --- execution resumes here ---
 
         // TODO revisit how bytes are  pushed / popped from the stack.
-        testMemory[0x01FF] = 0x20; // 0x2003 // starting instruction after reset
-        testMemory[0x01FE] = 0x03; //
+        testMemory[0x01FF] = 0x20; // 0x2003 // starting instruction after return (-1)
+        testMemory[0x01FE] = 0x02; //
         cpu->S(0xFD);
 
         testMemory[0xA010] = 0x60; // RTS -- starting instruction
