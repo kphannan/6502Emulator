@@ -23,8 +23,9 @@ namespace m6502
             testMemory.write(0x2001, 0x5A);
 
             // Reset vector points to start of memory
-            testMemory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
-            testMemory.write(0xFFFD, 0x20); //      MSB
+            testMemory.writeWord(0xFFFC, 0x2000); // cpu::HardwareVector::RESET
+            testMemory.writeWord(0xFFFE, 0xDEAD); // cpu::HardwareVector::IRQ
+            testMemory.writeWord(0xFFFA, 0xBEEF); // cpu::HardwareVector::NMI
 
             cpu = new CPU(testMemory);
         }
@@ -83,13 +84,17 @@ namespace m6502
     // BNE (Branch on Not Equal)      $D0
     // BEQ (Branch on EQual)          $F0
     //
-    // There is no BRA (BRanch Always) instruction but it can be easily emulated by branching on the basis of a known condition. One of the best flags to use for this purpose is the oVerflow which is unchanged by all but addition and subtraction operations.
-    // A page boundary crossing occurs when the branch destination is on a different page than the instruction AFTER the branch instruction. For example:
+    // There is no BRA (BRanch Always) instruction but it can be easily emulated by branching
+    // on the basis of a known condition. One of the best flags to use for this purpose is the
+    //  oVerflow which is unchanged by all but addition and subtraction operations.
+    // A page boundary crossing occurs when the branch destination is on a different page than
+    // the instruction AFTER the branch instruction. For example:
     //
     //   SEC
     //   BCS LABEL
     //   NOP
-    // A page boundary crossing occurs (i.e. the BCS takes 4 cycles) when (the address of) LABEL and the NOP are on different pages. This means that
+    // A page boundary crossing occurs (i.e. the BCS takes 4 cycles) when (the address of)
+    // LABEL and the NOP are on different pages. This means that
     //         CLV
     //         BVC LABEL
     //   LABEL NOP
@@ -104,26 +109,6 @@ namespace m6502
     // ..... ZeroPage,X $LL,X
     // ..... ZeroPage,Y $LL,Y
     // ----- Relative $BB
-    TEST_F(InstructionBranchTest, BPL_Relative)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
-    TEST_F(InstructionBranchTest, BMI_Relative)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
-    TEST_F(InstructionBranchTest, BVC_Relative)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
-    TEST_F(InstructionBranchTest, BVS_Relative)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
     TEST_F(InstructionBranchTest, BCC_Relative)
     {
         ADD_FAILURE_AT(__FILE__, __LINE__);
@@ -134,12 +119,50 @@ namespace m6502
         ADD_FAILURE_AT(__FILE__, __LINE__);
     }
 
+    TEST_F(InstructionBranchTest, BEQ_Relative)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    TEST_F(InstructionBranchTest, BMI_Relative)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
     TEST_F(InstructionBranchTest, BNE_Relative)
     {
         ADD_FAILURE_AT(__FILE__, __LINE__);
     }
 
-    TEST_F(InstructionBranchTest, BEQ_Relative)
+    TEST_F(InstructionBranchTest, BPL_Relative_true_forward)
+    {
+        // ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        // cpu->A(0x3A);
+        // cpu->clearC();
+        cpu->clearN();
+        testMemory[0x2000] = 0x10; // BPL
+        testMemory[0x2001] = 0x7F; // maximum forward
+        // testMemory[0x2001] = 0xFF; // maximum negative
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2080, cpu->PC());
+        // EXPECT_EQ(0xB6, cpu->A());
+        EXPECT_EQ(0b00100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_N, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionBranchTest, BVC_Relative)
+    {
+        ADD_FAILURE_AT(__FILE__, __LINE__);
+    }
+
+    TEST_F(InstructionBranchTest, BVS_Relative)
     {
         ADD_FAILURE_AT(__FILE__, __LINE__);
     }

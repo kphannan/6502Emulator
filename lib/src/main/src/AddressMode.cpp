@@ -3,6 +3,7 @@
 #include "hardware.hpp"
 #include "6502.hpp"
 
+#include "AddressMode.hpp"
 namespace m6502
 {
     // ----- AddressMode -----
@@ -69,6 +70,21 @@ namespace m6502
         cpu.registers.PC.address += 2;
 
         return absolute;
+    }
+
+    // ----- AddressModeRelative -----
+    hardware::Address CPU::AddressModeRelative::execute()
+    {
+        std::cout << "AddressMode(Relative): Not yet implemented" << std::endl;
+        // TODO return 'byte - offset'
+        return AddressMode::execute();
+
+        // AddressMode::execute();
+        // hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC);
+        // // cpu.decodePipeline().operand = cpu.addressSpace.read(absolute);
+        // cpu.registers.PC.address += 2;
+
+        // return absolute;
     }
 
     // ----- AddressModeAbsoluteIndexedX -----

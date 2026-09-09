@@ -23,8 +23,9 @@ namespace m6502
             testMemory.write(0x2001, 0x5A);
 
             // Reset vector points to start of memory
-            testMemory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
-            testMemory.write(0xFFFD, 0x20); //      MSB
+            testMemory.writeWord(0xFFFC, 0x2000); // cpu::HardwareVector::RESET
+            testMemory.writeWord(0xFFFE, 0xDEAD); // cpu::HardwareVector::IRQ
+            testMemory.writeWord(0xFFFA, 0xBEEF); // cpu::HardwareVector::NMI
 
             cpu = new CPU(testMemory);
         }

@@ -142,247 +142,58 @@ namespace m6502
     {
         // ===== Inner Classes =====
     public:
-        class AddressMode
-        {
-            // Constructors
-        protected:
-            AddressMode(CPU &cpu, const char *name, const char *mnemonic) : cpu(cpu), modeName(name), modeMnemonic(mnemonic) {}
-
-            // Fields
-        private:
-            const char *modeName;
-            const char *modeMnemonic;
-
-        protected:
-            CPU &cpu;
-
-            // Methods
-        public:
-            const char *name() const { return modeName; }
-            const char *mnemonic() const { return modeMnemonic; }
-            // TODO  this should return an address, a literal byte.... (flag bit, register(A,X,Y,PC,SP))
-            virtual hardware::Address execute();
-        };
+        class AddressMode;
 
         //        Undefined,           // Catch illegal address mode
-        class AddressModeUndefined : public AddressMode
-        {
-            // Constructors
-        public:
-            AddressModeUndefined(CPU &cpu) : AddressMode(cpu, "Undefined", "error") {}
-
-            // Methods
-        public:
-            hardware::Address execute() override;
-        };
+        class AddressModeUndefined;
 
         //        IMPLICIT,           // Implicit
-        class AddressModeImplied : public AddressMode
-        {
-            // Constructors
-        public:
-            AddressModeImplied(CPU &cpu) : AddressMode(cpu, "Implied", "") {}
-            // Methods
-        public:
-            hardware::Address execute() override;
-        };
+        class AddressModeImplied;
 
         //        ACCUMULATOR,        // Accumulator         A
-        class AddressModeAccumulator : public AddressMode
-        {
-            // Constructors
-        public:
-            AddressModeAccumulator(CPU &cpu) : AddressMode(cpu, "Accumulator", "A") {}
-            // Methods
-        public:
-            virtual hardware::Address execute()
-            {
-                // TODO return 'Accumulator'
-                std::cout << "AddressModeAccumulator: Not yet implemented" << std::endl;
-                return AddressMode::execute();
-            }
-        };
+        class AddressModeAccumulator;
 
         //        ZERO_PAGE,          // Zero Page           $nn        LO bits 4,5,6
-        class AddressModeZeroPage : public AddressMode
-        {
-            // Constructors
-        public:
-            AddressModeZeroPage(CPU &cpu) : AddressMode(cpu, "ZeroPage", "$nn") {}
-            // Methods
-        public:
-            hardware::Address execute() override;
-        };
+        class AddressModeZeroPage;
 
         //        ZERO_PAGE_X,        // Zero Page, X        $nn,X      LO bits 4,5,6
-        class AddressModeZeroPageIndexedX : public AddressMode
-        {
-            // Constructors
-        public:
-            AddressModeZeroPageIndexedX(CPU &cpu) : AddressMode(cpu, "ZeroPage,X", "$nn,X") {}
-            // Methods
-        public:
-            hardware::Address execute() override;
-        };
+        class AddressModeZeroPageIndexedX;
 
         //        ZERO_PAGE_Y,        // Zero Page, Y        $nn,Y      LO bits 4,5,6
-        class AddressModeZeroPageIndexedY : public AddressMode
-        {
-            // Constructors
-        public:
-            AddressModeZeroPageIndexedY(CPU &cpu) : AddressMode(cpu, "ZeroPage, Y", "$nn,Y") {}
-            // Methods
-        public:
-            hardware::Address execute() override;
-        };
+        class AddressModeZeroPageIndexedY;
 
         //        RELATIVE,           // Relative            $nn
-        class AddressModeRelative : public AddressMode
-        {
-            // Constructors
-        public:
-            AddressModeRelative(CPU &cpu) : AddressMode(cpu, "Relative", "$nn") {}
-            // Methods
-        public:
-            virtual hardware::Address execute() override
-            {
-                std::cout << "AddressMode(Relative): Not yet implemented" << std::endl;
-                // TODO return 'byte - offset'
-                return AddressMode::execute();
-            }
-        };
+        class AddressModeRelative;
 
         //        ABSOLUTE,           // Absolute            $nnnn
-        class AddressModeAbsolute : public AddressMode
-        {
-            // Constructors
-        public:
-            AddressModeAbsolute(CPU &cpu) : AddressMode(cpu, "Absolute", "$nnnn") {}
-            // Methods
-        public:
-            hardware::Address execute() override;
-        };
+        class AddressModeAbsolute;
 
         //        ABSOLUTE_X,         // Absolute, X         $nnnn,X
-        class AddressModeAbsoluteIndexedX : public AddressMode
-        {
-            // Constructors
-        public:
-            AddressModeAbsoluteIndexedX(CPU &cpu) : AddressMode(cpu, "Absolute,X", "$nnnn,X") {}
-            // Methods
-        public:
-            hardware::Address execute() override;
-        };
+        class AddressModeAbsoluteIndexedX;
 
         //        ABSOLUTE_Y,         // Absolute, Y         $nnnn,Y
-        class AddressModeAbsoluteIndexedY : public AddressMode
-        {
-            // Constructors
-        public:
-            AddressModeAbsoluteIndexedY(CPU &cpu) : AddressMode(cpu, "Absolute,Y", "$nnnn,Y") {}
-            // Methods
-        public:
-            hardware::Address execute() override;
-        };
+        class AddressModeAbsoluteIndexedY;
 
         //        INDIRECT,           // Indirect            ($nnnn)
-        class AddressModeIndirect : public AddressMode
-        {
-            // Constructors
-        public:
-            AddressModeIndirect(CPU &cpu) : AddressMode(cpu, "Indirect", "($nnnn)") {}
-            // Methods
-        public:
-            hardware::Address execute() override;
-        };
+        class AddressModeIndirect;
 
         //        INDEXED_INDIRECT_X, // X Indexed Indirect  ($nn,X)    LO bit 1
-        class AddressModeIndexedIndirectX : public AddressMode
-        {
-            // Constructors
-        public:
-            AddressModeIndexedIndirectX(CPU &cpu) : AddressMode(cpu, "X Indexed Indirect", "($nn,X)") {}
-            // Methods
-        public:
-            hardware::Address execute() override;
-        };
+        class AddressModeIndexedIndirectX;
 
         //        INDIRECT_INDEXED_Y  // Y Indirect Indexed  ($nn),Y    LO bit 1
-        class AddressModeIndirectIndexedY : public AddressMode
-        {
-            // Constructors
-        public:
-            AddressModeIndirectIndexedY(CPU &cpu) : AddressMode(cpu, "Y Indirect Indexed", "($nn),Y") {}
-            // Methods
-        public:
-            hardware::Address execute() override;
-        };
+        class AddressModeIndirectIndexedY;
 
         //         IMMEDIATE,          // Immediate           #$nn
-        class AddressModeImmediate : public AddressMode
-        {
-            // Types
-        private:
-        protected:
-        public:
-            // Constants
-        private:
-        protected:
-        public:
-            // Constructors
-        private:
-        protected:
-        public:
-            AddressModeImmediate(CPU &cpu) : AddressMode(cpu, "Immediate", "$#BB") {}
-            // Fields
-        private:
-        protected:
-        public:
-            // Methods
-        private:
-        protected:
-        public:
-            hardware::Address execute() override;
-            // Operators
-        private:
-        protected:
-        public:
-        };
+        class AddressModeImmediate;
 
+        const inline static hardware::Byte stackPage = 0x01;      // TODO move
+        const inline static hardware::Address stackMask = 0x01FF; // TODO move
         //        Stack (pseudo),      // Stack               $01nn
-        class AddressModeStack : public AddressMode
-        {
-        public:
-            const inline static hardware::Byte stackPage = 0x01;
-            const inline static hardware::Address stackMask = 0x01FF;
+        class AddressModeStack;
 
-            // Constructors
-        public:
-            AddressModeStack(CPU &cpu, const char *name, const char *mnemonic) : AddressMode(cpu, name, mnemonic) {}
-            // Methods
-        public:
-            hardware::Address execute() override;
-        };
+        class AddressModeStackPull;
 
-        class AddressModeStackPull : public AddressModeStack
-        {
-            // Constructors
-        public:
-            AddressModeStackPull(CPU &cpu) : AddressModeStack(cpu, "Stack Pull", "$01nn") {}
-            // Methods
-        public:
-            hardware::Address execute() override;
-        };
-
-        class AddressModeStackPush : public AddressModeStack
-        {
-            // Constructors
-        public:
-            AddressModeStackPush(CPU &cpu) : AddressModeStack(cpu, "Stack Push", "$01nn") {}
-            // Methods
-        public:
-            hardware::Address execute() override;
-        };
+        class AddressModeStackPush;
 
         // --- Instruction
         class Instruction; // base
@@ -471,14 +282,23 @@ namespace m6502
         // --- CPX *
         // --- CPY *
         // ===== Conditional Branch Instructions (fmt: zzy10000)
+        class InstructionBranch;
         // --- BCC
+        class InstructionBranchCarryClear;
         // --- BCS
+        class InstructionBranchCarrySet;
         // --- BEQ
+        class InstructionBranchEqualToZero;
         // --- BMI
+        class InstructionBranchMinus;
         // --- BNE
+        class InstructionBranchNotEqualToZero;
         // --- BPL
+        class InstructionBranchOnPlus;
         // --- BVC
+        class InstructionBranchOverflowClear;
         // --- BVS
+        class InstructionBranchOverflowSet;
         // ===== Jumps & Subroutines Instructions
         class InstructionChangeProgramCounter;
         // --- JUMP *
@@ -751,14 +571,24 @@ namespace m6502
         // --- CPX *
         // --- CPY *
         // ===== Conditional Branch Instructions (fmt: zzy10000)
+        CPU::InstructionBranch *_instructionBranch;
         // --- BCC
+        class CPU::InstructionBranchCarryClear *_instructionBranchCarryClear;
         // --- BCS
+        class CPU::InstructionBranchCarrySet *_instructionBranchCarrySet;
         // --- BEQ
+        class CPU::InstructionBranchEqualToZero *_instructionBranchEqualToZero;
         // --- BMI
+        class CPU::InstructionBranchMinus *_instructionBranchMinus;
         // --- BNE
+        class CPU::InstructionBranchNotEqualToZero *_instructionBranchNotEqualToZero;
         // --- BPL
+        class CPU::InstructionBranchOnPlus *_instructionBranchOnPlus;
         // --- BVC
+        class CPU::InstructionBranchOverflowClear *_instructionBranchOverflowClear;
         // --- BVS
+        class CPU::InstructionBranchOverflowSet *_instructionBranchOverflowSet;
+
         // ===== Jumps & Subroutines Instructions
         // --- JUMP *
         CPU::InstructionJump *_instructionJump;
@@ -836,15 +666,20 @@ namespace m6502
             // TODO address the fact the stack pointer is 8 bits and lives in page 1
             // TODO mask / set the value
             // TODO - may change from Address to Byte and let addresMode handle the page
-            registers.S = value & CPU::AddressModeStack::stackMask;
+            //            registers.S = value & CPU::AddressModeStack::stackMask;
+            registers.S = value & CPU::stackMask;
         };
         void S(hardware::Byte value)
         {
-            hardware::Address address = hardware::Address(CPU::AddressModeStack::stackPage, value);
+            //            hardware::Address address = hardware::Address(CPU::AddressModeStack::stackPage, value);
+            hardware::Address address = hardware::Address(CPU::stackPage, value);
             registers.S = address;
         };
 
-        void PC(const hardware::Address value) { registers.PC = value; };
+        void PC(const hardware::Address value) { registers.PC.address = value; };
+        void PC(const hardware::Word value) { registers.PC.address.word = value; }
+        void PC(const unsigned short value) { registers.PC.address.word = value; }
+        // void PC(const unsigned int value) { registers.PC.address.word = value; }
         void PC(const hardware::Byte hi, const hardware::Byte lo)
         {
             registers.PC.pch = hi;
@@ -971,6 +806,10 @@ namespace m6502
         hardware::Word popWord();
         hardware::Address popAddress();
     };
+
+    // ===== Address Modes =====
+
+    // ===== Instructions =====
 
 }
 

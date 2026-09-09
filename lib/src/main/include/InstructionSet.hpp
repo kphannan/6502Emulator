@@ -334,14 +334,123 @@ namespace m6502
     // --- CPX
     // --- CPY
     // ===== Conditional Branch Instructions (branch wiith compare)
+    class CPU::InstructionBranch : public Instruction
+    {
+        // Constructors
+    public:
+        // InstructionBranch(CPU &cpu) : Instruction(cpu, "Branch on flag", "branch") {}
+        InstructionBranch(CPU &cpu, const char *name, const char *mnemonic) : Instruction(cpu, name, mnemonic) {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+
+        // void compare(hardware::Byte v1, hardware::Byte v2);
+    };
     // --- BCC
+    class CPU::InstructionBranchCarryClear : public InstructionBranch
+    {
+        // Constructors
+    public:
+        InstructionBranchCarryClear(CPU &cpu) : InstructionBranch(cpu, "Branch on Carry Clear", "BCC") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+
+        // void compare(hardware::Byte v1, hardware::Byte v2);
+    };
     // --- BCS
+    class CPU::InstructionBranchCarrySet : public InstructionBranch
+    {
+        // Constructors
+    public:
+        InstructionBranchCarrySet(CPU &cpu) : InstructionBranch(cpu, "Branch on Carry Set", "BCS") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+
+        // void compare(hardware::Byte v1, hardware::Byte v2);
+    };
     // --- BEQ
+    class CPU::InstructionBranchEqualToZero : public InstructionBranch
+    {
+        // Constructors
+    public:
+        InstructionBranchEqualToZero(CPU &cpu) : InstructionBranch(cpu, "Branch On Overflow Clear", "BEQ") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+
+        // void compare(hardware::Byte v1, hardware::Byte v2);
+    };
     // --- BMI
+    class CPU::InstructionBranchMinus : public InstructionBranch
+    {
+        // Constructors
+    public:
+        InstructionBranchMinus(CPU &cpu) : InstructionBranch(cpu, "Branch On Minus", "BMI") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+
+        // void compare(hardware::Byte v1, hardware::Byte v2);
+    };
     // --- BNE
+    class CPU::InstructionBranchNotEqualToZero : public InstructionBranch
+    {
+        // Constructors
+    public:
+        InstructionBranchNotEqualToZero(CPU &cpu) : InstructionBranch(cpu, "Branch Not Equal to zero", "BNE") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+
+        // void compare(hardware::Byte v1, hardware::Byte v2);
+    };
     // --- BPL
+    class CPU::InstructionBranchOnPlus : public InstructionBranch
+    {
+        // Constructors
+    public:
+        InstructionBranchOnPlus(CPU &cpu) : InstructionBranch(cpu, "Branch On Plus", "BPL") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+
+        // void compare(hardware::Byte v1, hardware::Byte v2);
+    };
     // --- BVC
+    class CPU::InstructionBranchOverflowClear : public InstructionBranch
+    {
+        // Constructors
+    public:
+        InstructionBranchOverflowClear(CPU &cpu) : InstructionBranch(cpu, "Branch On Overflow Clear", "BVC") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+
+        // void compare(hardware::Byte v1, hardware::Byte v2);
+    };
     // --- BVS
+    class CPU::InstructionBranchOverflowSet : public InstructionBranch
+    {
+        // Constructors
+    public:
+        InstructionBranchOverflowSet(CPU &cpu) : InstructionBranch(cpu, "Branch On Overflow Set", "BVS") {}
+
+        // methods
+    public:
+        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+
+        // void compare(hardware::Byte v1, hardware::Byte v2);
+    };
     // ===== Jumps & Subroutines Instructions (jump)
     class CPU::InstructionChangeProgramCounter : public Instruction
     {

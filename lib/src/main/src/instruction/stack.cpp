@@ -2,6 +2,7 @@
 
 #include "6502.hpp"
 #include "memory.hpp"
+#include "AddressMode.hpp"
 #include "InstructionSet.hpp"
 
 namespace m6502
@@ -85,9 +86,9 @@ namespace m6502
             case InstructionTarget::STACK: // PLP - Pull status from Stack
             {
                 hardware::Address address = cpu.decodePipeline().addressMode->execute();
-                hardware::Byte value = cpu.addressSpace[address]; //cpu.addressSpace.read(address);
+                hardware::Byte value = cpu.addressSpace[address]; // cpu.addressSpace.read(address);
                 cpu.registers.P = value;
-//                cpu.P(cpu.pop());
+                //                cpu.P(cpu.pop());
                 break;
             }
             case InstructionTarget::X:

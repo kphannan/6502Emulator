@@ -5,6 +5,7 @@
 #include <format>
 
 #include "6502.hpp"
+#include "AddressMode.hpp"
 #include "InstructionSet.hpp"
 
 namespace m6502
@@ -182,31 +183,31 @@ namespace m6502
         case 0b010:                  // b(2)
             switch (opCode.memory.c) // 2 bits
             {
-            case 0b00: // b(2) c(0)   // PHA - Push Accumulator
-                switch ((unsigned)opCode.memory.a)   // PSR(0,1) A(2,3) Y(4,5,6) X(7)
+            case 0b00:                             // b(2) c(0)   // PHA - Push Accumulator
+                switch ((unsigned)opCode.memory.a) // PSR(0,1) A(2,3) Y(4,5,6) X(7)
                 {
-                    case 0b000: // 0    b(2) c(1) a(0)      // PHP      PSR
-                        // addressMode = cpu._addressModeImplied;
-                        addressMode = cpu._addressModeStackPush;
-                        break;
-                    case 0b001: // 1    b(2) c(1) a(1)      // PLP
-                        // addressMode = cpu._addressModeImplied;
-                        addressMode = cpu._addressModeStackPull;
-                        break;
-                    case 0b010: // 2    b(2) c(1) a(2)      // PHA      A
-                        // addressMode = cpu._addressModeImplied;
-                        addressMode = cpu._addressModeStackPush;
-                        break;
-                    case 0b011: // 3    b(2) c(1) a(3)      // PLA
-                        // addressMode = cpu._addressModeImplied;
-                        addressMode = cpu._addressModeStackPull;
-                        break;
-                    case 0b100: // 4    b(2) c(1) a(4)      // DEY      Y           not stack
-                    case 0b101: // 5    b(2) c(1) a(5)      // TAY                  not stack
-                    case 0b110: // 6    b(2) c(1) a(6)      // INY                  not stack
-                    case 0b111: // 7    b(2) c(1) a(7)      // INX      X           not stack
-                        // N/A
-                        break;
+                case 0b000: // 0    b(2) c(1) a(0)      // PHP      PSR
+                    // addressMode = cpu._addressModeImplied;
+                    addressMode = cpu._addressModeStackPush;
+                    break;
+                case 0b001: // 1    b(2) c(1) a(1)      // PLP
+                    // addressMode = cpu._addressModeImplied;
+                    addressMode = cpu._addressModeStackPull;
+                    break;
+                case 0b010: // 2    b(2) c(1) a(2)      // PHA      A
+                    // addressMode = cpu._addressModeImplied;
+                    addressMode = cpu._addressModeStackPush;
+                    break;
+                case 0b011: // 3    b(2) c(1) a(3)      // PLA
+                    // addressMode = cpu._addressModeImplied;
+                    addressMode = cpu._addressModeStackPull;
+                    break;
+                case 0b100: // 4    b(2) c(1) a(4)      // DEY      Y           not stack
+                case 0b101: // 5    b(2) c(1) a(5)      // TAY                  not stack
+                case 0b110: // 6    b(2) c(1) a(6)      // INY                  not stack
+                case 0b111: // 7    b(2) c(1) a(7)      // INX      X           not stack
+                    // N/A
+                    break;
                 }
                 break;
             case 0b01:                             // b(2) c(1)
@@ -296,7 +297,7 @@ namespace m6502
         case 0b100:                  // b(4)
             switch (opCode.memory.c) // 2 bits
             {
-            case 0b00: // b(4) c(0)     // rel
+            case 0b00: // b(4) c(0)     // rel BPL
                 addressMode = cpu._addressModeRelative;
                 break;
             case 0b01: // b(4) c(1)
@@ -519,7 +520,10 @@ namespace m6502
                     src = InstructionTarget::PSR;
                     break;
                 case 0b100: // c(0) a(0) b(4) - BPL rel
-                    std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
+                    // std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
+                    cpuInstruction = cpu._instructionBranchOnPlus;
+                    dst = InstructionTarget::PC;
+                    src = InstructionTarget::FLAG_N;
                     break;
                 case 0b110: // c(0) a(0) b(6) - CLC impl
                     cpuInstruction = cpu._instructionFlagClear;
@@ -1329,9 +1333,9 @@ namespace m6502
         //     << " ; "
         //     << cpu.decodePipeline().operand
         //     << std::endl;
-        Pipeline  pipeline = cpu.decodePipeline();
-        pipeline.cpuInstruction->execute( pipeline.dst, pipeline.src );
-//        cpu.decodePipeline().cpuInstruction->execute(cpu.decodePipeline().dst, cpu.decodePipeline().src);
+        Pipeline pipeline = cpu.decodePipeline();
+        pipeline.cpuInstruction->execute(pipeline.dst, pipeline.src);
+        //        cpu.decodePipeline().cpuInstruction->execute(cpu.decodePipeline().dst, cpu.decodePipeline().src);
         // mode.execute();
         // // int operand = -1;
 

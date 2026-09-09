@@ -4,6 +4,7 @@
 
 #include "6502.hpp"
 #include "memory.hpp"
+#include "AddressMode.hpp"
 
 namespace m6502
 {

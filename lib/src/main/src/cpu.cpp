@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "6502.hpp"
+#include "AddressMode.hpp"
 #include "InstructionSet.hpp"
 
 namespace m6502
@@ -131,14 +132,23 @@ namespace m6502
         // --- CPX
         // --- CPY
         // ===== Conditional Branch Instructions
+        // _instructionBranch = new CPU::InstructionBranch(*this);
         // --- BCC
+        _instructionBranchCarryClear = new CPU::InstructionBranchCarryClear(*this);
         // --- BCS
+        _instructionBranchCarrySet = new CPU::InstructionBranchCarrySet(*this);
         // --- BEQ
+        _instructionBranchEqualToZero = new CPU::InstructionBranchEqualToZero(*this);
         // --- BMI
+        _instructionBranchMinus = new CPU::InstructionBranchMinus(*this);
         // --- BNE
+        _instructionBranchNotEqualToZero = new CPU::InstructionBranchNotEqualToZero(*this);
         // --- BPL
+        _instructionBranchOnPlus = new CPU::InstructionBranchOnPlus(*this);
         // --- BVC
+        _instructionBranchOverflowClear = new CPU::InstructionBranchOverflowClear(*this);
         // --- BVS
+        _instructionBranchOverflowSet = new CPU::InstructionBranchOverflowSet(*this);
         // ===== Jumps & Subroutines Instructions
         // --- JUMP
         _instructionJump = new CPU::InstructionJump(*this);
