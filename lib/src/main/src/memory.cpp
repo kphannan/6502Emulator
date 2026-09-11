@@ -24,14 +24,19 @@ namespace memory
     }
 
     // TODO create constants for min (0x0000) and max (0xFFFF) address
-    Memory::Memory(const char *name) : Memory(name, 0x0000, 0xFFFF)
+    Memory::Memory(const char *name) : Memory(name, hardware::Address(0x0000), hardware::Address(0xFFFF))
+    {
+    }
+
+    Memory::Memory(const char *name, const hardware::Address lowLimit, const hardware::Word byteCount)
+        : Memory(name, lowLimit, lowLimit + byteCount)
     {
     }
 
     Memory::Memory(const char *name, const hardware::Address lowerBound, const hardware::Address upperBound)
         : lowerBound(lowerBound),
           upperBound(upperBound),
-          byteCount(upperBound.address - lowerBound.address + 1)
+          byteCount(upperBound.value.address.word - lowerBound.value.address.word + 1)
     {
         // TODO null checks
         strncpy(this->bankName, name, sizeof(bankName) - 1);
@@ -83,22 +88,22 @@ namespace memory
 
     hardware::Byte &Memory::operator[](hardware::Address &index)
     {
-        if ((index.address - lowerBound) >= byteCount)
+        if ((index.value.address.word - lowerBound) >= byteCount)
         {
             throw std::out_of_range("Index out of bounds");
         }
 
-        return contents[index.address - lowerBound];
+        return contents[index.value.address.word - lowerBound];
     }
 
     hardware::Byte &Memory::operator[](hardware::Address &index) const
     {
-        if ((index.address - lowerBound) >= byteCount)
+        if ((index.value.address.word - lowerBound) >= byteCount)
         {
             throw std::out_of_range("Index out of bounds");
         }
 
-        return contents[index.address - lowerBound];
+        return contents[index.value.address.word - lowerBound];
     }
 
     // read a byte from memory
@@ -162,6 +167,12 @@ namespace memory
 
         // return contents[address] | contents[address + 1] << 8;
     }
+    hardware::Address Memory::readAddress(const hardware::Address &address) const
+    {
+        hardware::Address addr(contents[address + 1], contents[address]);
+
+        return addr;
+    }
 
     // hardware::Word Memory::readWord(const hardware::Address address) const
     // {
@@ -192,12 +203,20 @@ namespace memory
         return value;
     }
 
+    hardware::Address Memory::writeAddress(const hardware::Address &address, hardware::Address value)
+    {
+        contents[address] = value.value.address.lo;
+        contents[address + 1] = value.value.address.hi;
+
+        return value;
+    }
+
     void Memory::showMemory(const hardware::Address from, const int count, const char *text) const
     {
         std::cout.setf(std::ios::hex, std::ios::basefield);
         std::cout << bankName << "  contents "
                   << std::setfill('0') << std::setw(4) << from << ".."
-                  << std::setfill('0') << std::setw(4) << from + count
+                  //   << std::setfill('0') << std::setw(4) << from + count
                   << " " << text
                   << std::endl;
 
@@ -207,7 +226,7 @@ namespace memory
         //        auto diff = addr - from;
         //        for (int i = 0; i <= count; i++)
         int limit = count + 1;
-        for (auto diff = addr - from + 1; diff < limit; ++diff)
+        for (int diff = addr - from + 1; diff < limit; ++diff)
         {
             std::cout << " " << std::setw(2) << (int)contents[addr];
             //            ++diff;

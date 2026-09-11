@@ -27,7 +27,7 @@ namespace m6502
         Instruction::execute(dst, src);
 
         hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        hardware::Address value = cpu.addressSpace.readWord(address);
+        hardware::Address value = cpu.addressSpace.readAddress(address);
 
         // // TODO check this no stack manipulation....
         // switch (dst)
@@ -137,8 +137,8 @@ namespace m6502
 
         hardware::Address returnAddress(cpu.registers.PC - 1); // RTS increments PC before next instruction is fetched
 
-        cpu.push(returnAddress.pch);
-        cpu.push(returnAddress.pcl);
+        cpu.push(returnAddress.hi());
+        cpu.push(returnAddress.lo());
 
         cpu.PC(address);
     }

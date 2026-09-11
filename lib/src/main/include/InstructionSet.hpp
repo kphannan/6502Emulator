@@ -11,6 +11,29 @@
 namespace m6502
 {
 
+    enum class InstructionTarget
+    {
+        Undefined,
+        // Register
+        A,      // Accumulator
+        X,      // X Index
+        Y,      // Y Index
+        S,      // Stack  Pointer
+        PC,     // Program Counter
+        PSR,    // Status Register
+        FLAG_N, // negative
+        FLAG_V, // overflow
+        FLAG_B, // break
+        FLAG_D, // decimal
+        FLAG_I, // interrupt disable
+        FLAG_Z, // zero
+        FLAG_C, // carry
+                // Memory
+        MEMORY, // Location in the address space (use addressing mode)
+        STACK,  // Stack memory
+        IMPLIED // Implied - no target outside of the instruction
+    };
+
     class CPU;
 
     // 6502 has 56 instructions

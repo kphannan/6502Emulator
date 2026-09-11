@@ -152,43 +152,43 @@ namespace hardware
 
     // ===== Address =====
     // ===== Constructors =====
-    Address::Address()
+    AddressOld::AddressOld()
     {
     }
 
-    Address::Address(const Byte upper, const Byte lower)
+    AddressOld::AddressOld(const Byte upper, const Byte lower)
     {
         pch = upper;
         pcl = lower;
     }
 
-    Address::Address(const int vector)
+    AddressOld::AddressOld(const int vector)
     {
         address = vector & BIT_MASK;
     }
-    // Address( const m6502::HardwareVector vector )
+    // AddressOld( const m6502::HardwareVector vector )
     // {
 
     // }
 
-    Address::Address(const hardware::Byte zeroPage)
+    AddressOld::AddressOld(const hardware::Byte zeroPage)
     {
         pch = 0;
         pcl = zeroPage;
     }
 
     // --- Copy constructor
-    Address::Address(const Address &value)
+    AddressOld::AddressOld(const AddressOld &value)
     {
         address = value.address;
     }
 
-    Address::Address(const unsigned int value)
+    AddressOld::AddressOld(const unsigned int value)
     {
         address = value & 0xFFFF;
     }
 
-    Address::Address(const Word value)
+    AddressOld::AddressOld(const Word value)
     {
         address = value; // Simplify / performance
                          //        address = value & 0xFFFF;   // Simplify / performance
@@ -197,7 +197,7 @@ namespace hardware
     // ===== Operator overloads =====
 
     // --- operator = (assignment)
-    Address &Address::operator=(const Address &rhs)
+    AddressOld &AddressOld::operator=(const AddressOld &rhs)
     {
         if (this != &rhs)
         {
@@ -213,71 +213,83 @@ namespace hardware
     // }
 
     // --- operator + (addition)
-    Address Address::operator+(const Address value)
+    AddressOld AddressOld::operator+(const AddressOld value)
     {
-        *this += value;
-
-        return *this;
-    }
-    Address Address::operator+(const Word value)
-    {
-        address += value;
-
-        return *this;
-    }
-    Address Address::operator+(const Byte value)
-    {
-        address = address + value;
-
-        return *this;
-    }
-    Address Address::operator+(const int value)
-    {
-        Address tmp = *this;
-
-        tmp += value;
+        AddressOld tmp(this->address.word + value.address.word);
 
         return tmp;
+        // *this += value;
+
+        // return *this;
+    }
+    AddressOld AddressOld::operator+(const Word value)
+    {
+        AddressOld tmp(this->address.word + value.word);
+
+        return tmp;
+        // address += value;
+
+        // return *this;
+    }
+    AddressOld AddressOld::operator+(const Byte value)
+    {
+        AddressOld tmp(this->address.word + value);
+
+        return tmp;
+        //         address = address + value;
+        //
+        //         return *this;
+    }
+    AddressOld AddressOld::operator+(const int value)
+    {
+        AddressOld tmp(this->address.word + value);
+
+        return tmp;
+        // AddressOld tmp = *this;
+
+        // tmp += value;
+
+        // return tmp;
     }
 
     // --- operator - (subtraction)
-    Address Address::operator-(const Address value)
+    AddressOld AddressOld::operator-(const AddressOld value)
     {
-        Address tmp(this->address - value.address);
+        AddressOld tmp(this->address - value.address);
 
         return tmp;
     }
 
-    Address Address::operator-(const Word value)
+    AddressOld AddressOld::operator-(const Word value)
     {
-        Address tmp(this->address - value.word);
+        AddressOld tmp(this->address - value.word);
 
         return tmp;
     }
 
-    Address Address::operator-(const Byte value)
+    AddressOld AddressOld::operator-(const Byte value)
     {
-        Address tmp(this->address - value);
+        AddressOld tmp(this->address - value);
 
         return tmp;
     }
 
-    Address Address::operator-(const int value)
+    AddressOld AddressOld::operator-(const int value)
     {
-        Address tmp(this->address - value);
+        AddressOld tmp(this->address - value);
 
         return tmp;
     }
 
     // --- operator ++ (increment)
-    Address &Address::operator++() // prefix operator
+    AddressOld &AddressOld::operator++() // prefix operator
     {
         ++address;
 
         return *this;
     }
 
-    Address &Address::operator++(int) // prefix operator
+    AddressOld &AddressOld::operator++(int) // postfix operator
     {
         ++address;
 
@@ -285,20 +297,20 @@ namespace hardware
     }
 
     // --- operator -- (decrement)
-    Address &Address::operator--() // prefix operator
+    AddressOld &AddressOld::operator--() // prefix operator
     {
         --address;
 
         return *this;
     }
-    Address &Address::operator--(int) // prefix operator
+    AddressOld &AddressOld::operator--(int) // postfix operator
     {
         --address;
 
         return *this;
     }
 
-    // Address& operator+=( const Address& rhs) // prefix operator
+    // AddressOld& operator+=( const AddressOld& rhs) // prefix operator
     // {
     //     ++address;
 
@@ -306,25 +318,25 @@ namespace hardware
     // }
 
     // --- operator += (addition assignment)
-    Address Address::operator+=(Address &rhs)
+    AddressOld AddressOld::operator+=(AddressOld &rhs)
     {
         address += rhs.address;
 
         return *this;
     }
-    Address Address::operator+=(const Address &rhs)
+    AddressOld AddressOld::operator+=(const AddressOld &rhs)
     {
         address += rhs.address;
 
         return *this;
     }
-    Address Address::operator+=(const Word &rhs)
+    AddressOld AddressOld::operator+=(const Word &rhs)
     {
         address += rhs;
 
         return *this;
     }
-    Address Address::operator+=(const int rhs)
+    AddressOld AddressOld::operator+=(const int rhs)
     {
         address += rhs;
 
@@ -332,7 +344,7 @@ namespace hardware
     }
 
     // --- operator -= (subtraction assignment)
-    Address Address::operator-=(const int rhs)
+    AddressOld AddressOld::operator-=(const int rhs)
     {
         address -= rhs;
 
@@ -340,13 +352,13 @@ namespace hardware
     }
 
     // --- operator & (bitwise AND)
-    Address Address::operator&(const Address &rhs)
+    AddressOld AddressOld::operator&(const AddressOld &rhs)
     {
         address = address & rhs.address;
 
         return *this;
     }
-    // Address operator&(const Word &rhs)
+    // AddressOld operator&(const Word &rhs)
     // {
     //     address = address & rhs;
 
@@ -354,7 +366,7 @@ namespace hardware
     // }
 
     // --- operator &= (and assignment)
-    Address Address::operator&=(const Address &rhs)
+    AddressOld AddressOld::operator&=(const AddressOld &rhs)
     {
         address.word &= rhs.address.word;
 
@@ -362,7 +374,7 @@ namespace hardware
     }
 
     // --- operator |= (or assignment)
-    Address Address::operator|=(const Address &rhs)
+    AddressOld AddressOld::operator|=(const AddressOld &rhs)
     {
         address.word |= rhs.address.word;
 
@@ -370,10 +382,420 @@ namespace hardware
     }
 
     // --- operator int() (conversion)
-    Address::operator int() const
+    AddressOld::operator int() const
     {
         return this->address;
     }
+
+    // =========================================================
+    // ===== Address =====
+    // =========================================================
+
+    // ----- Constructors -----
+    // Address::Address(const unsigned char bits)
+    Address::Address()
+    {
+        size = 16; // bits;
+        value.address = 0;
+        mask = (1u << size) - 1;
+    };
+
+    // Address::Address(const unsigned int value, const unsigned char bits) : Address(bits)
+    Address::Address(const unsigned int value) : Address()
+    {
+        if (mask < value)
+        {
+            throw std::out_of_range(std::format("Invalid address: {:X} for {} bits", value, size));
+        }
+
+        this->value.address = value;
+    }
+
+    Address::Address(const hardware::Byte hi, const hardware::Byte lo)
+        : Address(hi << 8 | lo)
+    {
+    }
+
+    Address::Address(const Address &other)
+    {
+        size = other.size;
+        value.address = other.value.address;
+    }
+
+    // ----- Methods -----
+    Byte Address::lo() const
+    {
+        return value.address.lo;
+    }
+
+    Byte Address::hi() const
+    {
+        return value.address.hi;
+    }
+
+    // ----- Operators -----
+    // --- operator [] (subscript)
+    // Address &Address::operator[](const unsigned int index)
+    // {
+    // }
+    // Address &Address::operator[](const unsigned int index) const
+    // {
+    // }
+    // --- operator = (assignment)
+    Address &Address::operator=(const Address &rhs)
+    {
+        // TODO check sizes match
+        value = rhs.value;
+
+        return *this;
+    }
+
+    // --- operator + (addition)
+    Address Address::operator+(const Address &rhs) const
+    {
+        return *this + rhs.value.address.word;
+        // Address tmp((unsigned int)(this->value + rhs.value));
+
+        // return tmp;
+    }
+    Address Address::operator+(const Word rhs) const
+    {
+        return *this + rhs.word;
+        // Address tmp((unsigned int)(this->value + rhs.word));
+
+        // return tmp;
+    }
+    Address Address::operator+(const Byte rhs) const
+    {
+        return *this + (unsigned int)rhs;
+        // Address tmp((unsigned int)(this->value + rhs));
+
+        // return tmp;
+    }
+    Address Address::operator+(const int rhs) const
+    {
+        // return *this + rhs;
+        Address tmp((unsigned int)(this->value.address + rhs));
+
+        return tmp;
+    }
+    Address Address::operator+(const unsigned int rhs) const
+    {
+        Address tmp(this->value.address.word + rhs);
+
+        return tmp;
+    }
+
+    // --- operator ++ (increment) pre-increment
+    Address &Address::operator++()
+    {
+        value.address.word++;
+
+        return *this;
+    }
+
+    // --- operator ++ (increment) post-increment
+    Address &Address::operator++(int)
+    {
+        value.address.word++;
+
+        return *this;
+    }
+
+    // --- operator += (addition assignment)
+    Address &Address::operator+=(const Address &rhs)
+    {
+        value.address.word += rhs.value.address.word;
+
+        return *this;
+    }
+    Address &Address::operator+=(const Word rhs)
+    {
+        value.address.word += rhs;
+
+        return *this;
+    }
+    Address &Address::operator+=(const Byte rhs)
+    {
+        value.address.word += rhs;
+
+        return *this;
+    }
+    Address &Address::operator+=(const int rhs)
+    {
+        value.address.word += rhs;
+
+        return *this;
+    }
+    Address &Address::operator+=(const unsigned int rhs)
+    {
+        value.address.word += rhs;
+
+        return *this;
+    }
+
+    // --- operator - (subtraction)
+    Address Address::operator-(const Address &rhs) const
+    {
+        Address tmp((unsigned int)(this->value.address.word - rhs.value.address.word));
+
+        return tmp;
+    }
+    Address Address::operator-(const Word rhs) const
+    {
+        Address tmp((unsigned int)(this->value.address - rhs.word));
+
+        return tmp;
+    }
+    Address Address::operator-(const Byte rhs) const
+    {
+        Address tmp((unsigned int)(this->value.address - rhs));
+
+        return tmp;
+    }
+    Address Address::operator-(const int rhs) const
+    {
+        Address tmp((unsigned int)(this->value.address - rhs));
+
+        return tmp;
+    }
+    Address Address::operator-(const unsigned int rhs) const
+    {
+        Address tmp((unsigned int)(this->value.address - rhs));
+
+        return tmp;
+    }
+
+    // --- operator -- (decrement - pre)
+    Address &Address::operator--()
+    {
+        value.address.word--;
+
+        return *this;
+    }
+
+    // --- operator -- (decrement - post)
+    Address &Address::operator--(int)
+    {
+        value.address.word--;
+
+        return *this;
+    }
+
+    // --- operator -= (subtraction assignment)
+    Address &Address::operator-=(const Address &rhs)
+    {
+        value.address.word -= rhs.value.address.word;
+
+        return *this;
+    }
+    Address &Address::operator-=(const Word rhs)
+    {
+        value.address.word -= rhs;
+
+        return *this;
+    }
+    Address &Address::operator-=(const Byte rhs)
+    {
+        value.address.word -= rhs;
+
+        return *this;
+    }
+    Address &Address::operator-=(const int rhs)
+    {
+        value.address.word -= rhs;
+
+        return *this;
+    }
+    Address &Address::operator-=(const unsigned int rhs)
+    {
+        value.address.word -= rhs;
+
+        return *this;
+    }
+
+    // --- operator == (comparison)
+    bool Address::operator==(const Address &rhs) const
+    {
+        return this->value.address.word == rhs.value.address.word;
+    }
+
+    bool Address::operator==(const unsigned int rhs) const
+    {
+        return this->value.address.word == rhs;
+    }
+    bool Address::operator==(const int rhs) const
+    {
+        return this->value.address.word == rhs;
+    }
+
+    // ===== StackAddress =====
+    // ----- Constructors -----
+    // StackAddress::StackAddress() : Address(0x01FF, 16)
+    StackAddress::StackAddress() : StackAddress(0x01FF)
+    {
+    }
+
+    // StackAddress::StackAddress(const unsigned int value) : Address(value, 16)
+    StackAddress::StackAddress(const unsigned int value) : Address(value)
+    {
+        validateAddress(value);
+        // if (value > 0x01FF || value < 0x100)
+        // {
+        //     throw std::out_of_range(std::format("Invalid address: {}", value));
+        // }
+    }
+
+    // ----- Methods -----
+    Byte StackAddress::current()
+    {
+        return this->value.address.lo;
+    }
+
+    bool StackAddress::isValidAddress() const
+    {
+        return isValidAddress(value.address.word);
+    }
+
+    bool StackAddress::isValidAddress(const unsigned int value) const
+    {
+        return (value <= 0x01FF && value <= 0x100);
+    }
+
+    bool StackAddress::validateAddress() const
+    {
+        return validateAddress(value.address.word);
+    }
+
+    bool StackAddress::validateAddress(const unsigned int value) const
+    {
+        if (!((value >= 0x0100) && (value <= 0x01FF)))
+        {
+            throw std::out_of_range(std::format("Invalid stack address: {:X}", value));
+        }
+
+        return true;
+    }
+
+    void StackAddress::maskAddress()
+    {
+        value.address.word &= mask;
+    }
+
+    // ----- Operators -----
+    // --- operator = (assignment)
+    Address &StackAddress::operator=(const Address &rhs)
+    {
+        return Address::operator=(rhs);
+    }
+    Address &StackAddress::operator=(const Byte rhs)
+    {
+        this->value.address.lo = rhs;
+
+        return *this;
+    }
+
+    // --- operator + (addition)
+    // Address Address::operator+(const Address &rhs) const;
+    // Address Address::operator+(const Word value) const;
+    Address StackAddress::operator+(const Byte value) const
+    {
+        return StackAddress(this->value.address + value);
+    }
+    // Address Address::operator+(const int value) const;
+    Address StackAddress::operator+(const unsigned int value) const
+    {
+        StackAddress result(this->value.address + value);
+
+        return result;
+    }
+
+    // --- operator ++ (increment)
+    Address &StackAddress::operator++() // pre-increment
+    {
+        *this = Address::operator++();
+
+        maskAddress();
+
+        return *this;
+    }
+
+    Address &StackAddress::operator++(int) // post-increment
+    {
+        *this = Address::operator++();
+
+        maskAddress();
+
+        return *this;
+    }
+
+    // --- operator ++ (increment)
+    // --- operator += (addition assignment)
+    // virtual Address &operator+=(const Address &rhs);
+    // virtual Address &operator+=(const Word value);
+    // virtual Address &operator+=(const Byte value);
+    // virtual Address &operator+=(const int value);
+    Address &StackAddress::operator+=(const unsigned int rhs)
+    {
+        *this = Address::operator+=(rhs);
+
+        maskAddress();
+
+        return *this;
+    }
+
+    // --- operator - (subtraction)
+    // virtual Address operator-(const Address &rhs) const;
+    // virtual Address operator-(const Word value) const;
+    // virtual Address operator-(const Byte value) const;
+    // virtual Address operator-(const int value) const;
+    Address StackAddress::operator-(const unsigned int value) const
+    {
+        StackAddress result(this->value.address - value);
+
+        result.maskAddress();
+
+        return result;
+    }
+
+    // --- operator -- (decrement)
+    Address &StackAddress::operator--() // pre-decrement
+    {
+        *this = Address::operator--();
+
+        maskAddress();
+
+        return *this;
+    }
+    Address &StackAddress::operator--(int) // post-decrement
+    {
+        *this = Address::operator--();
+
+        maskAddress();
+
+        return *this;
+    }
+    // --- operator -- (decrement)
+
+    // --- operator -= (subtraction assignment)
+    // virtual Address &operator-=(const Address &rhs);
+    // virtual Address &operator-=(const Word value);
+    // virtual Address &operator-=(const Byte value);
+    // virtual Address &operator-=(const int value);
+    Address &StackAddress::operator-=(const unsigned int rhs)
+    {
+        *this = Address::operator-=(rhs);
+
+        maskAddress();
+
+        return *this;
+    }
+
+    Address::operator unsigned int() const
+    {
+        return value.address;
+    }
+
 };
 
 // Address Address::operator+(int val, const Address &addr);
@@ -406,9 +828,9 @@ namespace hardware
 // using Address = AddressRegister;
 // }
 
-hardware::Address hardware::operator+(int val, const hardware::Address &addr)
+hardware::AddressOld hardware::operator+(int val, const hardware::AddressOld &addr)
 {
-    hardware::Address a = addr.address + val;
+    hardware::AddressOld a = addr.address + val;
 
     return a;
 }

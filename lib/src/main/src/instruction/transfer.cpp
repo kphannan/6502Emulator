@@ -67,7 +67,8 @@ namespace m6502
             case InstructionTarget::A:
             case InstructionTarget::S:
             case InstructionTarget::X: // TXS
-                cpu.registers.S = hardware::Address(CPU::AddressModeStack::stackPage, cpu.registers.X);
+                // cpu.registers.S = hardware::Address(CPU::AddressModeStack::stackPage, cpu.registers.X);
+                cpu.S(cpu.registers.X);
                 break;
             case InstructionTarget::Y:
             default:

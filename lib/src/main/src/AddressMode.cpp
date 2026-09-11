@@ -10,7 +10,8 @@ namespace m6502
     hardware::Address CPU::AddressMode::execute()
     {
         // std::cout << name() << " ; " << mnemonic() << std::endl;
-        return hardware::Address(0xDEADBEEF);
+        // return hardware::Address(0xDEADBEEF);
+        return hardware::Address(0xDEAD);
     }
 
     // ----- AddressModeUndefined -----
@@ -18,7 +19,8 @@ namespace m6502
     {
         std::cout << "AddressMode(Undefined): Not yet implemented" << std::endl;
         throw std::domain_error("AddressMode(Undefined)");
-        return hardware::Address(0xFADEFACE);
+        // return hardware::Address(0xFADEFACE);
+        return hardware::Address(0xFADE);
     }
 
     // ----- AddressModeZeroPage -----
@@ -65,9 +67,10 @@ namespace m6502
     hardware::Address CPU::AddressModeAbsolute::execute()
     {
         AddressMode::execute();
-        hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC);
+        hardware::Address absolute = cpu.addressSpace.readAddress(cpu.registers.PC);
         // cpu.decodePipeline().operand = cpu.addressSpace.read(absolute);
-        cpu.registers.PC.address += 2;
+        // cpu.registers.PC.value.address += 2;
+        cpu.registers.PC += 2;
 
         return absolute;
     }
@@ -93,8 +96,9 @@ namespace m6502
         // value = read( $nnnn + X)
         AddressMode::execute();
 
-        hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC);
-        cpu.registers.PC.address += 2;
+        hardware::Address absolute = cpu.addressSpace.readAddress(cpu.registers.PC);
+        // cpu.registers.PC.value.address += 2;
+        cpu.registers.PC += 2;
         hardware::Address address(absolute + cpu.registers.X);
         // cpu.decodePipeline().operand = cpu.addressSpace.read(absolute + cpu.registers.X);
 
@@ -106,8 +110,9 @@ namespace m6502
     {
         // value = read( $nnnn + Y)
         AddressMode::execute();
-        hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC.address);
-        cpu.registers.PC.address += 2;
+        hardware::Address absolute = cpu.addressSpace.readAddress(cpu.registers.PC);
+        // cpu.registers.PC.value.address += 2;
+        cpu.registers.PC += 2;
         hardware::Address address(absolute + cpu.registers.Y);
 
         return address;
@@ -117,10 +122,11 @@ namespace m6502
     hardware::Address CPU::AddressModeIndirect::execute()
     {
         AddressMode::execute();
-        hardware::Address indirectAddress = cpu.addressSpace.readWord(cpu.registers.PC.address);
-        cpu.registers.PC.address += 2;
+        hardware::Address indirectAddress = cpu.addressSpace.readAddress(cpu.registers.PC);
+        cpu.registers.PC.value.address += 2;
+        // cpu.registers.PC += 2;
 
-        hardware::Address finalAddress = cpu.addressSpace.readWord(indirectAddress);
+        hardware::Address finalAddress = cpu.addressSpace.readAddress(indirectAddress);
         //        cpu.decodePipeline().operand = cpu.addressSpace.readWord(indirectAddress);
 
         return finalAddress;
@@ -165,7 +171,7 @@ namespace m6502
         // index from the base address
         hardware::Address zeroPageAddress = zeroPageBase + cpu.registers.X;
         // Get the address from the indexed address
-        hardware::Address address = cpu.addressSpace.readWord(zeroPageAddress);
+        hardware::Address address = cpu.addressSpace.readAddress(zeroPageAddress);
 
         return address;
     }
@@ -246,8 +252,8 @@ namespace m6502
         // The memory address to write to is the current Stack Pointer
         // Stack pointer is modified (decremented) after the push
         // AddressMode returns the address to be acted upon
-        hardware::Address address(stackPage, cpu.registers.S.pcl);
-        // hardware::Address address = (cpu.registers.S) & stackMask;
+        hardware::StackAddress address(cpu.S());
+
         cpu.registers.S--; // TODO create a StackAddress class (fixed pch of 0x01)
 
         return address;
@@ -258,10 +264,13 @@ namespace m6502
         AddressMode::execute();
 
         // increment stack before calculating the address
-        cpu.registers.S++;
+        // cpu.registers.S++;
         // return cpu.registers.S & stackMask;
-        hardware::Address address(stackPage, cpu.registers.S.pcl);
-        return address;
+        // hardware::Address address(cpu.registers.S);
+        // hardware::Address address(stackPage, cpu.registers.S.current());
+
+        // return address;
+        return ++cpu.registers.S;
     }
 
 }

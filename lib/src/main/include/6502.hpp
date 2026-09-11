@@ -16,28 +16,7 @@ namespace m6502
 {
 
     // Identifies the source & destination of an operation
-    enum class InstructionTarget
-    {
-        Undefined,
-        // Register
-        A,      // Accumulator
-        X,      // X Index
-        Y,      // Y Index
-        S,      // Stack  Pointer
-        PC,     // Program Counter
-        PSR,    // Status Register
-        FLAG_N, // negative
-        FLAG_V, // overflow
-        FLAG_B, // break
-        FLAG_D, // decimal
-        FLAG_I, // interrupt disable
-        FLAG_Z, // zero
-        FLAG_C, // carry
-                // Memory
-        MEMORY, // Location in the address space (use addressing mode)
-        STACK,  // Stack memory
-        IMPLIED // Implied - no target outside of the instruction
-    };
+    enum class InstructionTarget;
 
     // http://www.6502.org/users/obelisk/6502/registers.html
     typedef struct GeneralPurposeRegisters
@@ -49,7 +28,7 @@ namespace m6502
 
         hardware::Byte P; // Processor status register
 
-        hardware::Address S; // Stack Pointer
+        hardware::StackAddress S; // Stack Pointer
 
         hardware::Address PC; // Program Counter
 
@@ -347,27 +326,6 @@ namespace m6502
             } branch;
         };
 
-        // Addressing Modes
-
-        // Instruction code chart
-        // https://www.masswerk.at/6502/6502_instruction_set.html
-        enum class AddressModeKind
-        {
-            IMPLICIT,           // Implicit
-            ACCUMULATOR,        // Accumulator         A
-            IMMEDIATE,          // Immediate           #$nn
-            ZERO_PAGE,          // Zero Page           $nn        LO bits 4,5,6
-            ZERO_PAGE_X,        // Zero Page, X        $nn, X     LO bits 4,5,6
-            ZERO_PAGE_Y,        // Zero Page, Y        $nn, Y     LO bits 4,5,6
-            RELATIVE,           // Relative            $nnnn
-            ABSOLUTE,           // Absolute            $nnnn
-            ABSOLUTE_X,         // Absolute, X         $nnnn, X
-            ABSOLUTE_Y,         // Absolute, Y         $nnnn, Y
-            INDIRECT,           // Indirect            ($nnnn)
-            INDEXED_INDIRECT_X, // X Indexed Indirect  ($nn, X)   LO bit 1
-            INDIRECT_INDEXED_Y  // Y Indirect Indexed  ($nn), Y   LO bit 1
-        };
-
         // Instruction Pipeline
         // fetch OpCode (advance PC)
         // decode OpCode
@@ -625,10 +583,10 @@ namespace m6502
         hardware::Byte &Y() { return registers.Y; };
         //        hardware::Address &PC() { return registers.PC.address; };
         hardware::Address &PC() { return registers.PC; };
-        hardware::Byte &PCH() { return registers.PC.pch; };
-        hardware::Byte &PCL() { return registers.PC.pcl; };
+        hardware::Byte &PCH() { return registers.PC.value.hi; };
+        hardware::Byte &PCL() { return registers.PC.value.lo; };
         //        Registers::ProgramCounter &PC() { return registers.PC; };
-        hardware::Address &S() { return registers.S; };
+        hardware::StackAddress &S() { return registers.S; };
         // Processor status byte
         hardware::Byte &P() { return registers.P; };
 
@@ -667,23 +625,25 @@ namespace m6502
             // TODO mask / set the value
             // TODO - may change from Address to Byte and let addresMode handle the page
             //            registers.S = value & CPU::AddressModeStack::stackMask;
-            registers.S = value & CPU::stackMask;
+            // registers.S = value & CPU::stackMask;
+            registers.S = value;
         };
         void S(hardware::Byte value)
         {
             //            hardware::Address address = hardware::Address(CPU::AddressModeStack::stackPage, value);
-            hardware::Address address = hardware::Address(CPU::stackPage, value);
-            registers.S = address;
+            // hardware::Address address = hardware::Address(CPU::stackPage, value);
+            // registers.S = address;
+            registers.S.value.lo = value;
         };
 
-        void PC(const hardware::Address value) { registers.PC.address = value; };
-        void PC(const hardware::Word value) { registers.PC.address.word = value; }
-        void PC(const unsigned short value) { registers.PC.address.word = value; }
+        void PC(const hardware::Address value) { registers.PC.value.address = value.value.address; };
+        void PC(const hardware::Word value) { registers.PC.value.address.word = value; }
+        void PC(const unsigned short value) { registers.PC.value.address.word = value; }
         // void PC(const unsigned int value) { registers.PC.address.word = value; }
         void PC(const hardware::Byte hi, const hardware::Byte lo)
         {
-            registers.PC.pch = hi;
-            registers.PC.pcl = lo;
+            registers.PC.value.address.hi = hi;
+            registers.PC.value.address.lo = lo;
         };
 
         // This could be accomplished with a Union and bit fields.

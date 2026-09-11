@@ -1377,7 +1377,7 @@ namespace m6502
         // std::cout.setf(std::ios::hex, std::ios::basefield);
         // std::cout << std::setfill('0') << std::setw(4) << "RESET vector: " << (int)resetVector << " -> load PC with value found at the reset vector" << std::endl;
 
-        cpu.registers.PC.address = cpu.addressSpace.readWord(resetVector); // jump to address
+        cpu.registers.PC = cpu.addressSpace.readAddress(resetVector); // jump to address
 
         // std::cout << "   - Load PC "
         //           << std::setfill('0') << std::setw(4) << (int)cpu.registers.PC

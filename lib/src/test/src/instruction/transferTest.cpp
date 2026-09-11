@@ -4,6 +4,7 @@
 
 #include "6502.hpp"
 #include "memory.hpp"
+#include "InstructionSet.hpp"
 
 namespace m6502
 {
@@ -23,8 +24,8 @@ namespace m6502
             testMemory[0x2001] = 0x5A;
 
             // Reset vector points to start of memory
-            testMemory[0xFFFC] = 0x00;  // LSB cpu::HardwareVector::RESET
-            testMemory[0xFFFD] = 0x20;  // MSB
+            testMemory[0xFFFC] = 0x00; // LSB cpu::HardwareVector::RESET
+            testMemory[0xFFFD] = 0x20; // MSB
 
             cpu = new CPU(testMemory);
         }
@@ -69,7 +70,7 @@ namespace m6502
         cpu->X(0x10);
         cpu->Y(0x10);
         testMemory[0x2000] = 0xAA; // TAX
-//        testMemory.showMemory(0x2000, 3);
+                                   //        testMemory.showMemory(0x2000, 3);
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -82,7 +83,7 @@ namespace m6502
 
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
         EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().dst);
-//        EXPECT_TRUE(typeid(CPU::AddressModeImplied) == typeid(cpu->decodePipeline().addressMode));
+        //        EXPECT_TRUE(typeid(CPU::AddressModeImplied) == typeid(cpu->decodePipeline().addressMode));
         // EXPECT_TRUE(typeid(CPU::InstructionTransfer) == typeid(cpu->decodePipeline().cpuInstruction));
     }
 
@@ -104,7 +105,7 @@ namespace m6502
         EXPECT_EQ(0x10, cpu->A());
         EXPECT_EQ(0b00100000, cpu->P());
 
-//        EXPECT_TRUE(typeid(CPU::AddressModeImplied) == typeid(cpu->decodePipeline().addressMode));
+        //        EXPECT_TRUE(typeid(CPU::AddressModeImplied) == typeid(cpu->decodePipeline().addressMode));
         EXPECT_EQ(InstructionTarget::X, cpu->decodePipeline().src);
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }
@@ -127,7 +128,7 @@ namespace m6502
         EXPECT_EQ(0x99, cpu->A());
         EXPECT_EQ(0b10100000, cpu->P());
 
-//        EXPECT_TRUE(typeid(CPU::AddressModeImplied) == typeid(cpu->decodePipeline().addressMode));
+        //        EXPECT_TRUE(typeid(CPU::AddressModeImplied) == typeid(cpu->decodePipeline().addressMode));
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().src);
         EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().dst);
     }
@@ -150,7 +151,7 @@ namespace m6502
         EXPECT_EQ(0x30, cpu->A());
         EXPECT_EQ(0b00100000, cpu->P());
 
-//        EXPECT_TRUE(typeid(CPU::AddressModeImplied) == typeid(cpu->decodePipeline().addressMode));
+        //        EXPECT_TRUE(typeid(CPU::AddressModeImplied) == typeid(cpu->decodePipeline().addressMode));
         EXPECT_EQ(InstructionTarget::Y, cpu->decodePipeline().src);
         EXPECT_EQ(InstructionTarget::A, cpu->decodePipeline().dst);
     }

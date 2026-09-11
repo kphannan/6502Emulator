@@ -95,7 +95,7 @@ namespace memory
     {
         // --- given
         // --- when
-        Memory *memory = new Memory("0x8000-0x9fff", 0x8000, 0x9FFF);
+        Memory *memory = new Memory("0x8000-0x9fff", hardware::Address(0x8000), hardware::Address(0x9FFF));
 
         // --- then
         EXPECT_TRUE(NULL != memory);
@@ -123,7 +123,8 @@ namespace memory
     {
         // --- given
         // --- when
-        Memory *memory = new Memory("0x8000-0x9fff", 0x8000, 0x9FFF);
+        Memory *memory = new Memory("0x8000-0x9fff",
+                                    hardware::Address(0x8000), hardware::Address(0x9FFF));
         memory->fill(0xCC);
 
         // --- then

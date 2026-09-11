@@ -27,7 +27,7 @@ namespace m6502
         Instruction::execute(dst, src);
 
         hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        hardware::Address value = cpu.addressSpace.readWord(address);
+        hardware::Address value = cpu.addressSpace.readAddress(address);
     }
 
     //----------------------------------------
@@ -71,7 +71,7 @@ namespace m6502
 
         // Load the IRQ vector to the ProgramCounter
         //        hardware::Address irqVector = cpu.addressSpace.readWord((hardware::Address)HardwareVector::IRQ);
-        hardware::Address irqVector = cpu.addressSpace.readWord((int)HardwareVector::IRQ);
+        hardware::Address irqVector = cpu.addressSpace.readAddress((int)HardwareVector::IRQ);
         cpu.PC(irqVector);
 
         // TODO check this no stack manipulation....

@@ -42,6 +42,7 @@ namespace memory
         Memory(const char *name);
         // named subset of the address space
         Memory(const char *name, const hardware::Address lowLimit, const hardware::Address upperLimit);
+        Memory(const char *name, const hardware::Address lowLimit, const hardware::Word byteCount);
 
         // ~Memory();
 
@@ -53,8 +54,10 @@ namespace memory
         // Read a single byte from memory
         hardware::Byte read(const hardware::Address &address) const;
         hardware::Word readWord(const hardware::Address &address) const;
+        hardware::Address readAddress(const hardware::Address &address) const;
         hardware::Byte write(const hardware::Address &address, hardware::Byte value);
         hardware::Word writeWord(const hardware::Address &address, hardware::Word value);
+        hardware::Address writeAddress(const hardware::Address &address, hardware::Address value);
 
         void clear();
         void fill(hardware::Byte value);
