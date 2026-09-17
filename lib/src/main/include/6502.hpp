@@ -166,7 +166,7 @@ namespace m6502
         class AddressModeImmediate;
 
         const inline static hardware::Byte stackPage = 0x01;      // TODO move
-        const inline static hardware::Address stackMask = 0x01FF; // TODO move
+        // const inline static hardware::Address stackMask = 0x01FF; // TODO move
         //        Stack (pseudo),      // Stack               $01nn
         class AddressModeStack;
 
@@ -334,66 +334,66 @@ namespace m6502
 
         class Pipeline
         {
-            // Constants
-        private:
-        protected:
-        public:
-            // Fields
-        public:
-            // TODO not good to be public
-            int operand; // struct/union/class (register,implied,Byte,Word)
-            Instruction *cpuInstruction;
-            CPU::AddressMode *addressMode;
+                // Constants
+            private:
+            protected:
+            public:
+                // Fields
+            public:
+                // TODO not good to be public
+                int operand; // struct/union/class (register,implied,Byte,Word)
+                Instruction *cpuInstruction;
+                CPU::AddressMode *addressMode;
 
-            InstructionTarget src;
-            InstructionTarget dst;
+                InstructionTarget src;
+                InstructionTarget dst;
 
-            // Lambdas....
-            // source;
-            // destination;
+                // Lambdas....
+                // source;
+                // destination;
 
-        protected:
-        private:
-            CPU &cpu;
+            protected:
+            private:
+                CPU &cpu;
 
-            OpCode opCode;
-            // int opcode;
-            // AddressModeKind addressModeKind;
+                OpCode opCode;
+                // int opcode;
+                // AddressModeKind addressModeKind;
 
-            // Constructors
-        public:
-            /** Configure the instruction pipeline with the address space and program counter. */
-            // Pipeline(memory::Memory &memory, hardware::Address &address);
-            Pipeline(CPU &cpu);
+                // Constructors
+            public:
+                /** Configure the instruction pipeline with the address space and program counter. */
+                // Pipeline(memory::Memory &memory, hardware::Address &address);
+                Pipeline(CPU &cpu);
 
-            // ~Pipeline();
-        protected:
-        private:
-            // Methods
-        public:
-            void reset(hardware::Address address);
-            // Reset the pipeline, removing any instructions being decoded.
-            void clear();
-            void execute();
-            void execute(int numberOfSteps);
-            void showPipeline() const;
+                // ~Pipeline();
+            protected:
+            private:
+                // Methods
+            public:
+                void reset(hardware::Address address);
+                // Reset the pipeline, removing any instructions being decoded.
+                void clear();
+                void execute();
+                void execute(int numberOfSteps);
+                void showPipeline() const;
 
-        protected:
-        private:
-            // Read an opcode from the cuurrent memory address
-            void fetchOpCode();
-            AddressMode &decodeAddressMode(const OpCode instruction);
-            void showAddressMode(const AddressMode &addressMode) const;
-            void decodeOperation(const OpCode instruction);
+            protected:
+            private:
+                // Read an opcode from the cuurrent memory address
+                void fetchOpCode();
+                AddressMode &decodeAddressMode(const OpCode instruction);
+                void showAddressMode(const AddressMode &addressMode) const;
+                void decodeOperation(const OpCode instruction);
 
-            void evaluate();
+                void evaluate();
 
-            //  Registers
+                //  Registers
 
-            // Operators
-        public:
-        protected:
-        private:
+                // Operators
+            public:
+            protected:
+            private:
         };
         // End of Pipeline inner class
 
@@ -401,7 +401,7 @@ namespace m6502
     public:
         // ----- Constants -----
     public:
-        const hardware::Address StackPointerDefault = 0x01FF;
+        const hardware::Address StackPointerDefault = hardware::Address( 0x01FF );
 
     protected:
     private:
@@ -616,28 +616,18 @@ namespace m6502
             registers.P = value;
         };
 
-        void S(hardware::Address value)
+        void S(const hardware::StackAddress& value)
         {
-            // value &= CPU::AddressModeStack::stackMask;
-            // value.pch &= CPU::AddressModeStack::stackPage;
-            // value.pcl &= CPU::AddressModeStack::stackMask;
-            // TODO address the fact the stack pointer is 8 bits and lives in page 1
-            // TODO mask / set the value
-            // TODO - may change from Address to Byte and let addresMode handle the page
-            //            registers.S = value & CPU::AddressModeStack::stackMask;
-            // registers.S = value & CPU::stackMask;
             registers.S = value;
         };
+
         void S(hardware::Byte value)
         {
-            //            hardware::Address address = hardware::Address(CPU::AddressModeStack::stackPage, value);
-            // hardware::Address address = hardware::Address(CPU::stackPage, value);
-            // registers.S = address;
             registers.S.value.lo = value;
         };
 
-        void PC(const hardware::Address value) { registers.PC.value.address = value.value.address; };
-        void PC(const hardware::Word value) { registers.PC.value.address.word = value; }
+        void PC(const hardware::Address& value) { registers.PC.value.address = value.value.address; };
+        void PC(const hardware::Word& value) { registers.PC.value.address.word = value.word; }
         void PC(const unsigned short value) { registers.PC.value.address.word = value; }
         // void PC(const unsigned int value) { registers.PC.address.word = value; }
         void PC(const hardware::Byte hi, const hardware::Byte lo)
@@ -665,13 +655,13 @@ namespace m6502
         static const uint8_t CarryBitMask = 1 << CarryBit;
 
         // Processor status flags
-        bool isB() { return registers.P & BrkBitMask; };         // BRK
-        bool isC() { return registers.P & CarryBitMask; };       // Carry
-        bool isD() { return registers.P & DecimalModeBitMask; }; // Decimal mode
-        bool isI() { return registers.P & IrqDisableBitMask; };  // IRQ disable
-        bool isN() { return registers.P & NegativeBitMask; };    // Negative
-        bool isV() { return registers.P & OverflowBitMask; };    // Overflow
-        bool isZ() { return registers.P & ZeroBitMask; };        // Zero
+        bool isB() const { return registers.P & BrkBitMask; };         // BRK
+        bool isC() const { return registers.P & CarryBitMask; };       // Carry
+        bool isD() const { return registers.P & DecimalModeBitMask; }; // Decimal mode
+        bool isI() const { return registers.P & IrqDisableBitMask; };  // IRQ disable
+        bool isN() const { return registers.P & NegativeBitMask; };    // Negative
+        bool isV() const { return registers.P & OverflowBitMask; };    // Overflow
+        bool isZ() const { return registers.P & ZeroBitMask; };        // Zero
 
         hardware::Byte setB() { return setBit(registers.P, BrkBit); };
         hardware::Byte setC() { return setBit(registers.P, CarryBit); };
@@ -691,7 +681,8 @@ namespace m6502
 
         void showRegisters();
 
-        void executeFromAddress(hardware::Address address, uint32_t stepCount = 1);
+        void executeFromAddress(const hardware::Address& address, uint32_t stepCount = 1);
+        void executeFromAddress(const unsigned int address, uint32_t stepCount = 1);
         void execute(int numberOfInstructions = -1);
 
         memory::Memory &currentMemory() { return addressSpace; }
@@ -719,7 +710,7 @@ namespace m6502
             return tmp;
         }
 
-        hardware::Byte setBit(hardware::Byte &value, int bit)
+        hardware::Byte setBit(hardware::Byte &value, int bit) const
         {
             statusFlagCheck(bit);
 
@@ -740,7 +731,7 @@ namespace m6502
             return tmp;
         }
 
-        hardware::Byte clearBit(hardware::Byte &value, int bit)
+        hardware::Byte clearBit(hardware::Byte &value, int bit) const
         {
             statusFlagCheck(bit);
 

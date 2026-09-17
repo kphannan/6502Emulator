@@ -11,8 +11,7 @@ namespace m6502
     class InstructionShiftTest : public testing::Test
     {
     public:
-        memory::Memory *tMemory = new memory::Memory("ShiftUnitTestMemory");
-        memory::Memory testMemory = *tMemory;
+        memory::Memory testMemory = *(new memory::Memory( "UnitTest - Shift/Rotate" ));
 
         CPU *cpu;
 

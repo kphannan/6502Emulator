@@ -26,8 +26,8 @@ namespace m6502
     {
         Instruction::execute(dst, src);
 
-        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        hardware::Address value = cpu.addressSpace.readAddress(address);
+//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+//        hardware::Address value = cpu.addressSpace.readAddress(address);
     }
 
     //----------------------------------------
@@ -49,20 +49,13 @@ namespace m6502
     // ----- Implied
     void CPU::InstructionBreak::execute(InstructionTarget dst, InstructionTarget src)
     {
-        // TODO Not being executed
         Instruction::execute(dst, src);
-
-        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        // hardware::Address value = cpu.addressSpace.readWord(address);
 
         // BRK has a 2nd byte that is skipped and often used as a 'signature' byte for interrupts
         // cpu.PC(cpu.PC() + 1);
         cpu.registers.PC++;
         // Push Program Counter (after reading instruction and pad byte)
         cpu.push(cpu.registers.PC);
-        // hardware::Address zzz( cpu.registers.PC );
-        // cpu.push( zzz );
-        //        cpu.push((hardware::Address)(cpu.PC())); // Program Counter
         cpu.push(cpu.registers.P); // Status register
 
         cpu.setI();
@@ -70,26 +63,9 @@ namespace m6502
         cpu.setB();
 
         // Load the IRQ vector to the ProgramCounter
-        //        hardware::Address irqVector = cpu.addressSpace.readWord((hardware::Address)HardwareVector::IRQ);
-        hardware::Address irqVector = cpu.addressSpace.readAddress((int)HardwareVector::IRQ);
-        cpu.PC(irqVector);
+        hardware::Address irqVector = cpu.addressSpace.readAddress(hardware::Address(std::to_underlying(HardwareVector::IRQ)));
 
-        // TODO check this no stack manipulation....
-        switch (dst)
-        {
-        case InstructionTarget::IMPLIED:
-            switch (src)
-            {
-            case InstructionTarget::IMPLIED:
-                // TODO someting with SP and put PC on stack.
-                break;
-            default:
-                break;
-            }
-            break;
-        default:
-            break;
-        }
+        cpu.PC(irqVector);
     }
     // ..... Accumulator
     // ..... ZeroPage $LL
@@ -121,9 +97,6 @@ namespace m6502
     void CPU::InstructionReturnFromInterrupt::execute(InstructionTarget dst, InstructionTarget src)
     {
         Instruction::execute(dst, src);
-
-        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        // hardware::Address value = cpu.addressSpace.readWord(address);
 
         cpu.P(cpu.pop());      // Status register
         cpu.PC(cpu.popWord()); // Program Counter

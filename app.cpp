@@ -36,13 +36,13 @@ int main(int argc, char **argv)
     m6502::CPU processor(memory);
 
     // Initialize memory with RESET vector
-    memory.showMemory(0x0000, 0x32);
-    memory.showMemory(0xFFFA, 6);
-    memory.showMemory(0x2000, 0x20);
-    memory.showMemory(0xFAD0, 16);
+    memory[0x0000] = 0x32;
+    memory[0xFFF0] = 8;
+    memory[0x2000] = 0x20;
+    memory[0xFAD0] = 16;
 
-    memory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
-    memory.write(0xFFFD, 0x20); //      MSB
+    memory[0xFFFC] = 0x00; // cpu::HardwareVector::RESET
+    memory[0xFFFD] = 0x20; //      MSB
 
     processor.reset();
 
@@ -152,22 +152,21 @@ void loadProgram(m6502::CPU &processor)
     // CLD (CLear Decimal)            $D8
     // SED (SEt Decimal)              $F8
 
-//    memory.write(0x2000, 0x18); // CLC
-//    memory.write(0x2000, 0x38); // SEC
-//    memory.write(0x2000, 0x58); // CLI
-//    memory.write(0x2000, 0x78); // SEI
-//    memory.write(0x2000, 0xB8); // CLV
-//    memory.write(0x2000, 0xD8); // CLD
-//    memory.write(0x2000, 0xF8); // SED
+    //    memory.write(0x2000, 0x18); // CLC
+    //    memory.write(0x2000, 0x38); // SEC
+    //    memory.write(0x2000, 0x58); // CLI
+    //    memory.write(0x2000, 0x78); // SEI
+    //    memory.write(0x2000, 0xB8); // CLV
+    //    memory.write(0x2000, 0xD8); // CLD
+    //    memory.write(0x2000, 0xF8); // SED
 
-    processor.A( 0x3A );
+    processor.A(0x3A);
     processor.clearC();
-    memory.write(0x2000, 0x69); // ADC #$01
-    memory.write(0x2001, 0x7C);
+    memory[0x2000] = 0x69; // ADC #$01
+    memory[0x2001] = 0x7C;
 
-    memory.write(0x0023, 0x71);
+    memory[0x0023] = 0x71;
 
-    
     //    processor.clearC();
     //    memory.write(0x2000, 0x66); // ROR $34
     //    memory.write(0x2001, 0x34);

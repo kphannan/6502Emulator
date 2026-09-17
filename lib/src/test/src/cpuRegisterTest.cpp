@@ -10,21 +10,21 @@ namespace m6502
     class CpuRegisterTest : public testing::Test
     {
     public:
-        memory::Memory *tMemory = new memory::Memory("UnitTestMemory");
-        memory::Memory testMemory = *tMemory;
+        memory::Memory testMemory = *(new memory::Memory( "UnitTest - CPU Register" ));
 
         CPU *cpu;
+        // CPU& cpu( testMemory );
 
     protected:
         CpuRegisterTest()
         {
             // Destination of the reset vector - leaves zeroPage available for testing
-            testMemory.write(0x2000, 0x49); // LDA #00 // starting instruction after reset
-            testMemory.write(0x2001, 0x5A); //
+            testMemory[0x2000] = 0x49; // LDA #00 // starting instruction after reset
+            testMemory[0x2001] = 0x5A; //
 
             // Reset vector points to start of memory
-            testMemory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
-            testMemory.write(0xFFFD, 0x20); //      MSB
+            testMemory[0xFFFC] = 0x00; // cpu::HardwareVector::RESET
+            testMemory[0xFFFD] = 0x20; //      MSB
 
             cpu = new CPU(testMemory);
         }

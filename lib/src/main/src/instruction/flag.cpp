@@ -55,8 +55,8 @@ namespace m6502
     {
         Instruction::execute(dst, src);
 
-        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        hardware::Byte value = cpu.addressSpace.read(address);
+//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (dst)
         {
         case InstructionTarget::FLAG_B:
@@ -90,8 +90,8 @@ namespace m6502
     {
         Instruction::execute(dst, src);
 
-        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        hardware::Byte value = cpu.addressSpace.read(address);
+//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (dst)
         {
         case InstructionTarget::FLAG_B:

@@ -11,8 +11,7 @@ namespace m6502
     class InstructionTransferTest : public testing::Test
     {
     public:
-        memory::Memory *tMemory = new memory::Memory("TransferUnitTestMemory");
-        memory::Memory testMemory = *tMemory;
+        memory::Memory testMemory = *(new memory::Memory( "UnitTest - Transfer" ));
 
         CPU *cpu;
 

@@ -123,8 +123,8 @@ namespace m6502
         // std::cout << "   GENERIC LOAD " << std::endl;
 
         // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        hardware::Byte value = cpu.addressSpace.read(address);
+//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (src)
         {
         case InstructionTarget::FLAG_N:
@@ -183,8 +183,8 @@ namespace m6502
         // std::cout << "   GENERIC LOAD " << std::endl;
 
         // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        hardware::Byte value = cpu.addressSpace.read(address);
+//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (src)
         {
         case InstructionTarget::FLAG_N:
@@ -243,8 +243,8 @@ namespace m6502
         // std::cout << "   GENERIC LOAD " << std::endl;
 
         // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        hardware::Byte value = cpu.addressSpace.read(address);
+//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (src)
         {
         case InstructionTarget::FLAG_N:
@@ -303,8 +303,8 @@ namespace m6502
         // std::cout << "   GENERIC LOAD " << std::endl;
 
         // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        hardware::Byte value = cpu.addressSpace.read(address);
+//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (src)
         {
         case InstructionTarget::FLAG_N:
@@ -363,8 +363,8 @@ namespace m6502
         // std::cout << "   GENERIC LOAD " << std::endl;
 
         // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        hardware::Byte value = cpu.addressSpace.read(address);
+//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (src)
         {
         case InstructionTarget::FLAG_N:
@@ -423,8 +423,8 @@ namespace m6502
         // std::cout << "   GENERIC LOAD " << std::endl;
 
         // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        hardware::Byte value = cpu.addressSpace.read(address);
+//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (src)
         {
         case InstructionTarget::FLAG_N:
@@ -487,7 +487,7 @@ namespace m6502
 
         // TODO Need to deal with implied, Accumulator, Immediate addressingModes
         hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        hardware::Byte value = cpu.addressSpace.read(address);
+//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (src)
         {
         case InstructionTarget::FLAG_N:
@@ -547,8 +547,8 @@ namespace m6502
         // std::cout << "   GENERIC LOAD " << std::endl;
 
         // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        hardware::Byte value = cpu.addressSpace.read(address);
+//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (src)
         {
         case InstructionTarget::FLAG_N:
@@ -607,8 +607,8 @@ namespace m6502
         // std::cout << "   GENERIC LOAD " << std::endl;
 
         // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        hardware::Byte value = cpu.addressSpace.read(address);
+//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (src)
         {
         case InstructionTarget::FLAG_N:

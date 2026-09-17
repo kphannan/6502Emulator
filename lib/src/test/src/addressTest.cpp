@@ -6,50 +6,20 @@
 
 namespace m6502
 {
-    class AddressOldTest : public testing::Test
-    {
-    public:
-    protected:
-        AddressOldTest()
-        {
-            // Setup the fixture
-        }
-
-        ~AddressOldTest() override
-        {
-        }
-
-    private:
-    };
-
-    // 6502 is little endian - verify the bytes are in the
-    // right order
-    TEST_F(AddressOldTest, VerifyEndianness)
-    {
-        // --- given
-        // --- when
-        hardware::Address address(0x2211);
-
-        // --- then
-        EXPECT_EQ(0x2211, address);
-
-        EXPECT_EQ(0x22, address.hi());
-        EXPECT_EQ(0x11, address.lo());
-    }
 
     // ===== AddressTest =====
     class AddressTest : public testing::Test
     {
     public:
     protected:
-        AddressTest()
-        {
-            // Setup the fixture
-        }
+        // AddressTest()
+        // {
+        //     // Setup the fixture
+        // }
 
-        ~AddressTest() override
-        {
-        }
+        // ~AddressTest() override
+        // {
+        // }
 
     private:
     };
@@ -129,14 +99,14 @@ namespace m6502
     {
     public:
     protected:
-        StackAddressTest()
-        {
-            // Setup the fixture
-        }
+        // StackAddressTest()
+        // {
+        //     // Setup the fixture
+        // }
 
-        ~StackAddressTest() override
-        {
-        }
+        // ~StackAddressTest() override
+        // {
+        // }
 
     private:
     };
@@ -147,69 +117,106 @@ namespace m6502
     {
         // --- given
         // --- when
-        hardware::Address address(0x2211);
+        hardware::StackAddress address(0x0122);
 
         // --- then
-        EXPECT_EQ(0x2211, address);
+        EXPECT_EQ(0x0122, address);
 
-        EXPECT_EQ(0x22, address.hi());
-        EXPECT_EQ(0x11, address.lo());
+        EXPECT_EQ(0x01, address.hi());
+        EXPECT_EQ(0x22, address.lo());
     }
+
 
     TEST_F(StackAddressTest, AddUnsignedIntToAddress)
     {
         // --- given
-        hardware::Address address(0x2211);
+        hardware::StackAddress address(0x0134);
         // --- when
-        address = address + 0x1000;
+        address = address + 0x0010;
 
         // --- then
-        EXPECT_EQ(0x3211, address);
+        EXPECT_EQ(0x0144, address);
 
-        EXPECT_EQ(0x32, address.hi());
-        EXPECT_EQ(0x11, address.lo());
+        EXPECT_EQ(0x01, address.hi());
+        EXPECT_EQ(0x44, address.lo());
     }
 
     TEST_F(StackAddressTest, AddByteToAddress)
     {
         // --- given
-        hardware::Address address(0x2211);
+        hardware::StackAddress address(0x0100);
         hardware::Byte addend(0x14);
         // --- when
         address = address + addend;
 
         // --- then
-        EXPECT_EQ(0x2225, address);
+        EXPECT_EQ(0x0114, address);
 
-        EXPECT_EQ(0x22, address.hi());
-        EXPECT_EQ(0x25, address.lo());
+        EXPECT_EQ(0x01, address.hi());
+        EXPECT_EQ(0x14, address.lo());
     }
 
     TEST_F(StackAddressTest, AddWordToAddress)
     {
         // --- given
-        hardware::Address address(0x2211);
-        hardware::Word addend(0x1244);
+        hardware::StackAddress address(0x0100);
+        hardware::Word addend(0x0044);
+
         // --- when
         address = address + addend;
 
         // --- then
-        EXPECT_EQ(0x3455, address);
+        EXPECT_EQ(0x0144, address);
     }
 
     TEST_F(StackAddressTest, AddAddressToAddress)
     {
         // --- given
-        hardware::Address address(0x2211);
-        hardware::Address addend(0x1111);
+        hardware::StackAddress address(0x0100);
+        hardware::Address      addend(0x0055);
+
         // --- when
-        hardware::Address result = address + addend;
-        // address = address + addend;
+        hardware::StackAddress result = address + addend;
 
         // --- then
-        EXPECT_EQ(0x2211, address);
-        EXPECT_EQ(0x1111, addend);
-        EXPECT_EQ(0x3322, result);
+        EXPECT_EQ(0x0100, address);
+        EXPECT_EQ(0x0055, addend);
+        EXPECT_EQ(0x0155, result);
     }
+
+
+    TEST_F(StackAddressTest, AddAddressToAddressThrows)
+    {
+        // --- given
+        hardware::StackAddress address(0x0100);
+        hardware::Address      addend(0x0200);
+
+        // --- when
+        EXPECT_THROW(address + addend, std::out_of_range);
+
+        // --- then
+    }
+
+    TEST_F(StackAddressTest, StackAddressThrowsZeroPage)
+    {
+        // --- given
+
+        // --- when
+        EXPECT_THROW(hardware::StackAddress(0x0012), std::out_of_range);
+
+        // --- then
+    }
+
+    TEST_F(StackAddressTest, StackAddressThrowsPageTwo)
+    {
+        // --- given
+
+        // --- when
+        EXPECT_THROW(hardware::StackAddress(0x02FF), std::out_of_range);
+
+        // --- then
+    }
+
+
 
 }

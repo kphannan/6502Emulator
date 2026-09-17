@@ -11,8 +11,7 @@ namespace m6502
     class InstructionCompareTest : public testing::Test
     {
     public:
-        memory::Memory *tMemory = new memory::Memory("UnitTestMemory");
-        memory::Memory testMemory = *tMemory;
+        memory::Memory testMemory = *(new memory::Memory( "UnitTest - Compare" ));
 
         CPU *cpu;
 

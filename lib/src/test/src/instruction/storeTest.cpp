@@ -12,8 +12,7 @@ namespace m6502
     class InstructionStoreTest : public testing::Test
     {
     public:
-        memory::Memory *tMemory = new memory::Memory("UnitTestMemory");
-        memory::Memory testMemory = *tMemory;
+        memory::Memory testMemory = *(new memory::Memory( "UnitTest - Store" ));
 
         CPU *cpu;
 

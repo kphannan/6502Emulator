@@ -178,15 +178,70 @@ namespace m6502
     // There is no way to subtract without the carry which works as an inverse borrow. i.e, to subtract you set the carry before the operation. If the carry is cleared by the operation, it indicates a borrow occurred.
     //----------------------------------------
 
-    void CPU::InstructionSubtract::subtract(hardware::Byte v1, hardware::Byte v2)
+    /*
+    Re: Help with ADC/SBC and Carry/Overflow Flags
+    Post by whartung » Tue Dec 12, 2017 9:56 pm
+
+    This is my SBC code.
+
+    I jump through hoops to calculate the Overflow properly. But the basic math is simple.
+
+    Code:
+    Select all
+
+        public void SBC(int value) {
+            int result;
+            int carryValue = (isCarry() ? 0 : 1);
+
+            result = acc - value - carryValue;
+
+            status &= ~(CARRY_MASK + ZERO_MASK + OVERFLOW_MASK + NEGATIVE_MASK);
+            if (result == 0) {
+                status |= ZERO_MASK + CARRY_MASK;
+            } else if (result > 0) {
+                status |= CARRY_MASK;
+            }
+            if (!isDecimal()) {
+                int signedAcc = signed(acc);
+                int signedValue = signed(value);
+                int signedResult = signedAcc - signedValue - carryValue;
+
+                if (signedResult > 127 || signedResult < -128) {
+                    status |= OVERFLOW_MASK;
+                }
+            }
+            setFlagsNZ(result);
+
+            acc = result & 0xff;
+        }
+    All I can vouch for is that this passes the 6502 test code suite that's floating around.*/
+
+    /*
+         Dec   C   binary
+          25   1  00011001
+         -24     -00011000
+         ---     ---------
+           1   1  00000001
+
+         Dec   C   binary
+          24   1  00011000      1  00011000         1  00011000
+         -25     -00011001.        11100110 + 1      + 11100111
+         ---     ---------       ----------         -----------
+               0  11111111         11111110 + 1        11111111
+         */
+
+    void CPU::InstructionSubtract::subtract(hardware::Byte minuend, hardware::Byte subtrahend)
     {
         // Widen arguments
         //        int vi1 = v1;
         //        int vi2 = v2;
-        int value = v1 - v2;
-        // int value = v1 - v2;
+        int carryValue = cpu.isC() ? 0 : 1;
+        int value = minuend - subtrahend - carryValue;
+        bool carryNeeded = value < 0;
 
-        cpu.A(value);
+        cpu.A(value & 0xFF);
+
+        carryNeeded ? cpu.setC() : cpu.clearC();
 
         // bit7 set indicates negative in 2's compliment
         // value & 0x80 ? cpu.setN() : cpu.clearN();
@@ -202,12 +257,12 @@ namespace m6502
         // Carry occurs if there is any bit higher than bit 7 is set.
         // mask out the low byte  (8 bits) from the int...
         //        value &= ~0xFF;
-        // TODO check carry handling
-        value & ~0xFF ? cpu.clearC() : cpu.setC();
+        // // TODO check carry handling
+        // value & ~0xFF ? cpu.clearC() : cpu.setC();
 
-        // TODO add this to a root class of add/subtract also for BIT
-        bool overflow = !((v1 ^ v2) & 0x80) && ((v1 ^ value) & 0x80);
-        overflow ? cpu.setV() : cpu.clearV();
+        // // TODO add this to a root class of add/subtract also for BIT
+        // bool overflow = !((v1 ^ v2) & 0x80) && ((v1 ^ value) & 0x80);
+        // overflow ? cpu.setV() : cpu.clearV();
     }
 
     void CPU::InstructionSubtract::execute(InstructionTarget dst, InstructionTarget src)
@@ -215,40 +270,42 @@ namespace m6502
         Instruction::execute(dst, src);
 
         hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        hardware::Byte value = cpu.addressSpace.read(address);
+        hardware::Byte value = cpu.addressSpace[address];
+        //        value = memory[address];
+        //        hardware::Byte value = cpu.addressSpace.read(address);
         //        hardware::Byte v1 = ....;
 
-        switch (dst)
-        {
-        case InstructionTarget::A:
-            // compare( cpu.registers.A, value );
-            break;
-        case InstructionTarget::X:
-            // compare( cpu.registers.X, value );
-            break;
-        case InstructionTarget::Y:
-            // compare( cpu.registers.Y, value );
-            break;
-            //            case InstructionTarget::A:
-            //                switch( src )
-            //                {
-            //                    case InstructionTarget::A:
-            //                        compare( cpu.registers.A, value );
-            //                        break;
-            //                    case InstructionTarget::X:
-            //                        compare( cpu.registers.X, value );
-            //                        break;
-            //                    case InstructionTarget::Y:
-            //                        compare( cpu.registers.Y, value );
-            //                        break;
-            //                }
-            //            break;
-
-        default:
-            std::cout << "Illegal destination of a flag compare operation" << std::endl;
-            break;
-        }
+        subtract(cpu.A(), value);
+        // int res = cpu.A() - value;
+        // hardware::Byte result = cpu.A() - value;
+        // cpu.A( result );
+        // TODO set flags.....
+        //
     }
+
+    //        switch ( dst )
+    //        {
+    //            case InstructionTarget::A:
+    //            case InstructionTarget::X:
+    //            case InstructionTarget::Y:
+    //            case InstructionTarget::S:
+    //            case InstructionTarget::PC:
+    //            case InstructionTarget::PSR:
+    //            case InstructionTarget::FLAG_N:
+    //            case InstructionTarget::FLAG_V:
+    //            case InstructionTarget::FLAG_B:
+    //            case InstructionTarget::FLAG_D:
+    //            case InstructionTarget::FLAG_I:
+    //            case InstructionTarget::FLAG_Z:
+    //            case InstructionTarget::FLAG_C:
+    //            case InstructionTarget::MEMORY:
+    //            case InstructionTarget::STACK:
+    //            case InstructionTarget::Undefined:
+    //            default:
+    //                std::cout << "Illegal destination of a SBC operation" << std::endl;
+    //                std::domain_error("Illegal augend (target) of SBC operation");
+    //                break;
+    //        }
 
     // Addressing Modes
     // ----- Immediate #$BB

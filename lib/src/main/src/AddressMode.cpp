@@ -210,8 +210,9 @@ namespace m6502
         // Base address in zeroPage
         hardware::Address zeroPageAddress(cpu.addressSpace[cpu.registers.PC]);
         cpu.registers.PC++;
-        hardware::Address tableBase(cpu.addressSpace.readWord(zeroPageAddress));
-        hardware::Address address(cpu.addressSpace.readWord(tableBase + cpu.registers.Y));
+        hardware::Address tableBase(cpu.addressSpace.readAddress(zeroPageAddress));
+        // hardware::Word tableBase(cpu.addressSpace.readWord(zeroPageAddress));
+        hardware::Address address(cpu.addressSpace.readAddress(tableBase + cpu.registers.Y));
 
         return address;
     }

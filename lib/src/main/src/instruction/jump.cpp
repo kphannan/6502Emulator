@@ -26,8 +26,8 @@ namespace m6502
     {
         Instruction::execute(dst, src);
 
-        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-        hardware::Address value = cpu.addressSpace.readAddress(address);
+//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+//        hardware::Address value = cpu.addressSpace.readAddress(address);
 
         // // TODO check this no stack manipulation....
         // switch (dst)

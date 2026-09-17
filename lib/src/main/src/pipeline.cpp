@@ -211,18 +211,18 @@ namespace m6502
                 }
                 break;
             case 0b01:                             // b(2) c(1)
-                switch ((unsigned)opCode.memory.a) // 3 bits
+                switch ((unsigned)opCode.memory.a) // 3 bits ORA AND EOR ANC LDA CMP SBC
                 {
-                case 0b000: // 0    b(2) c(1) a(0)
-                case 0b001: // 1    b(2) c(1) a(1)
-                case 0b010: // 2    b(2) c(1) a(2)
-                case 0b011: // 3    b(2) c(1) a(3)
-                case 0b101: // 5    b(2) c(1) a(5)
-                case 0b110: // 6    b(2) c(1) a(6)
-                case 0b111: // 7    b(2) c(1) a(7)
+                case 0b000: // 0    b(2) c(1) a(0) ORA
+                case 0b001: // 1    b(2) c(1) a(1) AND
+                case 0b010: // 2    b(2) c(1) a(2) EOR
+                case 0b011: // 3    b(2) c(1) a(3) ADC
+                case 0b101: // 5    b(2) c(1) a(5) LDA
+                case 0b110: // 6    b(2) c(1) a(6) CMP
+                case 0b111: // 7    b(2) c(1) a(7) SBC
                     addressMode = cpu._addressModeImmediate;
                     break;
-                case 0b100: // 4    b(2) c(1) a(4)
+                case 0b100: // 4    b(2) c(1) a(4)  invalid instruction
                     // n/a
                     break;
                 default: //    b(2) c(1) a(?)
@@ -960,7 +960,9 @@ namespace m6502
                 src = InstructionTarget::MEMORY;
                 break;
             case 0b111: // c(1) a(7) - SBC
-                std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
+                cpuInstruction = cpu._instructionSubtract;
+                dst = InstructionTarget::A;
+                src = InstructionTarget::MEMORY;
                 break;
             }
 

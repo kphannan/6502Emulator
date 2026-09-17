@@ -11,8 +11,7 @@ namespace m6502
     class InstructionBranchTest : public testing::Test
     {
     public:
-        memory::Memory *tMemory = new memory::Memory("UnitTestMemory");
-        memory::Memory testMemory = *tMemory;
+        memory::Memory testMemory = *(new memory::Memory( "UnitTest - Branching" ));
 
         CPU *cpu;
 
@@ -20,8 +19,8 @@ namespace m6502
         InstructionBranchTest()
         {
             // Destination of the reset vector - leaves zeroPage available for testing
-            testMemory.write(0x2000, 0x49); // LDA #00 // starting instruction after reset
-            testMemory.write(0x2001, 0x5A);
+            testMemory[0x2000] = 0x49; // LDA #00 // starting instruction after reset
+            testMemory[0x2001] = 0x5A;
 
             // Reset vector points to start of memory
             testMemory.writeWord(0xFFFC, 0x2000); // cpu::HardwareVector::RESET

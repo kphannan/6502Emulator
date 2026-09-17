@@ -33,7 +33,7 @@ namespace m6502
     //     INDIRECT_INDEXED_Y  // Y Indirect Indexed  ($nn), Y   LO bit 1
     // };
 
-    class CPU::AddressMode
+    class CPU::AddressMode // TODO should be abstract
     {
         // Constructors
     protected:
@@ -236,11 +236,11 @@ namespace m6502
     };
 
     //        Stack (pseudo),      // Stack               $01nn
-    class CPU::AddressModeStack : public AddressMode
+    class CPU::AddressModeStack : public AddressMode // TODO should be abstract
     {
     public:
         const inline static hardware::Byte stackPage = 0x01;
-        const inline static hardware::Address stackMask = 0x01FF;
+        // const inline static hardware::Address stackMask = 0x01FF;
 
         // Constructors
     public:

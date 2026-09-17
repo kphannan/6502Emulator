@@ -11,8 +11,7 @@ namespace m6502
     class InstructionLogicalTest : public testing::Test
     {
     public:
-        memory::Memory *tMemory = new memory::Memory("BitOpUnitTestMemory");
-        memory::Memory testMemory = *tMemory;
+        memory::Memory testMemory = *(new memory::Memory( "UnitTest - Logical" ));
 
         CPU *cpu;
 

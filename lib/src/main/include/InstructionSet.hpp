@@ -368,6 +368,7 @@ namespace m6502
     public:
         virtual void execute(InstructionTarget dst, InstructionTarget src) override;
 
+        bool branchTest(const unsigned bitNumber) const;
         // void compare(hardware::Byte v1, hardware::Byte v2);
     };
     // --- BCC
@@ -618,8 +619,14 @@ TYA
 transfer Y to accumulator
 Stack Instructions
 
-These instructions transfer the accumulator or status register (flags) to and from the stack. The processor stack is a last-in-first-out (LIFO) stack of 256 bytes length, implemented at addresses $0100 - $01FF. The stack grows down as new values are pushed onto it with the current insertion point maintained in the stack pointer register.
-(When a byte is pushed onto the stack, it will be stored in the address indicated by the value currently in the stack pointer, which will be then decremented by 1. Conversely, when a value is pulled from the stack, the stack pointer is incremented. The stack pointer is accessible by the TSX and TXS instructions.)
+These instructions transfer the accumulator or status register (flags) to and from the stack.
+The processor stack is a last-in-first-out (LIFO) stack of 256 bytes length, implemented at
+addresses $0100 - $01FF. The stack grows down as new values are pushed onto it with the
+current insertion point maintained in the stack pointer register.
+(When a byte is pushed onto the stack, it will be stored in the address indicated by the
+value currently in the stack pointer, which will be then decremented by 1. Conversely,
+when a value is pulled from the stack, the stack pointer is incremented. The stack pointer
+is accessible by the TSX and TXS instructions.)
 
 PHA
 push accumulator
@@ -689,7 +696,9 @@ SEI
 set interrupt disable
 Comparisons
 
-Generally, comparison instructions subtract the operand from the given register without affecting that register. Flags are still set as with a normal subtraction and thus the relation of the two values becomes accessible by the Zero, Carry and Negative flags.
+Generally, comparison instructions subtract the operand from the given register without
+affecting that register. Flags are still set as with a normal subtraction and thus the
+relation of the two values becomes accessible by the Zero, Carry and Negative flags.
 (See the branch instructions below for how to evaluate flags.)
 
 Relation R − Op	Z	C	N
@@ -705,7 +714,11 @@ compare with Y
 Conditional Branch Instructions
 
 Branch targets are relative, signed 8-bit address offsets.
-(An offset of zero corresponds to the immedately following address. While it is perfectly feasible to calculate offsets by hand, more often these are computed by an assembler program from absoulte addresses or labels. In the latter case, branch instructions may look more like absolute address mode instructions, while taking in actuality just a relative offset as a single-byte operand.)
+(An offset of zero corresponds to the immedately following address. While it is perfectly
+feasible to calculate offsets by hand, more often these are computed by an assembler
+program from absoulte addresses or labels. In the latter case, branch instructions may
+look more like absolute address mode instructions, while taking in actuality just a
+relative offset as a single-byte operand.)
 
 BCC
 branch on carry clear
@@ -725,8 +738,11 @@ BVS
 branch on overflow set
 Jumps & Subroutines
 
-JSR and RTS affect the stack as the return address is pushed onto or pulled from the stack, respectively.
-(JSR will first push the high-byte of the return address [PC+2] onto the stack, then the low-byte. The stack will then contain, seen from the bottom or from the most recently added byte, [PC+2]-L [PC+2]-H.)
+JSR and RTS affect the stack as the return address is pushed onto or pulled from the stack,
+respectively.
+(JSR will first push the high-byte of the return address [PC+2] onto the stack, then the
+low-byte. The stack will then contain, seen from the bottom or from the most recently
+added byte, [PC+2]-L [PC+2]-H.)
 
 JMP
 jump
@@ -736,12 +752,27 @@ RTS
 return from subroutine
 Interrupts
 
-A hardware interrupt (maskable IRQ and non-maskable NMI), will cause the processor to put first the address currently in the program counter onto the stack (in HB-LB order), followed by the value of the status register. (The stack will now contain, seen from the bottom or from the most recently added byte, SR PC-L PC-H with the stack pointer pointing to the address below the stored contents of status register.) Then, the processor will divert its control flow to the address provided in the two word-size interrupt vectors at $FFFA (IRQ) and $FFFE (NMI).
-A set interrupt disable flag will inhibit the execution of an IRQ, but not of a NMI, which will be executed anyways.
-The break instruction (BRK) behaves like a NMI, but will push the value of PC+2 onto the stack to be used as the return address. Also, as with any software initiated transfer of the status register to the stack, the break flag will be found set on the respective value pushed onto the stack. Then, control is transferred to the address in the NMI-vector at $FFFE.
-In any way, the interrupt disable flag is set to inhibit any further IRQ as control is transferred to the interrupt handler specified by the respective interrupt vector.
+A hardware interrupt (maskable IRQ and non-maskable NMI), will cause the processor to put
+first the address currently in the program counter onto the stack (in HB-LB order),
+followed by the value of the status register. (The stack will now contain, seen from the
+bottom or from the most recently added byte, SR PC-L PC-H with the stack pointer pointing
+to the address below the stored contents of status register.) Then, the processor will
+divert its control flow to the address provided in the two word-size interrupt vectors
+at $FFFA (IRQ) and $FFFE (NMI).
 
-The RTI instruction restores the status register from the stack and behaves otherwise like the JSR instruction. (The break flag is always ignored as the status is read from the stack, as it isn't a real processor flag anyway.)
+A set interrupt disable flag will inhibit the execution of an IRQ, but not of a NMI,
+which will be executed anyways.
+The break instruction (BRK) behaves like a NMI, but will push the value of PC+2 onto the
+stack to be used as the return address. Also, as with any software initiated transfer of
+the status register to the stack, the break flag will be found set on the respective value
+pushed onto the stack. Then, control is transferred to the address in the
+NMI-vector at $FFFE.
+In any way, the interrupt disable flag is set to inhibit any further IRQ as control is
+transferred to the interrupt handler specified by the respective interrupt vector.
+
+The RTI instruction restores the status register from the stack and behaves otherwise
+like the JSR instruction. (The break flag is always ignored as the status is read from
+the stack, as it isn't a real processor flag anyway.)
 
 BRK
 break / software interrupt

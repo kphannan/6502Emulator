@@ -11,8 +11,7 @@ namespace m6502
     class InstructionInterruptTest : public testing::Test
     {
     public:
-        memory::Memory *tMemory = new memory::Memory("UnitTestMemory");
-        memory::Memory testMemory = *tMemory;
+        memory::Memory testMemory = *(new memory::Memory( "UnitTest - Interrupt" ));
 
         CPU *cpu;
 
@@ -108,12 +107,13 @@ namespace m6502
     TEST_F(InstructionInterruptTest, BRK_Implied)
     {
         // --- given
-        testMemory.writeWord(0xFFFC, 0x2000); // cpu::HardwareVector::RESET
-        testMemory.writeWord(0xFFFE, 0xDEAD); // cpu::HardwareVector::IRQ
         testMemory.writeWord(0xFFFA, 0xBEEF); // cpu::HardwareVector::NMI
+        testMemory.writeWord(0xFFFC, 0xFADE); // cpu::HardwareVector::RESET
+        testMemory.writeWord(0xFFFE, 0xDEAD); // cpu::HardwareVector::IRQ <--- load this
 
         testMemory[0x2000] = 0x00; // BRK
         testMemory[0x2001] = 0x42; // signature byte
+
         // --- when
         cpu->executeFromAddress(0x2000, 1);
 
@@ -135,7 +135,7 @@ namespace m6502
         EXPECT_EQ(0x01FC, cpu->S());  // PC and status pused
         EXPECT_EQ(0xDEAD, cpu->PC()); // PC loaded with IRQ vector
 
-        EXPECT_EQ(0x2002, (hardware::Address)(testMemory.readWord(0x01FE))); // TODO PC was pushed to stack
+        EXPECT_EQ(0x2002, testMemory.readAddress(0x01FE)); // TODO PC was pushed to stack
         EXPECT_EQ(0b00100000, testMemory[0x01FD]);                           // status register pushed
         EXPECT_EQ(0b00110100, cpu->P());                                     // final status register
     }

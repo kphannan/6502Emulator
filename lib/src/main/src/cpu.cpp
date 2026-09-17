@@ -9,9 +9,9 @@
 
 namespace m6502
 {
-    memory::Memory defaultMemory;
+    // const memory::Memory defaultMemory;
 
-    CPU::CPU() : CPU(defaultMemory)
+    CPU::CPU() : CPU( *(new memory::Memory()))
     {
         reset();
     }
@@ -183,7 +183,9 @@ namespace m6502
         registers.P = 0b00100000; // TODO reset it properly...
 
         // Reset the CPU / decode pipeline from the reset vector
-        pipeline->reset(std::to_underlying(HardwareVector::RESET));
+        // pipeline->reset(std::to_underlying(HardwareVector::RESET));
+        pipeline->reset(hardware::Address(std::to_underlying(HardwareVector::RESET)));
+        // pipeline->reset(hardware::Address(HardwareVector::RESET));
     }
 
     void CPU::showRegisters()
@@ -221,7 +223,12 @@ namespace m6502
 
     // ===== Execute Instructions =====
 
-    void CPU::executeFromAddress(hardware::Address address, uint32_t stepCount)
+    void CPU::executeFromAddress(const unsigned int address, uint32_t stepCount)
+    {
+        executeFromAddress( hardware::Address( address), stepCount );
+    }
+
+    void CPU::executeFromAddress(const hardware::Address& address, uint32_t stepCount)
     {
         // set PC and execute 1 instruction
         registers.PC = address;
@@ -237,15 +244,7 @@ namespace m6502
     // --- push byte on stack
     void CPU::push(const hardware::Byte &value)
     {
-        // TODO review stack
         // stack grows down
-
-        // Extra work done here to contain the stack ponter to page one.
-        // hardware::Address stackAddress =
-        //     hardware::Address(CPU::AddressModeStack::stackPage, registers.S.current());
-
-        // addressSpace[stackAddress] = value;
-        // registers.S = --stackAddress;
         addressSpace[registers.S] = value;
         registers.S--;
     }
@@ -257,39 +256,23 @@ namespace m6502
     //             <-- SP (after)
     void CPU::push(const hardware::Word &value)
     {
-        // TODO review stack
-        // hardware::Address stackAddress = hardware::Address(CPU::AddressModeStack::stackPage, registers.S.current());
         // stack grows down
-        // addressSpace.writeWord(stackAddress - 1, value);
         registers.S--;
         addressSpace.writeWord(registers.S, value);
         registers.S--;
-        // registers.S -= 2;
-        // registers.S = stackAddress - 2;
     }
 
-    void CPU::push(const hardware::Address &value)
+    void CPU::push(const hardware::Address &address)
     {
-        // TODO review stack
-        // hardware::Address stackAddress = hardware::Address(CPU::AddressModeStack::stackPage, registers.S.pcl);
         // stack grows down
         registers.S--;
-        addressSpace.writeWord(registers.S, value.value.address.word);
+        addressSpace.writeWord(registers.S, address.value.address);
         registers.S--;
-        // addressSpace.writeWord(stackAddress - 1, value.address);
-        // // registers.S -= 2;
-        // registers.S = stackAddress - 2;
     }
 
     //
     hardware::Byte CPU::pop()
     {
-        // TODO review stack
-        // TODO handle an invalid stack pointer ( > 0x1FFF)
-        // hardware::Address stackAddress = hardware::Address(CPU::AddressModeStack::stackPage, registers.S.pcl + 1);
-        // registers.S = stackAddress;
-
-        // return addressSpace[stackAddress];
         return addressSpace[++registers.S];
     }
 
@@ -299,18 +282,8 @@ namespace m6502
     // SP -->
     hardware::Word CPU::popWord()
     {
-        // TODO review stack
-        // hardware::Address stackAddress = hardware::Address(CPU::AddressModeStack::stackPage, registers.S.pcl + 1);
-        // hardware::Word value = addressSpace.readWord(stackAddress);
-
-        // registers.S += 2;
-
         hardware::Word value = addressSpace.readWord(++registers.S);
         ++registers.S;
-
-        // assert( registers.S <= 0x01FF);
-
-        // TODO handle an invalid stack pointer ( > 0x1FFF)
 
         return value;
     }
@@ -321,18 +294,8 @@ namespace m6502
     // SP -->
     hardware::Address CPU::popAddress()
     {
-        // TODO review stack
-        // hardware::Address stackAddress = hardware::Address(CPU::AddressModeStack::stackPage, registers.S.pcl + 1);
-        // hardware::Word value = addressSpace.readWord(stackAddress);
-
-        // registers.S += 2;
-
         hardware::Address value = addressSpace.readAddress(++registers.S);
         ++registers.S;
-
-        // assert( registers.S <= 0x01FF);
-
-        // TODO handle an invalid stack pointer ( > 0x1FFF)
 
         return value;
     }
