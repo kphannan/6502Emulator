@@ -57,12 +57,12 @@ namespace memory
             bool isInBounds(const size_t address) const;
             // hardware::Byte read(const hardware::Word address) const;
             // Read a single byte from memory
-            hardware::Byte read(const hardware::Address &address) const;
-            hardware::Word readWord(const hardware::Address &address) const;
-            hardware::Address readAddress(const hardware::Address &address) const;
-            hardware::Byte write(const hardware::Address &address, hardware::Byte value);
-            hardware::Word writeWord(const hardware::Address &address, hardware::Word value);
-            hardware::Address writeAddress(const hardware::Address &address, hardware::Address& value);
+            hardware::Byte read(const hardware::Address& address) const;
+            hardware::Word readWord(const hardware::Address& address) const;
+            hardware::Address readAddress(const hardware::Address& address) const;
+            hardware::Byte write(const hardware::Address& address, const hardware::Byte value);
+            hardware::Word writeWord(const hardware::Address& address, const hardware::Word value);
+            hardware::Address writeAddress(const hardware::Address& address, const hardware::Address& value);
 
             void clear();
             void fill(hardware::Byte value);

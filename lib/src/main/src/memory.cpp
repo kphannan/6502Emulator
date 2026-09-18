@@ -159,16 +159,13 @@ namespace memory
 
         // https://stackoverflow.com/questions/11938979/what-exception-classes-are-in-the-standard-c-library
         // https://en.cppreference.com/w/cpp/error/exception
-        //
-        // TODO possibly throw an out of bounds exception
-        // std::out_of_range or std::length_error
-        // std::cout << "read " << address << " from contents: " << contents << " size: " << byteCount << std::endl;
 
         // std::cout.setf(std::ios::hex, std::ios::basefield);
         // std::cout << "read " << std::setfill('0') << std::setw(4) << lowerBound << " <= " << address << " <= " << upperBound << std::endl;
         // std::cout.unsetf(std::ios::basefield);
 
         // TODO fix all the dereferencing
+        // std::out_of_range or std::length_error
         throw std::out_of_range(
             std::format("address {:#06x} not in block [{:#06x},{:#06x}]",
                         address.value.address.word,
@@ -192,12 +189,12 @@ namespace memory
 
 
     // write a byte to memory, returning the value written
-    hardware::Byte Memory::write(const hardware::Address &address, hardware::Byte value)
+    hardware::Byte Memory::write(const hardware::Address &address, const hardware::Byte value)
     {
         return contents[address] = value;
     }
 
-    hardware::Word Memory::writeWord(const hardware::Address &address, hardware::Word value)
+    hardware::Word Memory::writeWord(const hardware::Address &address, const hardware::Word value)
     {
         contents[address] = value.lo;
         contents[address + 1] = value.hi;
@@ -205,7 +202,7 @@ namespace memory
         return value;
     }
 
-    hardware::Address Memory::writeAddress(const hardware::Address &address, hardware::Address& value)
+    hardware::Address Memory::writeAddress(const hardware::Address& address, const hardware::Address& value)
     {
         contents[address] = value.value.address.lo;
         contents[address + 1] = value.value.address.hi;

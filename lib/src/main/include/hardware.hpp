@@ -165,24 +165,20 @@ namespace hardware
                 }
             };
 
-        protected:
-        private:
             // ===== attributes =====
-        public:
             Addr value; // TODO Refactor to protect this
 
         protected:
             unsigned int size;
             unsigned int mask;
 
-        private:
             // ===== Methods =====
         public:
             // Addr(const size_t bits = 16);
             Address();
 
             // Address(const unsigned int value, const size_t bits = 16);
-            Address(int value);
+            explicit Address(int value);
             Address(const unsigned int value);  // TODO explicit
             explicit Address(const Word& value);
             Address(const hardware::Byte hi, const hardware::Byte lo);
@@ -193,19 +189,13 @@ namespace hardware
             Byte hi() const;
 
             // ===== Operators =====
-        public:
-                /// --- operator [] (subscript)
-                // Address &operator[](const unsigned int index);
-                // Address &operator[](const unsigned int index) const;
-                /// --- operator = (assignment)
-                virtual Address &operator=(const Address &rhs);
+            /// --- operator [] (subscript)
+            // Address &operator[](const unsigned int index);
+            // Address &operator[](const unsigned int index) const;
+            /// --- operator = (assignment)
+            virtual Address &operator=(const Address &rhs);
 
-                /// --- operator + (addition)
-                // virtual Address operator+(const Address &rhs) const;
-                // virtual Address operator+(const Word value) const;
-                // virtual Address operator+(const Byte value) const;
-                // virtual Address operator+(const int value) const;
-                // virtual Address operator+(const unsigned int value) const;
+            /// --- operator + (addition)    friends
 
             /// --- operator ++ (increment)
             virtual Address &operator++();   // pre-increment
@@ -218,12 +208,7 @@ namespace hardware
             virtual Address &operator+=(const int value);
             virtual Address &operator+=(const unsigned int rhs);
 
-            /// --- operator - (subtraction)
-            virtual Address operator-(const Address &rhs) const;
-            virtual Address operator-(const Word value) const;
-            virtual Address operator-(const Byte value) const;
-            virtual Address operator-(const int value) const;
-            virtual Address operator-(const unsigned int value) const;
+            /// --- operator - (subtraction)    friends
 
             /// --- operator -- (decrement)
             virtual Address &operator--();    // pre-decrement
@@ -244,12 +229,13 @@ namespace hardware
             /// --- operator () (type conversion)
             operator unsigned int() const;
 
-            /// --- operator ] ()
-        protected:
-        private:
+            /// --- operator [] ()
 
         // ===== friend operator =====
         public:
+            /// --- operator + (addition)
+            // virtual Address operator+(const Address &rhs) const;
+
             friend Address operator+(const Address& lhs, const unsigned int rhs)
             {
                 Address result(lhs.value.address.word + rhs & 0xFFFF);
@@ -283,8 +269,31 @@ namespace hardware
                 return os;
             }
 
+            /// --- operator - (subtraction)
+            // virtual Address operator-(const Address &rhs) const;
+            friend Address operator-(const Address& lhs, const unsigned int rhs)
+            {
+                Address result(lhs.value.address.word - rhs & 0xFFFF);
 
+                return result;
+            }
 
+            friend Address operator-(const Address& lhs, const int rhs)
+            {
+                Address result(lhs.value.address.word - rhs & 0xFFFF);
+
+                return result;
+            }
+
+            friend Address operator-(const Address& lhs, const Byte rhs)
+            {
+                return operator-( lhs, (const unsigned int)rhs);
+            }
+
+            friend Address operator-(const Address& lhs, const Word rhs)
+            {
+                return operator-( lhs, (const unsigned int)(rhs.word));
+            }
 
     };
 
@@ -302,7 +311,7 @@ namespace hardware
             explicit StackAddress(const unsigned int value);
 
             // ===== Methods =====
-            hardware::Byte current();
+            hardware::Byte current() const;
 
         private:
             bool isValidAddress() const;
@@ -347,7 +356,7 @@ namespace hardware
             // virtual Address operator-(const Word value) const;
             // virtual Address operator-(const Byte value) const;
             // virtual Address operator-(const int value) const;
-            Address operator-(const unsigned int value) const override;
+            Address operator-(const unsigned int value) const;
 
             /// --- operator -- (decrement)
             Address &operator--() override;    // pre-decrement

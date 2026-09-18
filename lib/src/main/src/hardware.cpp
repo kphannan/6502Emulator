@@ -59,14 +59,14 @@ namespace hardware
 
 
     /// --- operator ++ (increment)
-    Word& Word::operator++()         // pre-increment
+    Word& Word::operator++()        // pre-increment
     {
         ++word;
 
         return *this;
     }
 
-    Word Word::operator++(int)     // post-increment
+    Word Word::operator++(int)      // post-increment
     {
         Word pre( *this );
 
@@ -200,7 +200,7 @@ namespace hardware
     }
 
     /// --- operator ++ (increment) pre-increment
-    Address &Address::operator++()   // TODO add unit test
+    Address &Address::operator++()      // TODO add unit test
     {
         value.address.word++;
 
@@ -208,7 +208,7 @@ namespace hardware
     }
 
     /// --- operator ++ (increment) post-increment
-    Address Address::operator++(int)   // TODO add unit test
+    Address Address::operator++(int)    // TODO add unit test
     {
         const Address before(*this);
 
@@ -250,36 +250,6 @@ namespace hardware
     }
 
     /// --- operator - (subtraction)
-    Address Address::operator-(const Address &rhs) const       // TODO add unit test
-    {
-        Address tmp((unsigned int)(this->value.address.word - rhs.value.address.word));
-
-        return tmp;
-    }
-    Address Address::operator-(const Word rhs) const           // TODO add unit test
-    {
-        Address tmp((unsigned int)(this->value.address.word - rhs.word));
-
-        return tmp;
-    }
-    Address Address::operator-(const Byte rhs) const           // TODO add unit test
-    {
-        Address tmp((unsigned int)(this->value.address.word - rhs));
-
-        return tmp;
-    }
-    Address Address::operator-(const int rhs) const            // TODO add unit test
-    {
-        Address tmp((unsigned int)(this->value.address.word - rhs));
-
-        return tmp;
-    }
-    Address Address::operator-(const unsigned int rhs) const   // TODO add unit test
-    {
-        Address tmp((unsigned int)(this->value.address.word - (unsigned short)rhs));
-
-        return tmp;
-    }
 
     /// --- operator -- (decrement - pre)
     Address &Address::operator--()   // TODO add unit test
@@ -301,31 +271,31 @@ namespace hardware
     }
 
     /// --- operator -= (subtraction assignment)
-    Address &Address::operator-=(const Address &rhs)       // TODO add unit test
+    Address &Address::operator-=(const Address &rhs)        // TODO add unit test
     {
         value.address.word -= rhs.value.address.word;
 
         return *this;
     }
-    Address &Address::operator-=(const Word rhs)           // TODO add unit test
+    Address &Address::operator-=(const Word rhs)            // TODO add unit test
     {
         value.address.word -= rhs.word;
 
         return *this;
     }
-    Address &Address::operator-=(const Byte rhs)           // TODO add unit test
+    Address &Address::operator-=(const Byte rhs)            // TODO add unit test
     {
         value.address.word -= rhs;
 
         return *this;
     }
-    Address &Address::operator-=(const int rhs)            // TODO add unit test
+    Address &Address::operator-=(const int rhs)             // TODO add unit test
     {
         value.address.word -= rhs;
 
         return *this;
     }
-    Address &Address::operator-=(const unsigned int rhs)   // TODO add unit test
+    Address &Address::operator-=(const unsigned int rhs)    // TODO add unit test
     {
         value.address.word -= rhs;
 
@@ -333,16 +303,16 @@ namespace hardware
     }
 
     /// --- operator == (comparison)
-    bool Address::operator==(const Address &rhs) const   // TODO add unit test
+    bool Address::operator==(const Address &rhs) const      // TODO add unit test
     {
         return this->value.address.word == rhs.value.address.word;
     }
 
-    bool Address::operator==(const unsigned int rhs) const   // TODO add unit test
+    bool Address::operator==(const unsigned int rhs) const  // TODO add unit test
     {
         return this->value.address.word == rhs;
     }
-    bool Address::operator==(const int rhs) const   // TODO add unit test
+    bool Address::operator==(const int rhs) const           // TODO add unit test
     {
         return this->value.address.word == rhs;
     }
@@ -363,7 +333,7 @@ namespace hardware
     }
 
     // ----- Methods -----
-    Byte StackAddress::current()
+    Byte StackAddress::current() const
     {
         return this->value.address.lo;
     }
