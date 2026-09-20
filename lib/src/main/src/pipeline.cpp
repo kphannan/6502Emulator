@@ -494,41 +494,43 @@ namespace m6502
 
         switch (opCode.memory.c) // 2 bits
         {
-        case 0b00: // c(0)
+        case 0b00:                       // c(0)
         {
             // Instruction
-            switch (opCode.memory.a) // 3 bits
+            switch (opCode.memory.a)     // 3 bits
             {
-            case 0b000: // c(0) a(0)
+            case 0b000:                  // c(0) a(0)
             {
                 switch (opCode.memory.b) // 3 bits
                 {
-                case 0b000: // c(0) a(0) b(0) - BRK impl
+                case 0b000:              // c(0) a(0) b(0) - BRK impl
                     cpuInstruction = cpu._instructionBreak;
                     dst = InstructionTarget::IMPLIED;
                     src = InstructionTarget::IMPLIED;
                     break;
-                case 0b001: // c(0) a(0) b(1)   Illegal (NOP zpg)
-                case 0b011: // c(0) a(0) b(3)   Illegal (NOP abs)
-                case 0b101: // c(0) a(0) b(5)   Illegal (NOP zpg,X)
-                case 0b111: // c(0) a(0) b(7)   Illegal (NOP abs,X)
+                case 0b001:              // c(0) a(0) b(1)   Illegal (NOP zpg)
+                case 0b011:              // c(0) a(0) b(3)   Illegal (NOP abs)
+                case 0b101:              // c(0) a(0) b(5)   Illegal (NOP zpg,X)
+                case 0b111:              // c(0) a(0) b(7)   Illegal (NOP abs,X)
                     throw std::domain_error(std::format("Illegal OpCode: '{}'", opcode.value));
                     break;
-                case 0b010: // c(0) a(0) b(2) - PHP impl
+                case 0b010:              // c(0) a(0) b(2) - PHP impl
                     cpuInstruction = cpu._instructionStack;
                     dst = InstructionTarget::STACK;
                     src = InstructionTarget::PSR;
                     break;
-                case 0b100: // c(0) a(0) b(4) - BPL rel
-                    // std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
+                case 0b100:              // c(0) a(0) b(4) - BPL rel
                     cpuInstruction = cpu._instructionBranchOnPlus;
                     dst = InstructionTarget::PC;
                     src = InstructionTarget::FLAG_N;
                     break;
-                case 0b110: // c(0) a(0) b(6) - CLC impl
+                case 0b110:              // c(0) a(0) b(6) - CLC impl
                     cpuInstruction = cpu._instructionFlagClear;
                     dst = InstructionTarget::FLAG_C;
                     src = InstructionTarget::FLAG_C;
+                    break;
+                default:
+                    throw std::domain_error(std::format("Illegal OpCode: '{}'", opcode.value));
                     break;
                 }
                 break;
@@ -536,32 +538,32 @@ namespace m6502
             case 0b001:                  // c(0) a(1) - BIT
                 switch (opCode.memory.b) // 3 bits
                 {
-                case 0b000: // c(0) a(1) b(0) - JSR abs
+                case 0b000:              // c(0) a(1) b(0) - JSR abs
                     cpuInstruction = cpu._instructionJumpSubroutine;
                     dst = InstructionTarget::PC;
                     src = InstructionTarget::MEMORY;
                     break;
-                case 0b001: // c(0) a(1) b(1) - BIT zpg
-                case 0b011: // c(0) a(1) b(3) - BIT abs
+                case 0b001:              // c(0) a(1) b(1) - BIT zpg
+                case 0b011:              // c(0) a(1) b(3) - BIT abs
                     cpuInstruction = cpu._instructionLogicalBit;
                     dst = InstructionTarget::A;
                     src = InstructionTarget::MEMORY;
                     break;
-                case 0b010: // c(0) a(1) b(2) - PLP impl
+                case 0b010:              // c(0) a(1) b(2) - PLP impl
                     cpuInstruction = cpu._instructionStack;
                     dst = InstructionTarget::PSR;
                     src = InstructionTarget::STACK;
                     break;
-                case 0b100: // c(0) a(1) b(4) - BMI rel
+                case 0b100:              // c(0) a(1) b(4) - BMI rel
                     std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
                     break;
-                case 0b110: // c(0) a(1) b(6) - SEC impl
+                case 0b110:              // c(0) a(1) b(6) - SEC impl
                     cpuInstruction = cpu._instructionFlagSet;
                     dst = InstructionTarget::FLAG_C;
                     src = InstructionTarget::FLAG_C;
                     break;
-                case 0b101: // c(0) a(1) b(5) - illegal (NOP zpg,X)
-                case 0b111: // c(0) a(1) b(7) - illegal (NOP abs,X)
+                case 0b101:              // c(0) a(1) b(5) - illegal (NOP zpg,X)
+                case 0b111:              // c(0) a(1) b(7) - illegal (NOP abs,X)
                     throw std::domain_error(std::format("Illegal OpCode: '{}'", opcode.value));
                     break;
                 }
@@ -569,30 +571,30 @@ namespace m6502
             case 0b010:                  // c(0) a(2) - JMP
                 switch (opCode.memory.b) // 3 bits
                 {
-                case 0b000: // c(0) a(2) b(0) - RTI impl
+                case 0b000:              // c(0) a(2) b(0) - RTI impl
                     cpuInstruction = cpu._instructionReturnFromInterrupt;
                     dst = InstructionTarget::IMPLIED;
                     src = InstructionTarget::IMPLIED;
                     break;
-                case 0b001: // c(0) a(2) b(1)   Illegal
-                case 0b101: // c(0) a(2) b(5)   Illegal
-                case 0b111: // c(0) a(2) b(7)   Illegal
+                case 0b001:              // c(0) a(2) b(1)   Illegal
+                case 0b101:              // c(0) a(2) b(5)   Illegal
+                case 0b111:              // c(0) a(2) b(7)   Illegal
                     throw std::domain_error(std::format("Illegal OpCode: '{}'", opcode.value));
                     break;
-                case 0b010: // c(0) a(2) b(2) - PHA impl
+                case 0b010:              // c(0) a(2) b(2) - PHA impl
                     cpuInstruction = cpu._instructionStack;
                     dst = InstructionTarget::STACK;
                     src = InstructionTarget::A;
                     break;
-                case 0b011: // c(0) a(2) b(3) - JMP abs
+                case 0b011:              // c(0) a(2) b(3) - JMP abs
                     cpuInstruction = cpu._instructionJump;
                     dst = InstructionTarget::PC;
                     src = InstructionTarget::MEMORY;
                     break;
-                case 0b100: // c(0) a(2) b(4) - BVC rel
-                    std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
+                case 0b100:              // c(0) a(2) b(4) - BVC rel
+                    throw std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
                     break;
-                case 0b110: // c(0) a(2) b(6) - CLI impl
+                case 0b110:              // c(0) a(2) b(6) - CLI impl
                     cpuInstruction = cpu._instructionFlagClear;
                     dst = InstructionTarget::FLAG_I;
                     src = InstructionTarget::FLAG_I;
@@ -602,38 +604,38 @@ namespace m6502
             case 0b011:                  // c(0) a(3) - JMP (abs)
                 switch (opCode.memory.b) // 3 bits
                 {
-                case 0b000: // c(0) a(3) b(0) - RTS impl
+                case 0b000:              // c(0) a(3) b(0) - RTS impl
                     cpuInstruction = cpu._instructionReturnFromSubroutine;
                     dst = InstructionTarget::PC;
                     src = InstructionTarget::STACK;
                     break;
-                case 0b001: // c(0) a(3) b(1)
-                    std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
+                case 0b001:              // c(0) a(3) b(1)
+                    throw std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
                     break;
-                case 0b010: // c(0) a(3) b(2) - PLA impl
+                case 0b010:              // c(0) a(3) b(2) - PLA impl
                     cpuInstruction = cpu._instructionStack;
                     dst = InstructionTarget::A;
                     src = InstructionTarget::STACK;
                     break;
-                case 0b011: // c(0) a(3) b(3) - JMP ind
+                case 0b011:              // c(0) a(3) b(3) - JMP ind
                     cpuInstruction = cpu._instructionJump;
                     dst = InstructionTarget::PC;
                     src = InstructionTarget::MEMORY;
                     break;
-                case 0b100: // c(0) a(3) b(4) - BVS rel
+                case 0b100:              // c(0) a(3) b(4) - BVS rel
                     // TODO BVS
                     break;
-                case 0b101: // c(0) a(3) b(5)
-                    std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
+                case 0b101:              // c(0) a(3) b(5)
+                    throw std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
                     // Illegal
                     break;
-                case 0b110: // c(0) a(3) b(6) - SEI impl
+                case 0b110:              // c(0) a(3) b(6) - SEI impl
                     cpuInstruction = cpu._instructionFlagSet;
                     dst = InstructionTarget::FLAG_I;
                     src = InstructionTarget::FLAG_I;
                     break;
-                case 0b111: // c(0) a(3) b(7)
-                    std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
+                case 0b111:              // c(0) a(3) b(7)
+                    throw std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
                     // Illegal
                     break;
                 }
@@ -642,26 +644,26 @@ namespace m6502
             {
                 switch (opCode.memory.b) // 3 bits
                 {
-                case 0b000: // c(0) a(4) b(0)   Illegal
-                case 0b111: // c(0) a(4) b(7)   Illegal
+                case 0b000:              // c(0) a(4) b(0)   Illegal
+                case 0b111:              // c(0) a(4) b(7)   Illegal
                     throw std::domain_error(std::format("Illegal OpCode: '{}'", opcode.value));
                     break;
-                case 0b001: // c(0) a(4) b(1) - STY $nn
-                case 0b011: // c(0) a(4) b(3) - STY $nnnn
-                case 0b101: // c(0) a(4) b(5) - STY $nn,X
+                case 0b001:              // c(0) a(4) b(1) - STY $nn
+                case 0b011:              // c(0) a(4) b(3) - STY $nnnn
+                case 0b101:              // c(0) a(4) b(5) - STY $nn,X
                     cpuInstruction = cpu._instructionStore;
                     dst = InstructionTarget::MEMORY;
                     src = InstructionTarget::Y;
                     break;
-                case 0b010: // c(0) a(4) b(2) - DEY impl
+                case 0b010:              // c(0) a(4) b(2) - DEY impl
                     cpuInstruction = cpu._instructionDecrementY;
                     dst = InstructionTarget::Y;
                     src = InstructionTarget::Y;
                     break;
-                case 0b100: // c(0) a(4) b(4) - BCC $nn
-                    std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
+                case 0b100:              // c(0) a(4) b(4) - BCC $nn
+                    throw std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
                     break;
-                case 0b110: // c(0) a(4) b(6) - TYA impl
+                case 0b110:              // c(0) a(4) b(6) - TYA impl
                     cpuInstruction = cpu._instructionTransferYtoA;
                     dst = InstructionTarget::A;
                     src = InstructionTarget::Y;
@@ -717,7 +719,7 @@ namespace m6502
                 */
                 break;
             }
-            case 0b101:                  // c(0) a(5) - LDY
+            case 0b101:                  // c(0) a(5)       - LDY
                 switch (opCode.memory.b) // 3 bits
                 {
                 case 0b000: // c(0) a(5) b(0) - LDY #$nn
@@ -742,7 +744,7 @@ namespace m6502
                     break;
                 }
                 break;
-            case 0b110:                  // c(0) a(6) - CPY, BNE, CLD
+            case 0b110:                  // c(0) a(6)       - CPY, BNE, CLD
                 switch (opCode.memory.b) // 3 bits
                 {
                 case 0b000: // c(0) a(6) b(0) - CPY #
@@ -758,7 +760,7 @@ namespace m6502
                     src = InstructionTarget::Y;
                     break;
                 case 0b100: // c(0) a(6) b(4) - BNE $nn
-                    std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
+                    throw std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
                     break;
                 case 0b101: // c(0) a(6) b(5)   Illegal
                 case 0b111: // c(0) a(6) b(7)   Illegal
@@ -771,7 +773,7 @@ namespace m6502
                     break;
                 }
                 break;
-            case 0b111:                  // c(0) a(7) - CPX, INX, BEQ, SED
+            case 0b111:                  // c(0) a(7)       - CPX, INX, BEQ, SED
                 switch (opCode.memory.b) // 3 bits
                 {
                 case 0b000: // c(0) a(7) b(0) - CPX #
@@ -787,7 +789,7 @@ namespace m6502
                     src = InstructionTarget::X;
                     break;
                 case 0b100: // c(0) a(7) b(4) - BEQ $nn
-                    std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
+                    throw std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
                     break;
                 case 0b101: // c(0) a(7) b(5)   Illegal
                 case 0b111: // c(0) a(7) b(7)   Illegal
@@ -802,55 +804,56 @@ namespace m6502
                 break;
             }
 
-            // Addressing Mode
+            // --- Addressing Mode ---
+            // c(0)
             switch (opCode.memory.b) // 3 bits
             {
-            case 0b000: // c(0) b(0) - Immediate
+            case 0b000:                  // c(0) b(0)       - Immediate
                 // TODO more modes
                 switch (opCode.memory.a) // 3 bits
                 {
-                case 0b000: // b(0) a(0)
-                case 0b010: // b(0) a(2)
-                case 0b011: // b(0) a(3)
+                case 0b000:              // c(0) b(0) a(0)
+                case 0b010:              // c(0) b(0) a(2)
+                case 0b011:              // c(0) b(0) a(3)
                     addressMode = cpu._addressModeImplied;
                     break;
-                case 0b001: // b(0) a(1)
+                case 0b001:              // c(0) b(0) a(1)
                     addressMode = cpu._addressModeAbsolute;
                     break;
-                case 0b101: // b(0) a(5)
-                case 0b110: // b(0) a(6)
-                case 0b111: // b(0) a(7)
+                case 0b101:              // c(0) b(0) a(5)
+                case 0b110:              // c(0) b(0) a(6)
+                case 0b111:              // c(0) b(0) a(7)
                     addressMode = cpu._addressModeImmediate;
                     break;
-                case 0b100: // b(0) a(4)        // TODO verify this for illegal instruction
+                case 0b100:              // c(0) b(0) a(4)        // TODO verify this for illegal instruction
                     throw std::domain_error("OpCode() - not yet implemented");
                     break;
                 }
                 break;
-            case 0b001: // c(0) b(1) - ZeroPage
+            case 0b001:                  // c(0) b(1)       - ZeroPage
                 addressMode = cpu._addressModeZeroPage;
                 // TODO check illegal instructions at a(0,2,3)
                 break;
-            case 0b010: // c(0) b(2) - Implied
+            case 0b010:                  // c(0) b(2)       - Implied
 
                 switch (opCode.memory.a) // 3 bits
                 {
-                case 0b000: // b(3) a(0) - PHP
+                case 0b000:              // c(0) b(3) a(0)  - PHP
                     addressMode = cpu._addressModeStackPush;
                     break;
-                case 0b001: // b(3) a(1) - PLP
+                case 0b001:              // c(0) b(3) a(1)  - PLP
                     addressMode = cpu._addressModeStackPull;
                     break;
-                case 0b010: // b(3) a(2) - PHA
+                case 0b010:              // c(0) b(3) a(2)  - PHA
                     addressMode = cpu._addressModeStackPush;
                     break;
-                case 0b011: // b(3) a(3) - PLA
+                case 0b011:              // c(0) b(3) a(3)  - PLA
                     addressMode = cpu._addressModeStackPull;
                     break;
-                case 0b100: // b(3) a(4) - DEY
-                case 0b101: // b(3) a(5) - TAY
-                case 0b110: // b(3) a(6) - INY
-                case 0b111: // b(3) a(7) - INX
+                case 0b100:              // c(0) b(3) a(4)  - DEY
+                case 0b101:              // c(0) b(3) a(5)  - TAY
+                case 0b110:              // c(0) b(3) a(6)  - INY
+                case 0b111:              // c(0) b(3) a(7)  - INX
                     addressMode = cpu._addressModeImplied;
                     break;
                 }
@@ -859,55 +862,55 @@ namespace m6502
             case 0b011:                  // c(0) b(3) - Absolute
                 switch (opCode.memory.a) // 3 bits
                 {
-                case 0b000: // b(3) a(0)    // illegal instruction
+                case 0b000:              // c(0) b(3) a(0)    // illegal instruction
                     break;
-                case 0b001: // b(3) a(1)
-                case 0b010: // b(3) a(2)
-                case 0b100: // b(3) a(4)
-                case 0b101: // b(3) a(5)
-                case 0b110: // b(3) a(6)
-                case 0b111: // b(3) a(7)
+                case 0b001:              // c(0) b(3) a(1)
+                case 0b010:              // c(0) b(3) a(2)
+                case 0b100:              // c(0) b(3) a(4)
+                case 0b101:              // c(0) b(3) a(5)
+                case 0b110:              // c(0) b(3) a(6)
+                case 0b111:              // c(0) b(3) a(7)
                     addressMode = cpu._addressModeAbsolute;
                     break;
-                case 0b011: // b(3) a(3)
+                case 0b011:              // c(0) b(3) a(3)
                     addressMode = cpu._addressModeIndirect;
                     break;
                 }
                 break;
-            case 0b100: // c(0) b(4) - rel
+            case 0b100:                  // c(0) b(4)       - rel
                 addressMode = cpu._addressModeRelative;
                 break;
-            case 0b101:                  // c(0) b(5) - ZeroPage,X
+            case 0b101:                  // c(0) b(5)       - ZeroPage,X
                 switch (opCode.memory.a) // 3 bits
                 {
-                case 0b000: // b(3) a(0)    // TODO  verify illegal instruction
-                case 0b001: // b(3) a(1)
-                case 0b010: // b(3) a(2)
-                case 0b011: // b(3) a(3)
-                case 0b110: // b(3) a(6)
-                case 0b111: // b(3) a(7)
+                case 0b000: // c(0) b(5) a(0)    // TODO  verify illegal instruction
+                case 0b001: // c(0) b(5) a(1)
+                case 0b010: // c(0) b(5) a(2)
+                case 0b011: // c(0) b(5) a(3)
+                case 0b110: // c(0) b(5) a(6)
+                case 0b111: // c(0) b(5) a(7)
                     break;
-                case 0b100: // b(3) a(4)
-                case 0b101: // b(3) a(5)
+                case 0b100: // c(0) b(5) a(4)
+                case 0b101: // c(0) b(5) a(5)
                     addressMode = cpu._addressModeZeroPageIndexedX;
                     break;
                 }
                 break;
-            case 0b110: // c(0) b(6) - Implied
+            case 0b110:                  // c(0) b(6)       - Implied
                 addressMode = cpu._addressModeImplied;
                 break;
-            case 0b111:                  // c(0) b(7) - Absolute,X
+            case 0b111:                  // c(0) b(7)       - Absolute,X
                 switch (opCode.memory.a) // 3 bits
                 {
-                case 0b000: // b(3) a(0)    // TODO  verify illegal instruction
-                case 0b001: // b(3) a(1)
-                case 0b010: // b(3) a(2)
-                case 0b011: // b(3) a(3)
-                case 0b100: // b(3) a(4)
-                case 0b110: // b(3) a(6)
-                case 0b111: // b(3) a(7)
+                case 0b000: // c(0) b(7) a(0)    // TODO  verify illegal instruction
+                case 0b001: // c(0) b(7) a(1)
+                case 0b010: // c(0) b(7) a(2)
+                case 0b011: // c(0) b(7) a(3)
+                case 0b100: // c(0) b(7) a(4)
+                case 0b110: // c(0) b(7) a(6)
+                case 0b111: // c(0) b(7) a(7)
                     break;
-                case 0b101: // b(3) a(5)
+                case 0b101: // c(0) b(7) a(5)
                     addressMode = cpu._addressModeAbsoluteIndexedX;
                     break;
                 }
@@ -1185,7 +1188,7 @@ namespace m6502
                     throw std::domain_error(std::format("Illegal OpCode: '{}'", opcode.value));
                     break;
                 case 0b010: // c(2) a(7) b(2) - NOP
-                    std::domain_error(std::format("OpCode({}) - not yet implemented", opcode.value));
+                    cpuInstruction = cpu._instructionNoOp;
                     break;
                 case 0b001: // c(2) a(7) b(1) - INC $nn
                 case 0b011: // c(2) a(7) b(3) - INC $nnnn

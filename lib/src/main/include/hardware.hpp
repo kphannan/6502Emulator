@@ -25,8 +25,20 @@ namespace hardware
             // For Little-Endian 'lo' must be declared
             // before 'hi'
             // (at least on apple silicon)
-            unsigned char lo;
-            unsigned char hi;
+            #if defined(__BYTE_ORDER__)
+                #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+                    // Little Endian
+                    unsigned char lo;
+                    unsigned char hi;
+                #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+                    // Big Endian
+                    unsigned char hi;
+                    unsigned char lo;
+                #endif
+            #endif
+
+
+
         };
 
         // ===== Constructors =====

@@ -47,7 +47,18 @@ namespace memory
             Memory(const char *name, const hardware::Address& lowLimit, const hardware::Address& upperLimit);
             Memory(const char *name, const hardware::Address& lowLimit, const hardware::Word& byteCount);
 
-            // ~Memory();
+            // Copy constructor
+            Memory( const Memory& other );
+
+            // Move constructor
+            Memory( Memory&& other );
+            // Memory& operator=(const Memory& rhs );   // Copy assignment
+            // Memory& operator=(Memory&& rhs );        // Move assignment
+
+            // Destructor
+            ~Memory();
+
+            // add assignment operator
 
         protected:
         private:
@@ -68,7 +79,7 @@ namespace memory
             void fill(hardware::Byte value);
 
             const char *name() const { return bankName; };
-            char *name() { return bankName; };
+            // char *name() { return bankName; };
 
             // Get the starting address of the memory bank
             hardware::Address lowAddress() const { return lowerBound; }
@@ -77,6 +88,8 @@ namespace memory
             // Get the number of bytes in the memory bank
             int_fast32_t memorySize() const { return byteCount; }
 
+            void showMemory(const hardware::Address& from, const int count, const unsigned char bytesPerLine, const char *text) const;
+            void showMemory(const hardware::Address& from, const int count, const unsigned char bytesPerLine) const;
             void showMemory(const hardware::Address& from, const int count, const char *text = "") const;
 
             // ===== Operator Overloads

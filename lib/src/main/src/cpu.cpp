@@ -173,6 +173,157 @@ namespace m6502
     }
 
     // CPU::CPU()
+    CPU::~CPU()
+    {
+        delete pipeline;
+
+        delete _addressModeUndefined;
+        delete _addressModeImplied;
+        delete _addressModeAccumulator;
+        delete _addressModeZeroPage;
+        delete _addressModeZeroPageIndexedX;
+        delete _addressModeZeroPageIndexedY;
+        delete _addressModeRelative;
+        delete _addressModeAbsolute;
+        delete _addressModeAbsoluteIndexedX;
+        delete _addressModeAbsoluteIndexedY;
+        delete _addressModeIndirect;
+        delete _addressModeIndexedIndirectX;
+        delete _addressModeIndirectIndexedY;
+        delete _addressModeImmediate;
+            // CPU::AddressModeStack *_addressModeStack;
+        delete _addressModeStackPull;
+        delete _addressModeStackPush;
+
+            // TODO get the actual operations
+        delete _instructionUndefined;
+            // ----- Transfer
+
+            // ===== Transfer Instructions
+            // ----- Load
+        delete _instructionLoad;  // A, X, Y all use the same instance...
+            // --- LDA *
+        // delete _instructionLoadA;
+            // --- LDX *
+        // delete _instructionLoadX;
+            // --- LDY *
+        // delete _instructionLoadY;
+            //
+
+            // ----- Store
+        delete _instructionStore;
+            // --- STA *
+            // --- STX *
+            // --- STY *
+
+            // ----- Interregister transfer
+        delete _instructionTransfer;
+            // --- TAX
+        // delete _instructionTransferAtoX;
+            // --- TAY
+        // delete _instructionTransferAtoY;
+            // --- TSX
+        // delete _instructionTransferStoX;
+            // --- TXA
+        // delete _instructionTransferXtoA;
+            // --- TXS
+        // delete _instructionTransferXtoS;
+            // --- TYA
+        // delete _instructionTransferYtoA;
+
+            // ===== Stack Instructions
+        delete _instructionStack;
+            // --- PHA
+            // --- PHP
+            // --- PLA
+            // --- PLP
+            // ===== Decrement & Increment
+        delete _instructionDecrement;
+        delete _instructionIncrement;
+            // --- DEC *
+            // --- DEX
+        // delete _instructionDecrementX; // TODO use general Decrement
+            // --- DEY
+        // delete _instructionDecrementY; // TODO use general Decrement
+            // --- INC *
+            // --- INX
+        // delete _instructionIncrementX; // TODO use general Increment
+            // --- INY
+        // delete _instructionIncrementY; // TODO use general Increment
+            // ===== Arithmetic Instructions
+            // --- ADC *
+        delete _instructionAdd;
+            // --- SBC *
+        delete _instructionSubtract;
+            // ===== Logical Instructions
+        // delete _instructionLogical;
+            // --- AND *
+        delete _instructionLogicalAnd;
+            // --- EOR *
+        delete _instructionLogicalXor;
+            // --- ORA *
+        delete _instructionLogicalOr;
+            // ===== Shift & Rotate Instructions
+            // --- ASL *
+        delete _instructionShiftLeft;
+            // --- LSR *
+        delete _instructionShiftRight;
+            // --- ROL *
+        delete _instructionRotateLeft;
+            // --- ROR *
+        delete _instructionRotateRight;
+            // ===== Flag Instructions
+        delete _instructionFlagClear;
+        delete _instructionFlagSet;
+            // --- CLC
+            // --- CLD
+            // --- CLI
+            // --- CLV
+            // --- SEC
+            // --- SED
+            // --- SEI
+            // ===== Comparison Instructions
+        delete _instructionCompare;
+            // --- CMP *
+            // --- CPX *
+            // --- CPY *
+            // ===== Conditional Branch Instructions (fmt: zzy10000)
+        // delete _instructionBranch;
+            // --- BCC
+        delete _instructionBranchCarryClear;
+            // --- BCS
+        delete _instructionBranchCarrySet;
+            // --- BEQ
+        delete _instructionBranchEqualToZero;
+            // --- BMI
+        delete _instructionBranchMinus;
+            // --- BNE
+        delete _instructionBranchNotEqualToZero;
+            // --- BPL
+        delete _instructionBranchOnPlus;
+            // --- BVC
+        delete _instructionBranchOverflowClear;
+            // --- BVS
+        delete _instructionBranchOverflowSet;
+
+            // ===== Jumps & Subroutines Instructions
+            // --- JUMP *
+        delete _instructionJump;
+            // --- JSR
+        delete _instructionJumpSubroutine;
+            // --- RTS
+        delete _instructionReturnFromSubroutine;
+            // ===== Interrupts Instructions
+            // --- BRK
+        delete _instructionBreak;
+            // --- RTI
+        delete _instructionReturnFromInterrupt;
+            // ===== Other Instructions
+            // --- BIT *
+        delete _instructionLogicalBit;
+            // --- NOP
+        delete _instructionNoOp;
+    }
 
     void CPU::reset()
     {

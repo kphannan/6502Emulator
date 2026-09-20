@@ -62,6 +62,7 @@ namespace hardware
     Word& Word::operator++()        // pre-increment
     {
         ++word;
+        word &= BIT_MASK;
 
         return *this;
     }
@@ -71,6 +72,7 @@ namespace hardware
         Word pre( *this );
 
         ++word;
+        word &= BIT_MASK;
 
         return pre;
     }
@@ -80,6 +82,7 @@ namespace hardware
     Word& Word::operator--()
     {
         --word;
+        word &= BIT_MASK;
 
         return *this;
     }
@@ -89,6 +92,7 @@ namespace hardware
     Word &Word::operator+=(const Word rhs)
     {
         word += rhs.word;
+        word &= BIT_MASK;
 
         return *this;
     }

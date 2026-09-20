@@ -36,29 +36,90 @@ namespace memory
     Memory::Memory(const char *name, const hardware::Address& lowerBound, const hardware::Address& upperBound)
         : lowerBound(lowerBound),
           upperBound(upperBound),
-          byteCount(upperBound.value.address.word - lowerBound.value.address.word + 1),
-          contents( new hardware::Byte[byteCount])
+          byteCount(std::abs(upperBound.value.address.word - lowerBound.value.address.word + 1))
     {
-        if (byteCount <= 0)
+        if (lowerBound > upperBound )
         {
             throw std::out_of_range(std::format("Invalid size {:#06x} for block [{:#06x},{:#06x}]",
                  byteCount, lowerBound.value.address.word, upperBound.value.address.word));
         }
 
-        // TODO null checks
-        strncpy(this->bankName, name, sizeof(bankName) - 1);
+        const char* tmpName = nullptr == name ? DEFAULT_BANK_NAME : name;
 
-        // contents = new hardware::Byte[byteCount];
+        // TODO null checks
+        strncpy(bankName, tmpName, sizeof(bankName) - 1);
+        bankName[sizeof(bankName) - 1] = '\0';  // ensure null terminateion of string
+
+        contents = new hardware::Byte[byteCount];
+
         clear();
     }
 
+
+    Memory::Memory( const Memory& other) :
+        lowerBound( other.lowerBound ),
+        upperBound( other.upperBound ),
+        byteCount( other.byteCount ),
+        contents( new hardware::Byte[byteCount] )
+    {
+        memcpy( this->contents, other.contents, byteCount );
+        memcpy( this->bankName, other.bankName, sizeof( this->bankName ));
+    }
+
+    Memory::Memory( Memory&& other) :
+        lowerBound( other.lowerBound ),
+        upperBound( other.upperBound ),
+        byteCount( other.byteCount ),
+        contents( other.contents )
+    {
+        other.contents = nullptr;
+        memcpy( this->bankName, other.bankName, sizeof( this->bankName ));
+    }
+
+
     // --- destructor
-    // Memory::~Memory()
-    // {
-    //     // delete contents;
-    // }
+    Memory::~Memory()
+    {
+        delete[] contents;
+    }
 
     // ===== Methods =====
+
+    // Memory& Memory::operator=(const Memory& rhs )    // Copy assignment
+    // {
+    //     if ( this != &rhs )
+    //     {
+    //         delete[] this->contents;
+
+    //         this->lowerBound = rhs.lowerBound;
+    //         this->upperBound = rhs.upperBound;
+    //         this->byteCount = rhs.byteCount;
+    //         this->contents = new hardware::Byte[byteCount];
+    //         memcpy( this->contents, rhs.contents, this->byteCount );
+    //         memcpy( this->bankName, rhs.bankName, sizeof( this->bankName ) );
+    //     }
+
+    //     return *this;
+    // }
+
+    // Memory& Memory::operator=(Memory&& rhs )         // Move assignment
+    // {
+    //     if (this != &rhs)
+    //     {
+    //         this->lowerBound = rhs.lowerBound;
+    //         this->upperBound = rhs.upperBound;
+    //         this->byteCount = rhs.byteCount;
+    //         this->contents = rhs.contents;
+    //         memcpy( this->bankName, rhs.bankName, sizeof( this->bankName ) );
+
+    //         // Force rhs to be unuseable
+    //         rhs.lowerBound = 0;
+    //         rhs.upperBound = 0;
+    //         rhs.byteCount = 0;
+    //         rhs.contents = nullptr;
+    //     }
+    // }
+
 
     // Blank out memory
     void Memory::clear()
@@ -73,13 +134,20 @@ namespace memory
 
     bool Memory::isInBounds(const hardware::Address &address) const
     {
+        // hardware::Byte value = contents[address];
+        // std::cout.setf(std::ios::hex, std::ios::basefield);
+        // std::cout << "   read( " << std::setfill('0') << std::setw(4) << (int)address << " ) = "
+        //           // << " byte:  " << (int)contents[address]
+        //           // << " MSB:  " << (int)contents[address + 1]
+        //           << " Byte: " << (int)value << std::endl;
+        // std::cout.unsetf(std::ios::basefield);
+
         return lowerBound <= address && address <= upperBound;
     }
 
     bool Memory::isInBounds(const size_t address) const
     {
         return isInBounds( hardware::Address((unsigned int)address) );
-        // return lowerBound <= address && address <= upperBound;
     }
 
     hardware::Byte &Memory::operator[](const size_t address)
@@ -95,49 +163,6 @@ namespace memory
         return contents[address - lowerBound];
     }
 
-    // const hardware::Byte &Memory::operator[](const size_t address) const
-    // {
-    //     // TODO Chain to address argument
-    //     // throw std::domain_error(std::format("Testing...2...{:#06x}", address));
-    //     if (!isInBounds(address))
-    //     {
-    //         throw std::out_of_range(std::format("address {:#06x} not in block [{:#06x},{:#06x}]", address, lowerBound.value.address.word, upperBound.value.address.word));
-    //     }
-
-    //     return contents[address - lowerBound];
-    // }
-
-    // hardware::Byte &Memory::operator[](const hardware::Address& address)
-    // {
-    //     // throw std::domain_error(std::format("Testing...1...{:#06x}", address));
-    //     // if (!isInBounds(static_cast<unsigned int>(address))) // TODO type conversion
-    //     if (!isInBounds(address)) // TODO type conversion
-    //     {
-    //         throw std::out_of_range(
-    //             std::format("address {:#06x} not in block [{:#06x},{:#06x}]",
-    //                  address.value.address.word,
-    //                  lowerBound.value.address.word,
-    //                  upperBound.value.address.word));
-    //     }
-
-    //     return contents[address - lowerBound];
-    // }
-
-    // const hardware::Byte &Memory::operator[](const hardware::Address& address) const
-    // {
-    //     // throw std::domain_error(std::format("Testing...2...{:#06x}", address));
-    //     if (!isInBounds(address))
-    //     {
-    //         throw std::out_of_range(std::format("address {:#06x} not in block [{:#06x},{:#06x}]",
-    //              address.value.address.word,
-    //              lowerBound.value.address.word,
-    //              upperBound.value.address.word));
-    //     }
-
-    //     return contents[address - lowerBound];
-    // }
-
-    // Memory& Memory::operator=(const unsigned int rhs )
 
 
 
@@ -146,14 +171,6 @@ namespace memory
     {
         if (isInBounds(address))
         {
-            // hardware::Byte value = contents[address];
-            // std::cout.setf(std::ios::hex, std::ios::basefield);
-            // std::cout << "   read( " << std::setfill('0') << std::setw(4) << (int)address << " ) = "
-            //           // << " byte:  " << (int)contents[address]
-            //           // << " MSB:  " << (int)contents[address + 1]
-            //           << " Byte: " << (int)value << std::endl;
-            // std::cout.unsetf(std::ios::basefield);
-
             return contents[address - lowerBound];
         }
 
@@ -173,45 +190,133 @@ namespace memory
                         upperBound.value.address.word));
     }
 
-
     hardware::Word Memory::readWord(const hardware::Address &address) const
     {
-        hardware::Word addr(contents[address + 1], contents[address]);
+        if ( isInBounds( address ))
+        {
+            size_t msbOffset = address - lowerBound + 1;
+            // handle wrap around
+            msbOffset = msbOffset <= byteCount ? msbOffset : 0;
+            size_t lsbOffset = address - lowerBound;
 
-        return addr;
+            hardware::Word addr(contents[msbOffset], contents[lsbOffset]);
+
+            return addr;
+        }
+
+        throw std::out_of_range(
+            std::format("address {:#06x} not in block [{:#06x},{:#06x}]",
+                        address.value.address.word,
+                        lowerBound.value.address.word,
+                        upperBound.value.address.word));
+
     }
     hardware::Address Memory::readAddress(const hardware::Address &address) const
     {
-        hardware::Address addr(contents[address + 1], contents[address]);
+        if ( isInBounds( address ))
+        {
+            size_t msbOffset = address - lowerBound + 1;
+            // handle wrap around
+            msbOffset = msbOffset <= byteCount ? msbOffset : 0;
+            size_t lsbOffset = address - lowerBound;
 
-        return addr;
+            hardware::Address addr(contents[msbOffset], contents[lsbOffset]);
+
+            return addr;
+        }
+
+        throw std::out_of_range(
+            std::format("address {:#06x} not in block [{:#06x},{:#06x}]",
+                        address.value.address.word,
+                        lowerBound.value.address.word,
+                        upperBound.value.address.word));
     }
 
 
     // write a byte to memory, returning the value written
     hardware::Byte Memory::write(const hardware::Address &address, const hardware::Byte value)
     {
-        return contents[address] = value;
+        if ( isInBounds( address ))
+        {
+            return contents[address - lowerBound] = value;
+        }
+
+        throw std::out_of_range(
+            std::format("address {:#06x} not in block [{:#06x},{:#06x}]",
+                        address.value.address.word,
+                        lowerBound.value.address.word,
+                        upperBound.value.address.word));
     }
 
+    // 8000:9fff [20000]
+    // writeWord( 9FFF, 1122 )
+    // 9fff = 22
+    // 8000 = 11
+    // 9fff - 8000 -> 1fff
+    // address: 9FFF
+    // lsboffset = 9FFF - 9FFF -> 0
+    // msbOffset = 9FFF + 1 - 8000 -> 1FFF + 1 -> 2000
     hardware::Word Memory::writeWord(const hardware::Address &address, const hardware::Word value)
     {
-        contents[address] = value.lo;
-        contents[address + 1] = value.hi;
+        if ( isInBounds( address ))
+        {
+            size_t msbOffset = address - lowerBound + 1;
+            // handle wrap around
+            msbOffset = msbOffset >= byteCount ? 0 : msbOffset;
+            size_t lsbOffset = address - lowerBound;
 
-        return value;
+            contents[lsbOffset] = value.lo;
+            contents[msbOffset] = value.hi;
+
+            return value;
+        }
+
+        throw std::out_of_range(
+            std::format("address {:#06x} not in block [{:#06x},{:#06x}]",
+                        address.value.address.word,
+                        lowerBound.value.address.word,
+                        upperBound.value.address.word));
     }
 
     hardware::Address Memory::writeAddress(const hardware::Address& address, const hardware::Address& value)
     {
-        contents[address] = value.value.address.lo;
-        contents[address + 1] = value.value.address.hi;
+        if ( isInBounds( address ))
+        {
+            size_t msbOffset = address - lowerBound + 1;
+            // handle wrap around
+            msbOffset = msbOffset <= byteCount ? msbOffset : 0;
+            size_t lsbOffset = address - lowerBound;
 
-        return value;
+            contents[lsbOffset] = value.value.address.lo;
+            contents[msbOffset] = value.value.address.hi;
+
+            return value;
+        }
+
+        throw std::out_of_range(
+            std::format("address {:#06x} not in block [{:#06x},{:#06x}]",
+                        address.value.address.word,
+                        lowerBound.value.address.word,
+                        upperBound.value.address.word));
     }
 
+    void Memory::showMemory(const hardware::Address& from, const int count, const unsigned char bytesPerLine) const
+    {
+        showMemory( from, count, bytesPerLine, "" );
+    }
     void Memory::showMemory(const hardware::Address& from, const int count, const char *text) const
     {
+        showMemory( from, count, 8, text );
+    }
+    void Memory::showMemory(const hardware::Address& from, const int count, const unsigned char bytesPerLine, const char *text) const
+    {
+        if ( !isInBounds( from ))
+        {
+            std::cout << "Address: " << from << " is not in range" << std::endl;
+
+            return;
+        }
+
         std::cout.setf(std::ios::hex, std::ios::basefield);
         std::cout << bankName << "  contents "
                   << std::setfill('0') << std::setw(4) << from << ".."
@@ -224,9 +329,9 @@ namespace memory
         int limit = count + 1;
         for (int diff = addr - from + 1; diff < limit; ++diff)
         {
-            std::cout << " " << std::setw(2) << (int)contents[addr];
+            std::cout << " " << std::setw(2) << (int)contents[addr - lowerBound];
             ++addr;
-            if (diff != 0 && ((diff % 8) == 0))
+            if (diff != 0 && ((diff % bytesPerLine) == 0))
             {
                 std::cout << std::endl;
                 if (diff < count)

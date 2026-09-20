@@ -1,12 +1,12 @@
 # TODO 1: Set the minimum required version of CMake to be 3.10
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 4.4)
 
 if(APPLE)
-  # arm64 only:
-  set(CMAKE_OSX_ARCHITECTURES "arm64")
+    # arm64 only:
+    set(CMAKE_OSX_ARCHITECTURES "arm64")
 
-  # Universal binary (arm64 + x86_64):
-  # set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+    # Universal binary (arm64 + x86_64):
+    # set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
 endif()
 
 set(PROJECT_NAME EMU)

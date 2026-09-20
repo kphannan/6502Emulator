@@ -106,7 +106,7 @@ namespace m6502
             case InstructionTarget::STACK:
             case InstructionTarget::IMPLIED:
             case InstructionTarget::Undefined:
-                std::domain_error("Illegal addend (source) of ADC operation");
+                throw std::domain_error("Illegal addend (source) of ADC operation");
                 break;
             }
             break;
@@ -127,7 +127,7 @@ namespace m6502
         case InstructionTarget::Undefined:
         default:
             std::cout << "Illegal destination of a ADC operation" << std::endl;
-            std::domain_error("Illegal augend (target) of ADC operation");
+            throw std::domain_error("Illegal augend (target) of ADC operation");
             break;
         }
     }
