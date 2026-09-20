@@ -26,3 +26,6 @@ out/
 # Mac
 .DS_Store
 
+# Xcode project/build
+xcode
+

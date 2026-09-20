@@ -1,0 +1,69 @@
+
+
+#include "6502.hpp"
+#include "memory.hpp"
+#include "AddressMode.hpp"
+#include "InstructionSet.hpp"
+
+namespace m6502
+{
+    // ========== Instructions ==========
+
+    // ----- Transfer (load) -----
+    // ----- Transfer (store) -----
+    // ----- Transfer (interregister transfer) -----
+    // ----- Stack () -----
+    // ----- Decrement & Increment () -----
+    // ----- Arithmetic () -----
+    // ----- Logical () -----
+    // ----- Shift & Rotate () -----
+    // ----- Flag () -----
+    // ----- Comparison () -----
+    // ----- Conditional Branch () -----
+    // ----- Jump & Subroutine () -----
+    // ----- Interrupt () -----
+    // ----- Other () -----
+
+    //----------------------------------------
+    // NOP (No OPeration)
+    //
+    // Affects Flags: none
+    //
+    // MODE           SYNTAX       HEX LEN TIM
+    // Implied       NOP           $EA  1   2
+    //
+    // NOP is used to reserve space for future modifications or effectively REM out existing code.
+    //----------------------------------------
+
+    // Addressing Modes
+    // ..... Immediate #$BB
+    // ----- Implied
+    void CPU::InstructionNoOp::execute(InstructionTarget dst, InstructionTarget src)
+    {
+        Instruction::execute(dst, src);
+
+//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+//        hardware::Byte value = cpu.addressSpace.read(address);
+        switch (dst)
+        {
+        case InstructionTarget::IMPLIED:
+            break;
+        default:
+            std::cout << "Illegal destination of a NOP operation" << std::endl;
+            break;
+        }
+    }
+
+    // ..... Accumulator
+    // ..... ZeroPage $LL
+    // ..... ZeroPage,X $LL,X
+    // ..... ZeroPage,Y $LL,Y
+    // ..... Relative $BB
+    // ..... Absolute $LLHH
+    // ..... AbsoluteX $LLHH,X
+    // ..... AbsoluteY $LLHH,Y
+    // ..... Indirect ($LLHH)
+    // ..... Indexed Indirect X ($LL,X)
+    // ..... Indirect Indexed Y ($LL),Y
+
+}

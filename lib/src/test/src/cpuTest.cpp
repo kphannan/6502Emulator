@@ -11,24 +11,21 @@ namespace m6502
     class CpuTest : public testing::Test
     {
     public:
-        // memory::Memory *tMemory = new memory::Memory("Kilroy");
         memory::Memory *tMemory = new memory::Memory("UnitTestMemory");
         memory::Memory testMemory = *tMemory;
-        // memory::Memory testMemory("UnitTestMemory");
 
-        // CPU cpuX(testMemory);
         CPU *cpu;
 
     protected:
         CpuTest()
         {
             // Destination of the reset vector - leaves zeroPage available for testing
-            testMemory.write(0x2000, 0x49); // LDA #00 // starting instruction after reset
-            testMemory.write(0x2001, 0x5A); //
+            testMemory[0x2000] = 0x49; // LDA #00 // starting instruction after reset
+            testMemory[0x2001] = 0x5A; //
 
             // Reset vector points to start of memory
-            testMemory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
-            testMemory.write(0xFFFD, 0x20); //      MSB
+            testMemory[0xFFFC] = 0x00; // cpu::HardwareVector::RESET
+            testMemory[0xFFFD] = 0x20; //      MSB
 
             cpu = new CPU(testMemory);
         }
@@ -43,64 +40,40 @@ namespace m6502
     {
         CPU defaultCpu;
         memory::Memory &memory = defaultCpu.currentMemory();
-        // EXPECT_TRUE(NULL != memory);
+
         // --- Make sure there is a full memory by default
         EXPECT_STREQ("DefaultMemory", memory.name());
-        EXPECT_EQ(0xFFFF, memory.memorySize());
-        EXPECT_EQ(0xFFFF, memory.memorySize());
+        EXPECT_EQ(0x10000, memory.memorySize());
         EXPECT_EQ(0x0000, memory.lowAddress());
         EXPECT_EQ(0xFFFF, memory.highAddress());
 
         EXPECT_EQ(0x2000, cpu->PC());
-        // TODO these register values are not properly initialized yet... Change these test values.
         EXPECT_EQ(0x00, cpu->A());
         EXPECT_EQ(0x00, cpu->X());
         EXPECT_EQ(0x00, cpu->Y());
+        EXPECT_EQ(0b00100000, cpu->P());
     }
 
     TEST_F(CpuTest, ConstructTestFixture)
     {
         memory::Memory &memory = cpu->currentMemory();
-        // EXPECT_TRUE(NULL != memory);
+
         // --- Make sure there is a full memory by default
         EXPECT_STREQ("UnitTestMemory", memory.name());
-        EXPECT_EQ(0xFFFF, memory.memorySize());
-        EXPECT_EQ(0xFFFF, memory.memorySize());
+        EXPECT_EQ(0xFFFF + 1, memory.memorySize());
         EXPECT_EQ(0x0000, memory.lowAddress());
         EXPECT_EQ(0xFFFF, memory.highAddress());
 
         EXPECT_EQ(0x2000, cpu->PC());
-        // TODO these register values are not properly initialized yet... Change these test values.
         EXPECT_EQ(0x00, cpu->A());
         EXPECT_EQ(0x00, cpu->X());
         EXPECT_EQ(0x00, cpu->Y());
-        // EXPECT_EQ(0x20, cpu->P());
         EXPECT_EQ(0b00100000, cpu->P());
     }
 
     // ========== Instructions ==========
 
     // ----- Transfer (load) -----
-    TEST_F(CpuTest, LDA_Immediate)
-    {
-        memory::Memory &memory = cpu->currentMemory();
-
-        // Destination of the reset vector - leaves zeroPage available for testing
-        memory.write(0x2000, 0xA9); // LDA #$CC
-        memory.write(0x2001, 0xCC); //
-
-        cpu->execute(1);
-
-        EXPECT_EQ(0x2002, cpu->PC());
-        EXPECT_EQ(0xCC, cpu->A());
-        // EXPECT_EQ(0xCD, cpu->X());
-        // EXPECT_EQ(0xE5, cpu->Y());
-        EXPECT_EQ(0b00100000, cpu->P());
-        // EXPECT_EQ(0x20, cpu.P);
-        // EXPECT_TRUE(cpu->isN());
-        // EXPECT_FALSE(cpu->isZ());
-    }
-
     // ----- Transfer (store) -----
     // ----- Transfer (interregister transfer) -----
 

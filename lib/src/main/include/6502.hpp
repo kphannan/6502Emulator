@@ -4,34 +4,19 @@
 #define PROCESSOR_HPP
 
 #include <cstdint>
+#include <stdexcept>
 // #include <cstddef>
+#include <iostream>
+#include <iomanip>
 
 #include "hardware.hpp"
 #include "memory.hpp"
 
 namespace m6502
 {
-
+    // forward declarations
     // Identifies the source & destination of an operation
-    enum class SourceDestination
-    {
-        // Register
-        A,  // Accumulator
-        X,  // X Index
-        Y,  // Y Index
-        S,  // Stack  Pointer
-        PC, // Program Counter
-            // Status Register
-        FLAG_N, // negative
-        FLAG_V, // overflow
-        FLAG_B, // break
-        FLAG_D, // decimal
-        FLAG_I, // interrupt disable
-        FLAG_Z, // zero
-        FLAG_C, // carry
-                // Memory
-        MEMORY  // Location in the address space (use addressing mode)
-    };
+    enum class InstructionTarget;
 
     // http://www.6502.org/users/obelisk/6502/registers.html
     typedef struct GeneralPurposeRegisters
@@ -39,28 +24,13 @@ namespace m6502
         hardware::Byte A; // Accumulator
 
         hardware::Byte Y; // Index register Y
-        hardware::Byte X; // Index register  X
+        hardware::Byte X; // Index register X
 
-        hardware::Byte S; // Stack Pointer
+        hardware::Byte P; // Processor status register
+
+        hardware::StackAddress S; // Stack Pointer
 
         hardware::Address PC; // Program Counter
-
-        // Processor Status
-        // union
-        // {
-        //     hardware::Byte value;
-        //     struct ProcessorStatusRegister
-        //     {
-        //         int N : 1;   // Negative
-        //         int V : 1;   // Overflow
-        //         int one : 1; // Constant '1'
-        //         int B : 1;   // BRK command  1 = BRK, 0 = IRQB
-        //         int D : 1;   // Decimal Mode 1 = true
-        //         int I : 1;   // IRQB disable 1 = disable
-        //         int Z : 1;   // Zero 1 = true
-        //         int C : 1;   // Carry 1 = true
-        //     } Flags;
-        // } P;
 
     } REGISTERS;
 
@@ -120,49 +90,20 @@ namespace m6502
         the control flow depending on the respective state of the Z, N, C or V flag.
     */
 
-    // Bit definitions of the Processor Status Register (P)
-    typedef struct ProcessorStatusRegister
-    {
-        int N : 1;   // Negative
-        int V : 1;   // Overflow
-        int one : 1; // Constant '1'
-        int B : 1;   // BRK command  1 = BRK, 0 = IRQB
-        int D : 1;   // Decimal Mode 1 = true
-        int I : 1;   // IRQB disable 1 = disable
-        int Z : 1;   // Zero 1 = true
-        int C : 1;   // Carry 1 = true
-    } STATUS_FLAGS;
-
-    typedef struct ProgrammingModel
-    {
-        // General Purpose  Registers
-        REGISTERS registers;
-
-        // Processor Status Register, accessible as a byte or indiviidual bits.
-        union
-        {
-            hardware::Byte P;
-            STATUS_FLAGS flags;
-        };
-    } PROGRAMMING_MODEL;
-
-    // Default memory spans the whole address space
-    // MEMORY *memory;
-
     // Addressing Modes
     // Implicit
     // Accumulator         A
     // Immediate           #$nn
     // Zero Page           $nn        LO bits 4,5,6
-    // Zero Page, X        $nn, X     LO bits 4,5,6
-    // Zero Page, Y        $nn, Y     LO bits 4,5,6
+    // Zero Page,X         $nn,X      LO bits 4,5,6
+    // Zero Page,Y         $nn,Y      LO bits 4,5,6
     // Relative            $nnnn
     // Absolute            $nnnn
-    // Absolute, X         $nnnn, X
-    // Absolute, Y         $nnnn, Y
+    // Absolute,X          $nnnn,X
+    // Absolute,Y          $nnnn,Y
     // Indirect            ($nnnn)
-    // X Indexed Indirect  ($nn, X)   LO bit 1
-    // Y Indirect Indexed  ($nn), Y   LO bit 1
+    // X Indexed Indirect  ($nn,X)    LO bit 1
+    // Y Indirect Indexed  ($nn),Y    LO bit 1
 
     // Hardware / Software Vectors
     enum class HardwareVector
@@ -178,307 +119,652 @@ namespace m6502
      */
     class CPU
     {
+        // Forward declarations
+        protected:
+            class Pipeline;
+
         // ===== Inner Classes =====
-    public:
-        // ----- Forward Declarations of Inner classes
-        // --- Address Modes
-        class AddressMode; // base
-        class AddressModeImplied;
-        class AddressModeAccumulator;
-        class AddressModeZeroPage;
-        class AddressModeZeroPageIndexedX;
-        class AddressModeZeroPageIndexedY;
-        class AddressModeRelative;
-        class AddressModeAbsolute;
-        class AddressModeAbsoluteIndexedX;
-        class AddressModeAbsoluteIndexedY;
-        class AddressModeIndirect;
-        class AddressModeIndexedIndirectX;
-        class AddressModeIndirectIndexedY;
-        class AddressModeImmediate;
+        public:
+            class AddressMode;
 
-        // --- Instruction
-        class Instruction; // base
-        class InstructionIllegal;
+            //        Undefined,           // Catch illegal address mode
+            class AddressModeUndefined;
 
-        // ===== Transfer Instructions
-        // ----- Load
-        class InstructionLoad;
-        // --- LDA *
-        // --- LDX *
-        // --- LDY *
-        //
+            //        IMPLICIT,           // Implicit
+            class AddressModeImplied;
 
-        // ----- Store
-        class InstructionStore;
-        // --- STA *
-        // --- STX *
-        // --- STY *
+            //        ACCUMULATOR,        // Accumulator         A
+            class AddressModeAccumulator;
 
-        // ----- Interregister transfer
-        // --- TAX
-        // --- TAY
-        // --- TSX
-        // --- TXA
-        // --- TXS
-        // --- TYA
+            //        ZERO_PAGE,          // Zero Page           $nn        LO bits 4,5,6
+            class AddressModeZeroPage;
 
-        // ===== Stack Instructions
-        // --- PHA
-        // --- PHP
-        // --- PLA
-        // --- PLP
-        // ===== Decrement & Increment
-        // --- DEC *
-        // --- DEX
-        // --- DEY
-        // --- INC *
-        // --- INX
-        // --- INY
-        // ===== Arithmetic Instructions
-        // --- ADC *
-        // --- SBC *
-        // ===== Logical Instructions
-        class InstructionLogical;
-        // --- AND *
-        // --- EOR *
-        // --- ORA *
-        // ===== Shift & Rotate Instructions
-        // --- ASL *
-        // --- LSR *
-        // --- ROL *
-        // --- ROR *
-        // ===== Flag Instructions
-        // --- CLC
-        // --- CLD
-        // --- CLI
-        // --- CLV
-        // --- SEC
-        // --- SED
-        // --- SEI
-        // ===== Comparison Instructions
-        // --- CMP *
-        // --- CPX *
-        // --- CPY *
-        // ===== Conditional Branch Instructions (fmt: zzy10000)
-        // --- BCC
-        // --- BCS
-        // --- BEQ
-        // --- BMI
-        // --- BNE
-        // --- BPL
-        // --- BVC
-        // --- BVS
-        // ===== Jumps & Subroutines Instructions
-        // --- JUMP *
-        // --- JSR
-        // --- RTS
-        // ===== Interrupts Instructions
-        // --- BRK
-        // --- RTI
-        // ===== Other Instructions
-        // --- BIT *
-        // --- NOP
+            //        ZERO_PAGE_X,        // Zero Page, X        $nn,X      LO bits 4,5,6
+            class AddressModeZeroPageIndexedX;
 
-    protected:
-    private:
-        // TODO maybe split to instruction set class
-        union OpCode
-        {
-            // raw opcode byte
-            hardware::Byte value;
+            //        ZERO_PAGE_Y,        // Zero Page, Y        $nn,Y      LO bits 4,5,6
+            class AddressModeZeroPageIndexedY;
 
-            // format of memory access (r/w) instructions
-            struct MemoryAccess
+            //        RELATIVE,           // Relative            $nn
+            class AddressModeRelative;
+
+            //        ABSOLUTE,           // Absolute            $nnnn
+            class AddressModeAbsolute;
+
+            //        ABSOLUTE_X,         // Absolute, X         $nnnn,X
+            class AddressModeAbsoluteIndexedX;
+
+            //        ABSOLUTE_Y,         // Absolute, Y         $nnnn,Y
+            class AddressModeAbsoluteIndexedY;
+
+            //        INDIRECT,           // Indirect            ($nnnn)
+            class AddressModeIndirect;
+
+            //        INDEXED_INDIRECT_X, // X Indexed Indirect  ($nn,X)    LO bit 1
+            class AddressModeIndexedIndirectX;
+
+            //        INDIRECT_INDEXED_Y  // Y Indirect Indexed  ($nn),Y    LO bit 1
+            class AddressModeIndirectIndexedY;
+
+            //         IMMEDIATE,          // Immediate           #$nn
+            class AddressModeImmediate;
+
+            const inline static hardware::Byte stackPage = 0x01;      // TODO move
+            // const inline static hardware::Address stackMask = 0x01FF; // TODO move
+            //        Stack (pseudo),      // Stack               $01nn
+            class AddressModeStack;
+
+            class AddressModeStackPull;
+
+            class AddressModeStackPush;
+
+            // --- Instruction
+            class Instruction; // base
+            class InstructionIllegal;
+
+            // ===== Transfer Instructions
+            // ----- Load
+            class InstructionLoad;
+            // --- LDA *
+            class InstructionLoadA;
+            // --- LDX *
+            class InstructionLoadX;
+            // --- LDY *
+            class InstructionLoadY;
+            //
+
+            // ----- Store
+            class InstructionStore;
+            // --- STA *
+            // --- STX *
+            // --- STY *
+
+            // ----- Interregister transfer
+            class InstructionTransfer;
+            // --- TAX
+            // --- TAY
+            // --- TSX
+            // --- TXA
+            // --- TXS
+            // --- TYA
+
+            // ===== Stack Instructions
+            class InstructionStack;
+            // --- PHA
+            // --- PHP
+            // --- PLA
+            // --- PLP
+            // ===== Decrement & Increment
+            class InstructionDecrement;
+            class InstructionIncrement;
+            // --- DEC *
+            // --- DEX
+            class InstructionDecrementX;
+            // --- DEY
+            class InstructionDecrementY;
+            // --- INC *
+            // --- INX
+            class InstructionIncrementX;
+            // --- INY
+            class InstructionIncrementY;
+            // ===== Arithmetic Instructions
+            // --- ADC *
+            class InstructionAdd;
+            // --- SBC *
+            class InstructionSubtract;
+            // ===== Logical Instructions
+            class InstructionLogical;
+            // --- AND *
+            class InstructionLogicalAnd;
+            // --- EOR *
+            class InstructionLogicalXor;
+            // --- ORA *
+            class InstructionLogicalOr;
+            // ===== Shift & Rotate Instructions
+            // --- ASL *
+            class InstructionShiftLeft;
+            // --- LSR *
+            class InstructionShiftRight;
+            // --- ROL *
+            class InstructionRotateLeft;
+            // --- ROR *
+            class InstructionRotateRight;
+            // ===== Flag Instructions
+            class InstructionFlagClear;
+            class InstructionFlagSet;
+            // --- CLC
+            // --- CLD
+            // --- CLI
+            // --- CLV
+            // --- SEC
+            // --- SED
+            // --- SEI
+            // ===== Comparison Instructions
+            class InstructionCompare;
+            // --- CMP *
+            // --- CPX *
+            // --- CPY *
+            // ===== Conditional Branch Instructions (fmt: zzy10000)
+            class InstructionBranch;
+            // --- BCC
+            class InstructionBranchCarryClear;
+            // --- BCS
+            class InstructionBranchCarrySet;
+            // --- BEQ
+            class InstructionBranchEqualToZero;
+            // --- BMI
+            class InstructionBranchMinus;
+            // --- BNE
+            class InstructionBranchNotEqualToZero;
+            // --- BPL
+            class InstructionBranchOnPlus;
+            // --- BVC
+            class InstructionBranchOverflowClear;
+            // --- BVS
+            class InstructionBranchOverflowSet;
+            // ===== Jumps & Subroutines Instructions
+            class InstructionChangeProgramCounter;
+            // --- JUMP *
+            class InstructionJump;
+            // --- JSR
+            class InstructionJumpSubroutine;
+            // --- RTS
+            class InstructionReturnFromSubroutine;
+            // ===== Interrupts Instructions
+            class InstructionInterrupt;
+            // --- BRK
+            class InstructionBreak;
+            // --- RTI
+            class InstructionReturnFromInterrupt;
+            // ===== Other Instructions
+            // --- BIT *
+            class InstructionLogicalBit;
+            // --- NOP
+            class InstructionNoOp;
+
+        private:
+            // TODO maybe split to instruction set class
+            union OpCode
             {
-                unsigned c : 2; // 1..0
-                unsigned b : 3; // 4..2
-                unsigned a : 3; // 7..5
-                int s : 1;
-            } memory;
+                // raw opcode byte
+                hardware::Byte value;
 
-            // Branching on flag bits follow this format
-            struct BranchFormat
+                // format of memory access (r/w) instructions
+                struct MemoryAccess
+                {
+                    unsigned c : 2; // 1..0
+                    unsigned b : 3; // 4..2
+                    unsigned a : 3; // 7..5
+                    int s : 1;
+                } memory;
+
+                // Branching on flag bits follow this format
+                struct BranchFormat
+                {
+                    unsigned z : 4; // 3..0
+                    unsigned o : 1; // 4..4
+                    unsigned y : 1; // 5..5
+                    unsigned x : 2; // 7..6
+                    int s : 1;
+                } branch;
+            };
+
+            // Instruction Pipeline
+            // fetch OpCode (advance PC)
+            // decode OpCode
+            // fetch operand (advance PC as defined by operand)
+            // evaluate OpCode (set status flags)
+
+            // ----- Constants -----
+        public:
+            const hardware::Address StackPointerDefault = hardware::Address( 0x01FF );
+
+            // ----- Attributes -----
+        protected:
+            friend class CPU::InstructionTransfer;
+            REGISTERS registers;
+
+        private:
+            memory::Memory &addressSpace; // make a reference
+
+            hardware::Byte instruction;
+            CPU::Pipeline *pipeline;
+
+            // -----
+            CPU::AddressMode *_addressModeUndefined;
+            CPU::AddressModeImplied *_addressModeImplied;
+            CPU::AddressModeAccumulator *_addressModeAccumulator;
+            CPU::AddressModeZeroPage *_addressModeZeroPage;
+            CPU::AddressModeZeroPageIndexedX *_addressModeZeroPageIndexedX;
+            CPU::AddressModeZeroPageIndexedY *_addressModeZeroPageIndexedY;
+            CPU::AddressModeRelative *_addressModeRelative;
+            CPU::AddressModeAbsolute *_addressModeAbsolute;
+            CPU::AddressModeAbsoluteIndexedX *_addressModeAbsoluteIndexedX;
+            CPU::AddressModeAbsoluteIndexedY *_addressModeAbsoluteIndexedY;
+            CPU::AddressModeIndirect *_addressModeIndirect;
+            CPU::AddressModeIndexedIndirectX *_addressModeIndexedIndirectX;
+            CPU::AddressModeIndirectIndexedY *_addressModeIndirectIndexedY;
+            CPU::AddressModeImmediate *_addressModeImmediate;
+            // CPU::AddressModeStack *_addressModeStack;
+            CPU::AddressModeStackPull *_addressModeStackPull;
+            CPU::AddressModeStackPush *_addressModeStackPush;
+
+            // TODO get the actual operations
+            CPU::Instruction *_instructionUndefined;
+            // ----- Transfer
+
+            // ===== Transfer Instructions
+            // ----- Load
+            CPU::InstructionLoad *_instructionLoad;
+            // --- LDA *
+            CPU::InstructionLoad *_instructionLoadA;
+            // --- LDX *
+            CPU::InstructionLoad *_instructionLoadX;
+            // --- LDY *
+            CPU::InstructionLoad *_instructionLoadY;
+            //
+
+            // ----- Store
+            CPU::InstructionStore *_instructionStore;
+            // --- STA *
+            // --- STX *
+            // --- STY *
+
+            // ----- Interregister transfer
+            CPU::InstructionTransfer *_instructionTransfer;
+            // --- TAX
+            CPU::InstructionTransfer *_instructionTransferAtoX;
+            // --- TAY
+            CPU::InstructionTransfer *_instructionTransferAtoY;
+            // --- TSX
+            CPU::InstructionTransfer *_instructionTransferStoX;
+            // --- TXA
+            CPU::InstructionTransfer *_instructionTransferXtoA;
+            // --- TXS
+            CPU::InstructionTransfer *_instructionTransferXtoS;
+            // --- TYA
+            CPU::InstructionTransfer *_instructionTransferYtoA;
+
+            // ===== Stack Instructions
+            CPU::InstructionStack *_instructionStack;
+            // --- PHA
+            // --- PHP
+            // --- PLA
+            // --- PLP
+            // ===== Decrement & Increment
+            CPU::InstructionDecrement *_instructionDecrement;
+            CPU::InstructionIncrement *_instructionIncrement;
+            // --- DEC *
+            // --- DEX
+            CPU::InstructionDecrement *_instructionDecrementX; // TODO use general Decrement
+            // --- DEY
+            CPU::InstructionDecrement *_instructionDecrementY; // TODO use general Decrement
+            // --- INC *
+            // --- INX
+            CPU::InstructionIncrement *_instructionIncrementX; // TODO use general Increment
+            // --- INY
+            CPU::InstructionIncrement *_instructionIncrementY; // TODO use general Increment
+            // ===== Arithmetic Instructions
+            // --- ADC *
+            CPU::InstructionAdd *_instructionAdd;
+            // --- SBC *
+            CPU::InstructionSubtract *_instructionSubtract;
+            // ===== Logical Instructions
+            CPU::InstructionLogical *_instructionLogical;
+            // --- AND *
+            CPU::InstructionLogicalAnd *_instructionLogicalAnd;
+            // --- EOR *
+            CPU::InstructionLogicalXor *_instructionLogicalXor;
+            // --- ORA *
+            CPU::InstructionLogicalOr *_instructionLogicalOr;
+            // ===== Shift & Rotate Instructions
+            // --- ASL *
+            CPU::InstructionShiftLeft *_instructionShiftLeft;
+            // --- LSR *
+            CPU::InstructionShiftRight *_instructionShiftRight;
+            // --- ROL *
+            CPU::InstructionRotateLeft *_instructionRotateLeft;
+            // --- ROR *
+            CPU::InstructionRotateRight *_instructionRotateRight;
+            // ===== Flag Instructions
+            CPU::InstructionFlagClear *_instructionFlagClear;
+            CPU::InstructionFlagSet *_instructionFlagSet;
+            // --- CLC
+            // --- CLD
+            // --- CLI
+            // --- CLV
+            // --- SEC
+            // --- SED
+            // --- SEI
+            // ===== Comparison Instructions
+            CPU::InstructionCompare *_instructionCompare;
+            // --- CMP *
+            // --- CPX *
+            // --- CPY *
+            // ===== Conditional Branch Instructions (fmt: zzy10000)
+            CPU::InstructionBranch *_instructionBranch;
+            // --- BCC
+            class CPU::InstructionBranchCarryClear *_instructionBranchCarryClear;
+            // --- BCS
+            class CPU::InstructionBranchCarrySet *_instructionBranchCarrySet;
+            // --- BEQ
+            class CPU::InstructionBranchEqualToZero *_instructionBranchEqualToZero;
+            // --- BMI
+            class CPU::InstructionBranchMinus *_instructionBranchMinus;
+            // --- BNE
+            class CPU::InstructionBranchNotEqualToZero *_instructionBranchNotEqualToZero;
+            // --- BPL
+            class CPU::InstructionBranchOnPlus *_instructionBranchOnPlus;
+            // --- BVC
+            class CPU::InstructionBranchOverflowClear *_instructionBranchOverflowClear;
+            // --- BVS
+            class CPU::InstructionBranchOverflowSet *_instructionBranchOverflowSet;
+
+            // ===== Jumps & Subroutines Instructions
+            // --- JUMP *
+            CPU::InstructionJump *_instructionJump;
+            // --- JSR
+            CPU::InstructionJumpSubroutine *_instructionJumpSubroutine;
+            // --- RTS
+            CPU::InstructionReturnFromSubroutine *_instructionReturnFromSubroutine;
+            // ===== Interrupts Instructions
+            // --- BRK
+            CPU::InstructionBreak *_instructionBreak;
+            // --- RTI
+            CPU::InstructionReturnFromInterrupt *_instructionReturnFromInterrupt;
+            // ===== Other Instructions
+            // --- BIT *
+            CPU::InstructionLogicalBit *_instructionLogicalBit;
+            // --- NOP
+            CPU::InstructionNoOp *_instructionNoOp;
+
+            // ----- Constructors -----
+        public:
+            CPU();
+            // CPU(const CPU *other);
+            CPU(memory::Memory &memory);
+
+            ~CPU();
+
+            // ----- Methods -----
+        public:
+            Pipeline &decodePipeline() { return *pipeline; }
+
+            void reset();
+
+            // Access to registers (pipeline only)
+            hardware::Byte &A() { return registers.A; };
+            hardware::Byte &X() { return registers.X; };
+            hardware::Byte &Y() { return registers.Y; };
+            //        hardware::Address &PC() { return registers.PC.address; };
+            hardware::Address &PC() { return registers.PC; };
+            hardware::Byte &PCH() { return registers.PC.value.hi; };
+            hardware::Byte &PCL() { return registers.PC.value.lo; };
+            //        Registers::ProgramCounter &PC() { return registers.PC; };
+            hardware::StackAddress &S() { return registers.S; };
+            // Processor status byte
+            hardware::Byte &P() { return registers.P; };
+
+            void A(hardware::Byte value)
             {
-                unsigned z : 4; // 3..0
-                unsigned o : 1; // 4..4
-                unsigned y : 1; // 5..5
-                unsigned x : 2; // 7..6
-                int s : 1;
-            } branch;
-        };
+                registers.A = value;
+                setZ(value == 0);
+                setN((value & 0b10000000) != 0); // 2s compliment bit 7 is sign bit
+            };
 
-        // Addressing Modes
+            void X(hardware::Byte value)
+            {
+                registers.X = value;
+                setZ(value == 0);
+                setN((value & 0b10000000) != 0); // 2s compliment bit 7 is sign bit
+            };
 
-        // Instruction code chart
-        // https://www.masswerk.at/6502/6502_instruction_set.html
-        enum class AddressModeKind
-        {
-            IMPLICIT,           // Implicit
-            ACCUMULATOR,        // Accumulator         A
-            IMMEDIATE,          // Immediate           #$nn
-            ZERO_PAGE,          // Zero Page           $nn        LO bits 4,5,6
-            ZERO_PAGE_X,        // Zero Page, X        $nn, X     LO bits 4,5,6
-            ZERO_PAGE_Y,        // Zero Page, Y        $nn, Y     LO bits 4,5,6
-            RELATIVE,           // Relative            $nnnn
-            ABSOLUTE,           // Absolute            $nnnn
-            ABSOLUTE_X,         // Absolute, X         $nnnn, X
-            ABSOLUTE_Y,         // Absolute, Y         $nnnn, Y
-            INDIRECT,           // Indirect            ($nnnn)
-            INDEXED_INDIRECT_X, // X Indexed Indirect  ($nn, X)   LO bit 1
-            INDIRECT_INDEXED_Y  // Y Indirect Indexed  ($nn), Y   LO bit 1
-        };
+            void Y(hardware::Byte value)
+            {
+                registers.Y = value;
+                setZ(value == 0);
+                setN((value & 0b10000000) != 0); // 2s compliment bit 7 is sign bit
+            };
 
-        // Instruction Pipeline
-        // fetch OpCode (advance PC)
-        // decode OpCode
-        // fetch operand (advance PC as defined by operand)
-        // evaluate OpCode (set status flags)
+            void P(hardware::Byte value)
+            {
+                registers.P = value;
+            };
 
-        class Pipeline
-        {
-            // Constants
+            void S(const hardware::StackAddress& value)
+            {
+                registers.S = value;
+            };
+
+            void S(hardware::Byte value)
+            {
+                registers.S.value.lo = value;
+            };
+
+            void PC(const hardware::Address& value) { registers.PC.value.address = value.value.address; };
+            void PC(const hardware::Word& value) { registers.PC.value.address.word = value.word; }
+            void PC(const unsigned short value) { registers.PC.value.address.word = value; }
+            // void PC(const unsigned int value) { registers.PC.address.word = value; }
+            void PC(const hardware::Byte hi, const hardware::Byte lo)
+            {
+                registers.PC.value.address.hi = hi;
+                registers.PC.value.address.lo = lo;
+            };
+
+            // This could be accomplished with a Union and bit fields.
+            // Organize these constants better
+            static const uint8_t NegativeBit = 7;
+            static const uint8_t OverflowBit = 6;
+            static const uint8_t BrkBit = 4;
+            static const uint8_t DecimalModeBit = 3;
+            static const uint8_t IrqDisableBit = 2;
+            static const uint8_t ZeroBit = 1;
+            static const uint8_t CarryBit = 0;
+            // Masks for status bits
+            static const uint8_t NegativeBitMask = 1 << NegativeBit;
+            static const uint8_t OverflowBitMask = 1 << OverflowBit;
+            static const uint8_t BrkBitMask = 1 << BrkBit;
+            static const uint8_t DecimalModeBitMask = 1 << DecimalModeBit;
+            static const uint8_t IrqDisableBitMask = 1 << IrqDisableBit;
+            static const uint8_t ZeroBitMask = 1 << ZeroBit;
+            static const uint8_t CarryBitMask = 1 << CarryBit;
+
+            // Processor status flags
+            bool isB() const { return registers.P & BrkBitMask; };         // BRK
+            bool isC() const { return registers.P & CarryBitMask; };       // Carry
+            bool isD() const { return registers.P & DecimalModeBitMask; }; // Decimal mode
+            bool isI() const { return registers.P & IrqDisableBitMask; };  // IRQ disable
+            bool isN() const { return registers.P & NegativeBitMask; };    // Negative
+            bool isV() const { return registers.P & OverflowBitMask; };    // Overflow
+            bool isZ() const { return registers.P & ZeroBitMask; };        // Zero
+
+            hardware::Byte setB() { return setBit(registers.P, BrkBit); };
+            hardware::Byte setC() { return setBit(registers.P, CarryBit); };
+            hardware::Byte setD() { return setBit(registers.P, DecimalModeBit); };
+            hardware::Byte setI() { return setBit(registers.P, IrqDisableBit); };
+            hardware::Byte setN() { return setBit(registers.P, NegativeBit); };
+            hardware::Byte setV() { return setBit(registers.P, OverflowBit); };
+            hardware::Byte setZ() { return setBit(registers.P, ZeroBit); };
+
+            hardware::Byte clearB() { return clearBit(registers.P, BrkBit); };
+            hardware::Byte clearC() { return clearBit(registers.P, CarryBit); };
+            hardware::Byte clearD() { return clearBit(registers.P, DecimalModeBit); };
+            hardware::Byte clearI() { return clearBit(registers.P, IrqDisableBit); };
+            hardware::Byte clearN() { return clearBit(registers.P, NegativeBit); };
+            hardware::Byte clearV() { return clearBit(registers.P, OverflowBit); };
+            hardware::Byte clearZ() { return clearBit(registers.P, ZeroBit); };
+
+            void showRegisters();
+
+            void executeFromAddress(const hardware::Address& address, uint32_t stepCount = 1);
+            void executeFromAddress(const unsigned int address, uint32_t stepCount = 1);
+            void execute(int numberOfInstructions = -1);
+
+            memory::Memory &currentMemory() { return addressSpace; }
+            // void CPU::memoryBank(memory::Memory &memory);
+
         private:
+            void statusFlagCheck(int bit) const
+            {
+                if (!(bit >= 0 && bit <= 7))
+                {
+                    throw std::out_of_range("Status bit invalid");
+                }
+            }
+
+            hardware::Byte setBit(const hardware::Byte &value, int bit) const
+            {
+                statusFlagCheck(bit);
+
+                hardware::Byte tmp(value);
+
+                // bit value 0 to 7
+                tmp |= 1 << bit;
+
+                return tmp;
+            }
+
+            hardware::Byte setBit(hardware::Byte &value, int bit) const
+            {
+                statusFlagCheck(bit);
+
+                // bit value 0 to 7
+                value |= 1 << bit;
+
+                return value;
+            }
+
+            hardware::Byte clearBit(const hardware::Byte &value, int bit) const
+            {
+                statusFlagCheck(bit);
+
+                hardware::Byte tmp(value);
+                // bit value 0 to 7
+                tmp &= ~(1 << bit);
+
+                return tmp;
+            }
+
+            hardware::Byte clearBit(hardware::Byte &value, int bit) const
+            {
+                statusFlagCheck(bit);
+
+                // bit value 0 to 7
+                value &= ~(1 << bit);
+
+                return value;
+            }
+
+            // maybe remove these and only use set/clear methods with no args
+            hardware::Byte setB(bool value) { return value == 1 ? setBit(registers.P, BrkBit) : clearBit(registers.P, BrkBit); };
+            hardware::Byte setC(bool value) { return value == 1 ? setBit(registers.P, CarryBit) : clearBit(registers.P, CarryBit); };
+            hardware::Byte setD(bool value) { return value == 1 ? setBit(registers.P, DecimalModeBit) : clearBit(registers.P, DecimalModeBit); };
+            hardware::Byte setI(bool value) { return value == 1 ? setBit(registers.P, IrqDisableBit) : clearBit(registers.P, IrqDisableBit); };
+            hardware::Byte setN(bool value) { return value == 1 ? setBit(registers.P, NegativeBit) : clearBit(registers.P, NegativeBit); };
+            hardware::Byte setV(bool value) { return value == 1 ? setBit(registers.P, OverflowBit) : clearBit(registers.P, OverflowBit); };
+            hardware::Byte setZ(bool value) { return value == 1 ? setBit(registers.P, ZeroBit) : clearBit(registers.P, ZeroBit); };
+
+            void push(const hardware::Byte &value);
+            void push(const hardware::Word &value);
+            void push(const hardware::Address &value);
+            hardware::Byte pop();
+            hardware::Word popWord();
+            hardware::Address popAddress();
+
+
         protected:
-        public:
-            // Fields
-            // TODO not good to be public
-            int operand; // struct/union/class (register,implied,Byte,Word)
-            Instruction *cpuInstruction;
-            AddressMode *addressMode;
 
-        private:
-            CPU &cpu;
-            // The Address space connected to the CPU
-            // memory::Memory &addressSpace;
-            // hardware::Address &address; // Same as program counter
+            class Pipeline
+            {
+                    // Constants
+                private:
+                protected:
+                public:
+                    // Fields
+                public:
+                    // TODO not good to be public
+                    int operand; // struct/union/class (register,implied,Byte,Word)
+                    Instruction *cpuInstruction;
+                    CPU::AddressMode *addressMode;
 
-            OpCode opCode;
-            // int opcode;
-            // AddressModeKind addressModeKind;
+                    InstructionTarget src;
+                    InstructionTarget dst;
 
-        protected:
-            // Constructors
-        private:
-        protected:
-        public:
-            /** Configure the instruction pipeline with the address space and program counter. */
-            // Pipeline(memory::Memory &memory, hardware::Address &address);
-            Pipeline(CPU &cpu);
-            // Pipeline(memory::Memory &memory);
+                    // Lambdas....
+                    // source;
+                    // destination;
 
-            // ~Pipeline();
+                protected:
+                private:
+                    CPU &cpu;
 
-            // Methods
-        private:
-            // Read an opcode from the cuurrent memory address
-            void fetchOpCode();
-            AddressMode &decodeAddressMode(const OpCode instruction);
-            void showAddressMode(const AddressMode &addressMode) const;
-            void decodeSource();
-            void decodeDestination();
-            void decodeOperation(const OpCode instruction);
+                    OpCode opCode;
+                    // int opcode;
+                    // AddressModeKind addressModeKind;
 
-            // Decode  the opcode and determine the addressing mode and read the operand
-            void fetchOperand(AddressMode &addressMode);
-            void evaluate();
+                    // Constructors
+                public:
+                    /** Configure the instruction pipeline with the address space and program counter. */
+                    // Pipeline(memory::Memory &memory, hardware::Address &address);
+                    Pipeline(CPU &cpu);
 
-        protected:
-        public:
-            void reset(hardware::Address address);
-            // Reset the pipeline, removing any instructions being decoded.
-            void clear();
-            void execute();
-            void execute(int numberOfSteps);
-            void showPipeline() const;
-            //  Registers
+                    // ~Pipeline();
+                protected:
+                private:
+                    // Methods
+                public:
+                    void reset(hardware::Address address);
+                    // Reset the pipeline, removing any instructions being decoded.
+                    void clear();
+                    void execute();
+                    void execute(int numberOfSteps);
+                    void showPipeline() const;
 
-            // Operators
-        private:
-        protected:
-        public:
-        };
-        // End of Pipeline inner class
+                protected:
+                private:
+                    // Read an opcode from the cuurrent memory address
+                    void fetchOpCode();
+                    AddressMode &decodeAddressMode(const OpCode instruction);
+                    void showAddressMode(const AddressMode &addressMode) const;
+                    void decodeOperation(const OpCode instruction);
 
-    protected:
-    public:
-        // ----- Constants -----
-    private:
-    protected:
-    public:
-        // ----- Attributes -----
-    private:
-        PROGRAMMING_MODEL model;
-        memory::Memory &addressSpace; // make a reference
+                    void evaluate();
 
-        hardware::Byte instruction;
-        CPU::Pipeline *pipeline;
+                    //  Registers
 
-        // -----
-        CPU::AddressMode *_addressModeUndefined;
-        CPU::AddressMode *_addressModeImplied;
-        CPU::AddressMode *_addressModeAccumulator;
-        CPU::AddressMode *_addressModeZeroPage;
-        CPU::AddressMode *_addressModeZeroPageIndexedX;
-        CPU::AddressMode *_addressModeZeroPageIndexedY;
-        CPU::AddressMode *_addressModeRelative;
-        CPU::AddressModeAbsolute *_addressModeAbsolute;
-        CPU::AddressMode *_addressModeAbsoluteIndexedX;
-        CPU::AddressMode *_addressModeAbsoluteIndexedY;
-        CPU::AddressMode *_addressModeIndirect;
-        CPU::AddressMode *_addressModeIndexedIndirectX;
-        CPU::AddressMode *_addressModeIndirectIndexedY;
-        CPU::AddressModeImmediate *_addressModeImmediate;
+                    // Operators
+                public:
+                protected:
+                private:
+            };
+            // End of Pipeline inner class
 
-        // TODO get the actual operations
-        CPU::Instruction *_instructionUndefined;
-        CPU::InstructionLoad *_instructionLoad;
-        CPU::InstructionStore *_instructionStore;
-        CPU::InstructionLogical *_instructionLogical;
 
-    protected:
-    public:
-        // ----- Constructors -----
-    private:
-    protected:
-    public:
-        CPU();
-        CPU(memory::Memory &memory);
-
-        // ----- Methods -----
-    private:
-    protected:
-    public:
-        Pipeline &decodePipeline() { return *pipeline; }
-
-        void reset();
-        // void memoryBank(Memory *memory); // currently only support full address space.
-        hardware::Address &PC() { return model.registers.PC; };
-        hardware::Byte &A() { return model.registers.A; };
-        hardware::Byte &X() { return model.registers.X; };
-        hardware::Byte &Y() { return model.registers.Y; };
-        hardware::Byte &S() { return model.registers.S; };
-
-        // Processor status byte
-        hardware::Byte &P() { return model.P; };
-
-        // Processor status flags
-        bool isB() { return model.flags.B == 1; }; // BRK
-        bool isC() { return model.flags.C == 1; }; // Carry
-        bool isD() { return model.flags.D == 1; }; // Decimal mode
-        bool isI() { return model.flags.I == 1; }; // IRQ disable
-        bool isN() { return model.flags.N == 1; }; // Negative
-        bool isV() { return model.flags.V == 1; }; // Overflow
-        bool isZ() { return model.flags.Z == 1; }; // Zero
-
-        void showRegisters();
-
-        void execute(hardware::Address address);
-        void execute(int numberOfInstructions);
-        void execute();
-
-        memory::Memory &currentMemory();
     };
+
+    // ===== Address Modes =====
+
+    // ===== Instructions =====
 
 }
 
