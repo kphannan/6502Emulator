@@ -19,12 +19,12 @@ namespace m6502
         InstructionShiftTest()
         {
             // Destination of the reset vector - leaves zeroPage available for testing
-            testMemory.write(0x2000, 0x49); // LDA #00 // starting instruction after reset
-            testMemory.write(0x2001, 0x5A);
+            testMemory[0x2000] = 0x49; // LDA #00 // starting instruction after reset
+            testMemory[0x2001] = 0x5A;
 
             // Reset vector points to start of memory
-            testMemory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
-            testMemory.write(0xFFFD, 0x20); //      MSB
+            testMemory[0xFFFC] = 0x00; // cpu::HardwareVector::RESET
+            testMemory[0xFFFD] = 0x20; //      MSB
 
             cpu = new CPU(testMemory);
         }
@@ -86,7 +86,7 @@ namespace m6502
         // --- given
         cpu->A(0x22); // 0010 0010 -> 0100 0100 C:0
         cpu->setC();
-        testMemory.write(0x2000, 0x0A); // ASL A
+        testMemory[0x2000] = 0x0A; // ASL A
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -104,7 +104,7 @@ namespace m6502
         // --- given
         cpu->A(0x80);
         cpu->clearC();
-        testMemory.write(0x2000, 0x0A); // ASL A
+        testMemory[0x2000] = 0x0A; // ASL A
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -125,10 +125,10 @@ namespace m6502
         // --- given
         cpu->A(0x22); // 0010 0010 -> 0100 0100 C:0
         cpu->setC();
-        testMemory.write(0x2000, 0x06); // ASL $nn
-        testMemory.write(0x2001, 0x08);
+        testMemory[0x2000] = 0x06; // ASL $nn
+        testMemory[0x2001] = 0x08;
 
-        testMemory.write(0x0008, 0x22);
+        testMemory[0x0008] = 0x22;
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -147,10 +147,10 @@ namespace m6502
         // --- given
         cpu->A(0x80);
         cpu->clearC();
-        testMemory.write(0x2000, 0x06); // ASL $nn
-        testMemory.write(0x2001, 0x08);
+        testMemory[0x2000] = 0x06; // ASL $nn
+        testMemory[0x2001] = 0x08;
 
-        testMemory.write(0x0008, 0x80);
+        testMemory[0x0008] = 0x80;
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -171,10 +171,10 @@ namespace m6502
         cpu->A(0x22);
         cpu->X(0x10);
         cpu->setC();
-        testMemory.write(0x2000, 0x16); // ASL $nn,X
-        testMemory.write(0x2001, 0x08);
+        testMemory[0x2000] = 0x16; // ASL $nn,X
+        testMemory[0x2001] = 0x08;
 
-        testMemory.write(0x0018, 0x42); // 0100 0010 -> 1000 0100
+        testMemory[0x0018] = 0x42; // 0100 0010 -> 1000 0100
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -198,11 +198,11 @@ namespace m6502
         // --- given
         cpu->A(0x22); // 0010 0010 -> 0100 0100 C:0
         cpu->setC();
-        testMemory.write(0x2000, 0x0E); // ASL $nnnn
-        testMemory.write(0x2001, 0x08);
-        testMemory.write(0x2002, 0x22);
+        testMemory[0x2000] = 0x0E; // ASL $nnnn
+        testMemory[0x2001] = 0x08;
+        testMemory[0x2002] = 0x22;
 
-        testMemory.write(0x2208, 0x22); // 0010 0010 -> 0100 0100
+        testMemory[0x2208] = 0x22; // 0010 0010 -> 0100 0100
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -223,11 +223,11 @@ namespace m6502
         cpu->A(0x22);
         cpu->X(0x10);
         cpu->setC();
-        testMemory.write(0x2000, 0x1E); // ASL $nnnn,X
-        testMemory.write(0x2001, 0x08);
-        testMemory.write(0x2002, 0x08);
+        testMemory[0x2000] = 0x1E; // ASL $nnnn,X
+        testMemory[0x2001] = 0x08;
+        testMemory[0x2002] = 0x08;
 
-        testMemory.write(0x0818, 0x42); // 0100 0010 -> 1000 0100
+        testMemory[0x0818] = 0x42; // 0100 0010 -> 1000 0100
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -272,7 +272,7 @@ namespace m6502
         // --- given
         cpu->A(0xF1);
         cpu->clearC();
-        testMemory.write(0x2000, 0x4A); // LSR A
+        testMemory[0x2000] = 0x4A; // LSR A
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -290,7 +290,7 @@ namespace m6502
         // --- given
         cpu->A(0x01);
         cpu->clearC();
-        testMemory.write(0x2000, 0x4A); // LSR A
+        testMemory[0x2000] = 0x4A; // LSR A
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -309,10 +309,10 @@ namespace m6502
         // --- given
         cpu->A(0xF1);
         cpu->setC();
-        testMemory.write(0x2000, 0x46); // LSR $nn
-        testMemory.write(0x2001, 0x56);
+        testMemory[0x2000] = 0x46; // LSR $nn
+        testMemory[0x2001] = 0x56;
 
-        testMemory.write(0x0056, 0x56); // Data: 0101 0110 -> 0010 1011 C:0
+        testMemory[0x0056] = 0x56; // Data: 0101 0110 -> 0010 1011 C:0
         // --- when
         cpu->executeFromAddress(0x2000, 1);
 
@@ -330,10 +330,10 @@ namespace m6502
         // --- given
         cpu->A(0x01);
         cpu->clearC();
-        testMemory.write(0x2000, 0x46); // LSR $nn
-        testMemory.write(0x2001, 0x50);
+        testMemory[0x2000] = 0x46; // LSR $nn
+        testMemory[0x2001] = 0x50;
 
-        testMemory.write(0x0050, 0x01); // Data: 0101 0110 -> 0010 1011 C:0
+        testMemory[0x0050] = 0x01; // Data: 0101 0110 -> 0010 1011 C:0
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -354,10 +354,10 @@ namespace m6502
         cpu->A(0x01);
         cpu->X(0x15);
         cpu->clearC();
-        testMemory.write(0x2000, 0x56); // LSR $nn,X
-        testMemory.write(0x2001, 0x50);
+        testMemory[0x2000] = 0x56; // LSR $nn,X
+        testMemory[0x2001] = 0x50;
 
-        testMemory.write(0x0065, 0x01); // Data: 0101 0110 -> 0010 1011 C:0
+        testMemory[0x0065] = 0x01; // Data: 0101 0110 -> 0010 1011 C:0
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -382,11 +382,11 @@ namespace m6502
         cpu->A(0x01);
         cpu->X(0x15);
         cpu->setC();
-        testMemory.write(0x2000, 0x4E); // LSR $nnnn
-        testMemory.write(0x2001, 0x50);
-        testMemory.write(0x2002, 0x50);
+        testMemory[0x2000] = 0x4E; // LSR $nnnn
+        testMemory[0x2001] = 0x50;
+        testMemory[0x2002] = 0x50;
 
-        testMemory.write(0x5050, 0x92); // Data: 1001 0010 -> 0100 1001 C:0
+        testMemory[0x5050] = 0x92; // Data: 1001 0010 -> 0100 1001 C:0
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -408,11 +408,11 @@ namespace m6502
         cpu->A(0x01);
         cpu->X(0x15);
         cpu->setC();
-        testMemory.write(0x2000, 0x5E); // LSR $nnnn,X
-        testMemory.write(0x2001, 0x50);
-        testMemory.write(0x2002, 0x50);
+        testMemory[0x2000] = 0x5E; // LSR $nnnn,X
+        testMemory[0x2001] = 0x50;
+        testMemory[0x2002] = 0x50;
 
-        testMemory.write(0x5065, 0xD2); // Data: 1101 0010 -> 0100 1001 C:0
+        testMemory[0x5065] = 0xD2; // Data: 1101 0010 -> 0100 1001 C:0
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -459,7 +459,7 @@ namespace m6502
         // --- given
         cpu->A(0x7F); // 0b0111 1111  -> 1111 1111  C:0
         cpu->setC();
-        testMemory.write(0x2000, 0x2A); // ROL A
+        testMemory[0x2000] = 0x2A; // ROL A
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -479,7 +479,7 @@ namespace m6502
         // --- given
         cpu->A(0x94); // 0b1001 0100  -> 0010 1001  C:1
         cpu->setC();
-        testMemory.write(0x2000, 0x2A); // ROL A
+        testMemory[0x2000] = 0x2A; // ROL A
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -499,7 +499,7 @@ namespace m6502
         // --- given
         cpu->A(0x80); // 0b1000 0000 -> 0000 0000  C:1
         cpu->clearC();
-        testMemory.write(0x2000, 0x2A); // ROL A
+        testMemory[0x2000] = 0x2A; // ROL A
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -519,7 +519,7 @@ namespace m6502
         // --- given
         cpu->A(0xC0); // 0b1100 0000 -> 1000 0000  C:1
         cpu->clearC();
-        testMemory.write(0x2000, 0x2A); // ROL A
+        testMemory[0x2000] = 0x2A; // ROL A
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -538,10 +538,10 @@ namespace m6502
         // --- given
         cpu->A(0xC0);
         cpu->clearC();
-        testMemory.write(0x2000, 0x26); // ROL $12
-        testMemory.write(0x2001, 0x12);
+        testMemory[0x2000] = 0x26; // ROL $12
+        testMemory[0x2001] = 0x12;
 
-        testMemory.write(0x0012, 0xC0); // Data: 0b1100 0000 -> 1000 0000  C:1
+        testMemory[0x0012] = 0xC0; // Data: 0b1100 0000 -> 1000 0000  C:1
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -562,10 +562,10 @@ namespace m6502
         cpu->A(0xC0);
         cpu->X(0x01);
         cpu->setC();
-        testMemory.write(0x2000, 0x36); // ROL $12,X
-        testMemory.write(0x2001, 0x12);
+        testMemory[0x2000] = 0x36; // ROL $12,X
+        testMemory[0x2001] = 0x12;
 
-        testMemory.write(0x0013, 0xE0); // Data: 0b1110 0000 -> 1100 0001  C:1
+        testMemory[0x0013] = 0xE0; // Data: 0b1110 0000 -> 1100 0001  C:1
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -590,11 +590,11 @@ namespace m6502
         cpu->A(0xC0);
         cpu->X(0x01);
         cpu->setC();
-        testMemory.write(0x2000, 0x2E); // ROL $1234
-        testMemory.write(0x2001, 0x34);
-        testMemory.write(0x2002, 0x12);
+        testMemory[0x2000] = 0x2E; // ROL $1234
+        testMemory[0x2001] = 0x34;
+        testMemory[0x2002] = 0x12;
 
-        testMemory.write(0x1234, 0xE0); // Data: 0b1110 0000 -> 1100 0001  C:1
+        testMemory[0x1234] = 0xE0; // Data: 0b1110 0000 -> 1100 0001  C:1
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -616,11 +616,11 @@ namespace m6502
         cpu->A(0xC0);
         cpu->X(0x01);
         cpu->setC();
-        testMemory.write(0x2000, 0x3E); // ROL $1243,X
-        testMemory.write(0x2001, 0x43);
-        testMemory.write(0x2002, 0x12);
+        testMemory[0x2000] = 0x3E; // ROL $1243,X
+        testMemory[0x2001] = 0x43;
+        testMemory[0x2002] = 0x12;
 
-        testMemory.write(0x1244, 0xE0); // Data: 0b1110 0000 -> 1100 0001  C:1
+        testMemory[0x1244] = 0xE0; // Data: 0b1110 0000 -> 1100 0001  C:1
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -665,7 +665,7 @@ namespace m6502
         // --- given
         cpu->A(0xF1);
         cpu->setC();
-        testMemory.write(0x2000, 0x6A); // ROR A
+        testMemory[0x2000] = 0x6A; // ROR A
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -685,7 +685,7 @@ namespace m6502
         // --- given
         cpu->A(0xF0);
         cpu->setC();
-        testMemory.write(0x2000, 0x6A); // ROR A
+        testMemory[0x2000] = 0x6A; // ROR A
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -705,7 +705,7 @@ namespace m6502
         // --- given
         cpu->A(0xF1); // 0b1111 0001  -> 0111 1000  C:1
         cpu->clearC();
-        testMemory.write(0x2000, 0x6A); // ROR A
+        testMemory[0x2000] = 0x6A; // ROR A
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -725,7 +725,7 @@ namespace m6502
         // --- given
         cpu->A(0xF0); // 0b1111 0000  -> 0111 1000  C:0
         cpu->clearC();
-        testMemory.write(0x2000, 0x6A); // ROR A
+        testMemory[0x2000] = 0x6A; // ROR A
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -746,10 +746,10 @@ namespace m6502
         // --- given
         cpu->A(0xF0);
         cpu->setC();
-        testMemory.write(0x2000, 0x66); // ROR $34
-        testMemory.write(0x2001, 0x34);
+        testMemory[0x2000] = 0x66; // ROR $34
+        testMemory[0x2001] = 0x34;
 
-        testMemory.write(0x0034, 0xD0); // 0b1101 0000 -> 1110 1000 C:0
+        testMemory[0x0034] = 0xD0; // 0b1101 0000 -> 1110 1000 C:0
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -768,10 +768,10 @@ namespace m6502
         // --- given
         cpu->A(0xF0);
         cpu->setC();
-        testMemory.write(0x2000, 0x66); // ROR $33
-        testMemory.write(0x2001, 0x33);
+        testMemory[0x2000] = 0x66; // ROR $33
+        testMemory[0x2001] = 0x33;
 
-        testMemory.write(0x0033, 0x41); // 0b0100 0001 -> 1010 0000 C:1
+        testMemory[0x0033] = 0x41; // 0b0100 0001 -> 1010 0000 C:1
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -790,10 +790,10 @@ namespace m6502
         // --- given
         cpu->A(0xF0);
         cpu->clearC();
-        testMemory.write(0x2000, 0x66); // ROR $34
-        testMemory.write(0x2001, 0x34);
+        testMemory[0x2000] = 0x66; // ROR $34
+        testMemory[0x2001] = 0x34;
 
-        testMemory.write(0x0034, 0xD0); // 0b1101 0000 -> 0110 1000 C:0
+        testMemory[0x0034] = 0xD0; // 0b1101 0000 -> 0110 1000 C:0
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -812,10 +812,10 @@ namespace m6502
         // --- given
         cpu->A(0xF0);
         cpu->clearC();
-        testMemory.write(0x2000, 0x66); // ROR $34
-        testMemory.write(0x2001, 0x34);
+        testMemory[0x2000] = 0x66; // ROR $34
+        testMemory[0x2001] = 0x34;
 
-        testMemory.write(0x0034, 0x11); // 0b0001 0000 -> 0000 1000 C:1
+        testMemory[0x0034] = 0x11; // 0b0001 0000 -> 0000 1000 C:1
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -836,10 +836,10 @@ namespace m6502
         cpu->A(0xF0);
         cpu->X(0x04);
         cpu->clearC();
-        testMemory.write(0x2000, 0x76); // ROR $34,X
-        testMemory.write(0x2001, 0x34);
+        testMemory[0x2000] = 0x76; // ROR $34,X
+        testMemory[0x2001] = 0x34;
 
-        testMemory.write(0x0038, 0x11); // 0b0001 0001 -> 0000 1000 C:1
+        testMemory[0x0038] = 0x11; // 0b0001 0001 -> 0000 1000 C:1
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -864,11 +864,11 @@ namespace m6502
         cpu->A(0xF0);
         cpu->X(0x04);
         cpu->clearC();
-        testMemory.write(0x2000, 0x6E); // ROR $3442
-        testMemory.write(0x2001, 0x42);
-        testMemory.write(0x2002, 0x34);
+        testMemory[0x2000] = 0x6E; // ROR $3442
+        testMemory[0x2001] = 0x42;
+        testMemory[0x2002] = 0x34;
 
-        testMemory.write(0x3442, 0x12); // 0b0001 0010 -> 0000 1001 C:1
+        testMemory[0x3442] = 0x12; // 0b0001 0010 -> 0000 1001 C:1
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -890,11 +890,11 @@ namespace m6502
         cpu->A(0xF0);
         cpu->X(0x04);
         cpu->clearC();
-        testMemory.write(0x2000, 0x7E); // ROR $3442,X
-        testMemory.write(0x2001, 0x42);
-        testMemory.write(0x2002, 0x34);
+        testMemory[0x2000] = 0x7E; // ROR $3442,X
+        testMemory[0x2001] = 0x42;
+        testMemory[0x2002] = 0x34;
 
-        testMemory.write(0x3446, 0x01); // 0b0000 0001 -> 0000 0000 C:1
+        testMemory[0x3446] = 0x01; // 0b0000 0001 -> 0000 0000 C:1
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);

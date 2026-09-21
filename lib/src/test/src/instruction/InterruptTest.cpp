@@ -25,8 +25,8 @@ namespace m6502
             // testMemory.writeWord(0x01FA, 0x0102); // NMI
             // testMemory.writeWord(0x01FC, 0x5566); // RESET
             // testMemory.writeWord(0x01FE, 0x0506); // IRQ
-            // testMemory.write(0x01f0, 0x01);
-            // testMemory.write(0x01f8, 0x02);
+            // testMemory[0x01f0] = 0x01;
+            // testMemory[0x01f8] = 0x02;
             // //         0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
             // // 0x01F0: 00 00 00 00 00 00 00 00
             // // 0x01F8: 00 00 01 02 55 66 05 06
@@ -124,7 +124,7 @@ namespace m6502
         //         0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
         // 0x01F0: 00 00 00 00 00 00 00 00
         // 0x01F8: 00 00 01 02 55 66 02 20
-        testMemory.showMemory(0x1f0, 0x000f, "Stack - post execution"); // Stack
+        // testMemory.showMemory(0x1f0, 0x000f, "Stack - post execution"); // Stack
 
         // Stack ff: 02         PC low
         //       fe: 20         PC high

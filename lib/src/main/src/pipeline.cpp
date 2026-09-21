@@ -918,51 +918,51 @@ namespace m6502
             }
             break;
         }
-        case 0b01: // c(1)
+        case 0b01:                       // c(1)
         {
             // std::cout << "switch(a: " << std::bitset<3>(opCode.memory.a) << ")" << std::endl;
             // Instruction
             switch (opCode.memory.a) // 3 bits
             {
-            case 0b000: // c(1) a(0) - ORA
+            case 0b000:                  // c(1) a(0) - ORA
                 cpuInstruction = cpu._instructionLogicalOr;
                 dst = InstructionTarget::A;
                 src = InstructionTarget::MEMORY;
                 break;
-            case 0b001: // c(1) a(1) - AND
+            case 0b001:                  // c(1) a(1) - AND
                 cpuInstruction = cpu._instructionLogicalAnd;
                 dst = InstructionTarget::A;
                 src = InstructionTarget::MEMORY;
                 break;
-            case 0b010: // c(1) a(2) - EOR
+            case 0b010:                  // c(1) a(2) - EOR
                 cpuInstruction = cpu._instructionLogicalXor;
                 dst = InstructionTarget::A;
                 src = InstructionTarget::MEMORY;
                 break;
-            case 0b011: // c(1) a(3) - ADC
+            case 0b011:                  // c(1) a(3) - ADC
                 cpuInstruction = cpu._instructionAdd;
                 dst = InstructionTarget::A;
                 src = InstructionTarget::MEMORY;
                 break;
-            case 0b100: // c(1) a(4) - STA
+            case 0b100:                  // c(1) a(4) - STA
                 // std::cout << "case 4 (" << std::bitset<3>(opCode.memory.a) << ")" << std::endl;
                 // b(2) is not an instruction
                 cpuInstruction = cpu._instructionStore;
                 dst = InstructionTarget::MEMORY;
                 src = InstructionTarget::A;
                 break;
-            case 0b101: // c(1) a(5) - LDA
+            case 0b101:                  // c(1) a(5) - LDA
                 // std::cout << "case 5 (" << std::bitset<3>(opCode.memory.a) << ")" << std::endl;
                 cpuInstruction = cpu._instructionLoadA;
                 dst = InstructionTarget::A;
                 src = InstructionTarget::MEMORY;
                 break;
-            case 0b110: // c(1) a(6) - CMP
+            case 0b110:                  // c(1) a(6) - CMP
                 cpuInstruction = cpu._instructionCompare;
                 dst = InstructionTarget::A;
                 src = InstructionTarget::MEMORY;
                 break;
-            case 0b111: // c(1) a(7) - SBC
+            case 0b111:                  // c(1) a(7) - SBC
                 cpuInstruction = cpu._instructionSubtract;
                 dst = InstructionTarget::A;
                 src = InstructionTarget::MEMORY;
@@ -973,34 +973,34 @@ namespace m6502
             // std::cout << "Address Mode: switch(b: " << std::bitset<3>(opCode.memory.b) << ") ";
             switch (opCode.memory.b) // 3 bits
             {
-            case 0b000: // c(1) b(0) - (ZeroPage,X)
+            case 0b000:                  // c(1) b(0) - (ZeroPage,X)
                 addressMode = cpu._addressModeIndexedIndirectX;
                 break;
-            case 0b001: // c(1) b(1) - ZeroPage
+            case 0b001:                  // c(1) b(1) - ZeroPage
                 addressMode = cpu._addressModeZeroPage;
                 break;
-            case 0b010: // c(1) b(2) - #Immediate
+            case 0b010:                  // c(1) b(2) - #Immediate
                 addressMode = cpu._addressModeImmediate;
                 break;
-            case 0b011: // c(1) b(3) - Absolute
+            case 0b011:                  // c(1) b(3) - Absolute
                 addressMode = cpu._addressModeAbsolute;
                 break;
-            case 0b100: // c(1) b(4) - (ZeroPage),Y
+            case 0b100:                  // c(1) b(4) - (ZeroPage),Y
                 addressMode = cpu._addressModeIndirectIndexedY;
                 break;
-            case 0b101: // c(1) b(5) - (ZeroPage,X)
+            case 0b101:                  // c(1) b(5) - (ZeroPage,X)
                 addressMode = cpu._addressModeZeroPageIndexedX;
                 break;
-            case 0b110: // c(1) b(6) - Absolute,Y
+            case 0b110:                  // c(1) b(6) - Absolute,Y
                 addressMode = cpu._addressModeAbsoluteIndexedY;
                 break;
-            case 0b111: // c(1) b(7) - Absolute,X
+            case 0b111:                  // c(1) b(7) - Absolute,X
                 addressMode = cpu._addressModeAbsoluteIndexedX;
                 break;
             }
             break;
         }
-        case 0b10: // c(2)
+        case 0b10:                       // c(2)
         {
             // Instruction
             switch (opCode.memory.a) // 3 bits
@@ -1008,20 +1008,20 @@ namespace m6502
             case 0b000:                  // c(2) a(0) - ASL
                 switch (opCode.memory.b) // 3 bits
                 {
-                case 0b000: // c(2) a(0) b(0)   Illegal (JAM)
-                case 0b100: // c(2) a(0) b(4)   Illegal (JAM)
-                case 0b110: // c(2) a(0) b(6)   Illegal (NOP impl)
+                case 0b000:              // c(2) a(0) b(0)   Illegal (JAM)
+                case 0b100:              // c(2) a(0) b(4)   Illegal (JAM)
+                case 0b110:              // c(2) a(0) b(6)   Illegal (NOP impl)
                     throw std::domain_error(std::format("Illegal OpCode: '{}'", opcode.value));
                     break;
-                case 0b010: // c(2) a(1) b(2) - ASL A
+                case 0b010:              // c(2) a(1) b(2) - ASL A
                     cpuInstruction = cpu._instructionShiftLeft;
                     dst = InstructionTarget::A;
                     src = InstructionTarget::A;
                     break;
-                case 0b001: // c(2) a(0) b(1) - ASL $nn
-                case 0b011: // c(2) a(0) b(3) - ASL $nnnn
-                case 0b101: // c(2) a(0) b(5) - ASL $nn,X
-                case 0b111: // c(2) a(0) b(7) - ASL $nnnn,X
+                case 0b001:              // c(2) a(0) b(1) - ASL $nn
+                case 0b011:              // c(2) a(0) b(3) - ASL $nnnn
+                case 0b101:              // c(2) a(0) b(5) - ASL $nn,X
+                case 0b111:              // c(2) a(0) b(7) - ASL $nnnn,X
                     cpuInstruction = cpu._instructionShiftLeft;
                     dst = InstructionTarget::MEMORY;
                     src = InstructionTarget::MEMORY;
@@ -1031,44 +1031,44 @@ namespace m6502
             case 0b001:                  // c(2) a(1) - ROL
                 switch (opCode.memory.b) // 3 bits
                 {
-                case 0b000: // c(2) a(1) b(0)   Illegal (JAM)
-                case 0b100: // c(2) a(1) b(4)   Illegal (JAM)
-                case 0b110: // c(2) a(1) b(6)   Illegal (NOP impl)
+                case 0b000:              // c(2) a(1) b(0)   Illegal (JAM)
+                case 0b100:              // c(2) a(1) b(4)   Illegal (JAM)
+                case 0b110:              // c(2) a(1) b(6)   Illegal (NOP impl)
                     throw std::domain_error(std::format("Illegal OpCode: '{}'", opcode.value));
                     break;
-                case 0b010: // c(2) a(1) b(2) - ROL A
+                case 0b010:              // c(2) a(1) b(2) - ROL A
                     cpuInstruction = cpu._instructionRotateLeft;
                     dst = InstructionTarget::A;
                     src = InstructionTarget::A;
                     break;
-                case 0b001: // c(2) a(1) b(1) - ROL $nn
-                case 0b011: // c(2) a(1) b(3) - ROL $nnnn
-                case 0b101: // c(2) a(1) b(5) - ROL $nn,X
-                case 0b111: // c(2) a(1) b(7) - ROL $nnnn,X
+                case 0b001:              // c(2) a(1) b(1) - ROL $nn
+                case 0b011:              // c(2) a(1) b(3) - ROL $nnnn
+                case 0b101:              // c(2) a(1) b(5) - ROL $nn,X
+                case 0b111:              // c(2) a(1) b(7) - ROL $nnnn,X
                     cpuInstruction = cpu._instructionRotateLeft;
                     dst = InstructionTarget::MEMORY;
                     src = InstructionTarget::MEMORY;
                     break;
                 }
                 break;
-            case 0b010: // c(2) a(2) - LSR
+            case 0b010:                  // c(2) a(2) - LSR
 
                 switch (opCode.memory.b) // 3 bits
                 {
-                case 0b000: // c(2) a(2) b(0)   Illegal (JAM)
-                case 0b100: // c(2) a(2) b(4)   Illegal (JAM)
-                case 0b110: // c(2) a(2) b(6)   Illegal (NOP impl)
+                case 0b000:              // c(2) a(2) b(0)   Illegal (JAM)
+                case 0b100:              // c(2) a(2) b(4)   Illegal (JAM)
+                case 0b110:              // c(2) a(2) b(6)   Illegal (NOP impl)
                     throw std::domain_error(std::format("Illegal OpCode: '{}'", opcode.value));
                     break;
-                case 0b001: // c(2) a(2) b(1) - LSR $nn
-                case 0b011: // c(2) a(2) b(3) - LSR $nnnn
-                case 0b101: // c(2) a(2) b(5) - LSR $nn,X
-                case 0b111: // c(2) a(2) b(7) - LSR $nnnn,X
+                case 0b001:              // c(2) a(2) b(1) - LSR $nn
+                case 0b011:              // c(2) a(2) b(3) - LSR $nnnn
+                case 0b101:              // c(2) a(2) b(5) - LSR $nn,X
+                case 0b111:              // c(2) a(2) b(7) - LSR $nnnn,X
                     cpuInstruction = cpu._instructionShiftRight;
                     dst = InstructionTarget::MEMORY;
                     src = InstructionTarget::MEMORY;
                     break;
-                case 0b010: // c(2) a(2) b(2) - LSR A
+                case 0b010:              // c(2) a(2) b(2) - LSR A
                     cpuInstruction = cpu._instructionShiftRight;
                     dst = InstructionTarget::A;
                     src = InstructionTarget::A;
@@ -1079,20 +1079,20 @@ namespace m6502
             case 0b011:                  // c(2) a(3) - ROR
                 switch (opCode.memory.b) // 3 bits
                 {
-                case 0b000: // c(2) a(3) b(0)    Illegal (JAM)
-                case 0b100: // c(2) a(3) b(4)    Illegal (JAM)
-                case 0b110: // c(2) a(3) b(6)    IIlegal (NOP impl)
+                case 0b000:              // c(2) a(3) b(0)    Illegal (JAM)
+                case 0b100:              // c(2) a(3) b(4)    Illegal (JAM)
+                case 0b110:              // c(2) a(3) b(6)    IIlegal (NOP impl)
                     throw std::domain_error(std::format("Illegal OpCode: '{}'", opcode.value));
                     break;
-                case 0b001: // c(2) a(3) b(1)  - ROR $nn
-                case 0b011: // c(2) a(3) b(3)  - ROR $nnnn
-                case 0b101: // c(2) a(3) b(5)  - ROR $nn,X
-                case 0b111: // c(2) a(3) b(7)  - ROR $nnnn,X
+                case 0b001:              // c(2) a(3) b(1)  - ROR $nn
+                case 0b011:              // c(2) a(3) b(3)  - ROR $nnnn
+                case 0b101:              // c(2) a(3) b(5)  - ROR $nn,X
+                case 0b111:              // c(2) a(3) b(7)  - ROR $nnnn,X
                     cpuInstruction = cpu._instructionRotateRight;
                     dst = InstructionTarget::MEMORY;
                     src = InstructionTarget::MEMORY;
                     break;
-                case 0b010: // c(2) a(3) b(2)  - ROR A
+                case 0b010:              // c(2) a(3) b(2)  - ROR A
                     cpuInstruction = cpu._instructionRotateRight;
                     dst = InstructionTarget::A;
                     src = InstructionTarget::A;
@@ -1102,24 +1102,24 @@ namespace m6502
             case 0b100:                  // c(2) a(4) - STX
                 switch (opCode.memory.b) // 3 bits
                 {
-                case 0b000: // c(2) a(4) b(0) -
-                case 0b100: // c(2) a(4) b(4) -
-                case 0b111: // c(2) a(4) b(7) -  "
+                case 0b000:              // c(2) a(4) b(0) -
+                case 0b100:              // c(2) a(4) b(4) -
+                case 0b111:              // c(2) a(4) b(7) -  "
                     // n/a - Illegal
                     break;
-                case 0b001: // c(2) a(4) b(1) -  "
-                case 0b011: // c(2) a(4) b(3) -  "
-                case 0b101: // c(2) a(4) b(5) -  "
+                case 0b001:              // c(2) a(4) b(1) -  "
+                case 0b011:              // c(2) a(4) b(3) -  "
+                case 0b101:              // c(2) a(4) b(5) -  "
                     cpuInstruction = cpu._instructionStore;
                     dst = InstructionTarget::MEMORY;
                     src = InstructionTarget::X;
                     break;
-                case 0b010: // c(2) a(4) b(2) - LSR
+                case 0b010:              // c(2) a(4) b(2) - LSR
                     cpuInstruction = cpu._instructionTransferXtoA;
                     dst = InstructionTarget::A;
                     src = InstructionTarget::X;
                     break;
-                case 0b110: // c(2) a(4) b(6) - DEC
+                case 0b110:              // c(2) a(4) b(6) - DEC
                     cpuInstruction = cpu._instructionTransferXtoS;
                     dst = InstructionTarget::S;
                     src = InstructionTarget::X;
@@ -1129,48 +1129,48 @@ namespace m6502
             case 0b101:                  // c(2) a(5) - LDX
                 switch (opCode.memory.b) // 3 bits
                 {
-                case 0b000: // c(2) a(5) b(0) - LDX
-                case 0b001: // c(2) a(5) b(1) -  "
-                case 0b011: // c(2) a(5) b(3) -  "
-                case 0b101: // c(2) a(5) b(5) -  "
-                case 0b111: // c(2) a(5) b(7) -  "
+                case 0b000:              // c(2) a(5) b(0) - LDX
+                case 0b001:              // c(2) a(5) b(1) -  "
+                case 0b011:              // c(2) a(5) b(3) -  "
+                case 0b101:              // c(2) a(5) b(5) -  "
+                case 0b111:              // c(2) a(5) b(7) -  "
                     cpuInstruction = cpu._instructionLoadX;
                     dst = InstructionTarget::X;
                     src = InstructionTarget::MEMORY;
                     break;
-                case 0b010: // c(2) a(5) b(2) - LSR
+                case 0b010:              // c(2) a(5) b(2) - LSR
                     cpuInstruction = cpu._instructionTransferAtoX;
                     dst = InstructionTarget::X;
                     src = InstructionTarget::A;
                     break;
-                case 0b100: // c(2) a(5) b(4) -
+                case 0b100:              // c(2) a(5) b(4) -
                             // n/a Illegal
                     break;
-                case 0b110: // c(2) a(5) b(6) - DEC
+                case 0b110:              // c(2) a(5) b(6) - DEC
                     cpuInstruction = cpu._instructionTransferStoX;
                     dst = InstructionTarget::X;
                     src = InstructionTarget::S;
                     break;
                 }
                 break;
-            case 0b110: // c(2) a(6) - DEC, DEX
+            case 0b110:                  // c(2) a(6) - DEC, DEX
 
                 switch (opCode.memory.b) // 3 bits
                 {
-                case 0b000: // c(2) a(6) b(0)   Illegal
-                case 0b100: // c(2) a(6) b(4)   Illegal
-                case 0b110: // c(2) a(6) b(6)   Illegal
+                case 0b000:              // c(2) a(6) b(0)   Illegal
+                case 0b100:              // c(2) a(6) b(4)   Illegal
+                case 0b110:              // c(2) a(6) b(6)   Illegal
                     throw std::domain_error(std::format("Illegal OpCode: '{}'", opcode.value));
                     break;
-                case 0b001: // c(2) a(6) b(1) - DEC
-                case 0b011: // c(2) a(6) b(3) - DEC
-                case 0b101: // c(2) a(6) b(5) - DEC
-                case 0b111: // c(2) a(6) b(7) - DEC
+                case 0b001:              // c(2) a(6) b(1) - DEC
+                case 0b011:              // c(2) a(6) b(3) - DEC
+                case 0b101:              // c(2) a(6) b(5) - DEC
+                case 0b111:              // c(2) a(6) b(7) - DEC
                     cpuInstruction = cpu._instructionDecrement;
                     dst = InstructionTarget::MEMORY;
                     src = InstructionTarget::MEMORY;
                     break;
-                case 0b010: // c(2) a(6) b(2) - DEX
+                case 0b010:              // c(2) a(6) b(2) - DEX
                     cpuInstruction = cpu._instructionDecrementX;
                     dst = InstructionTarget::X;
                     src = InstructionTarget::X;
@@ -1178,22 +1178,23 @@ namespace m6502
                 }
 
                 break;
-            case 0b111: // c(2) a(7) - INC
-
+            case 0b111:                  // c(2) a(7) - INC
                 switch (opCode.memory.b) // 3 bits
                 {
-                case 0b000: // c(2) a(7) b(0)  Illegal
-                case 0b100: // c(2) a(7) b(4)  Illegal
-                case 0b110: // c(2) a(7) b(6)  Illegal
+                case 0b000:              // c(2) a(7) b(0)  Illegal
+                case 0b100:              // c(2) a(7) b(4)  Illegal
+                case 0b110:              // c(2) a(7) b(6)  Illegal
                     throw std::domain_error(std::format("Illegal OpCode: '{}'", opcode.value));
                     break;
-                case 0b010: // c(2) a(7) b(2) - NOP
+                case 0b010:              // c(2) a(7) b(2) - NOP
                     cpuInstruction = cpu._instructionNoOp;
+                    dst = InstructionTarget::IMPLIED;
+                    src = InstructionTarget::IMPLIED;
                     break;
-                case 0b001: // c(2) a(7) b(1) - INC $nn
-                case 0b011: // c(2) a(7) b(3) - INC $nnnn
-                case 0b101: // c(2) a(7) b(5) - INC $nn,X
-                case 0b111: // c(2) a(7) b(7) - INC $nnnn,X
+                case 0b001:              // c(2) a(7) b(1) - INC $nn
+                case 0b011:              // c(2) a(7) b(3) - INC $nnnn
+                case 0b101:              // c(2) a(7) b(5) - INC $nn,X
+                case 0b111:              // c(2) a(7) b(7) - INC $nnnn,X
                     cpuInstruction = cpu._instructionIncrement;
                     dst = InstructionTarget::MEMORY;
                     src = InstructionTarget::MEMORY;
@@ -1205,82 +1206,82 @@ namespace m6502
             // Addressing Mode
             switch (opCode.memory.b) // 3 bits
             {
-            case 0b000: // c(2) b(0) - Immediate
+            case 0b000:                  // c(2) b(0) - Immediate
                 addressMode = cpu._addressModeImmediate;
                 break;
-            case 0b001: // c(2) b(1) - ZeroPage
+            case 0b001:                  // c(2) b(1) - ZeroPage
                 addressMode = cpu._addressModeZeroPage;
                 break;
             case 0b010:                  // c(2) b(2) - Accumulator or Implied
                 switch (opCode.memory.a) // 3 bits
                 {
-                case 0b000: // c(2) b(2) a(0) - Accumulator
-                case 0b001: // c(2) b(2) a(1)
-                case 0b010: // c(2) b(2) a(2)
-                case 0b011: // c(2) b(2) a(3)
+                case 0b000:              // c(2) b(2) a(0) - Accumulator
+                case 0b001:              // c(2) b(2) a(1)
+                case 0b010:              // c(2) b(2) a(2)
+                case 0b011:              // c(2) b(2) a(3)
                     addressMode = cpu._addressModeAccumulator;
                     break;
-                case 0b100: // c(2) b(2) a(4) - Implied
-                case 0b101: // c(2) b(2) a(5)
-                case 0b110: // c(2) b(2) a(6)
-                case 0b111: // c(2) b(2) a(7)
+                case 0b100:              // c(2) b(2) a(4) - Implied
+                case 0b101:              // c(2) b(2) a(5)
+                case 0b110:              // c(2) b(2) a(6)
+                case 0b111:              // c(2) b(2) a(7)
                     addressMode = cpu._addressModeImplied;
                     break;
                 }
                 break;
-            case 0b011: // c(2) b(3) - Absolute
+            case 0b011:                  // c(2) b(3) - Absolute
                 addressMode = cpu._addressModeAbsolute;
                 break;
-            case 0b100: // c(2) b(4) - ZeroPage,X   (ZeroPage),Y
+            case 0b100:                  // c(2) b(4) - ZeroPage,X   (ZeroPage),Y
                 break;
-            case 0b101: // c(2) b(5) - ZeroPage,X or ZeroPage,Y
+            case 0b101:                  // c(2) b(5) - ZeroPage,X or ZeroPage,Y
                 addressMode = cpu._addressModeZeroPageIndexedX;
                 switch (opCode.memory.a) // 3 bits
                 {
-                case 0b000: // c(2) b(5) a(0) - ASL   // TODO ASL
+                case 0b000:              // c(2) b(5) a(0) - ASL   // TODO ASL
                     break;
-                case 0b001: // c(2) b(5) a(1) - ROL
+                case 0b001:              // c(2) b(5) a(1) - ROL
                     break;
-                case 0b010: // c(2) b(5) a(2) - LSR
+                case 0b010:              // c(2) b(5) a(2) - LSR
                     break;
-                case 0b011: // c(2) b(5) a(3) - ROR
+                case 0b011:              // c(2) b(5) a(3) - ROR
                     break;
-                case 0b100: // c(2) a(4) - STX
+                case 0b100:              // c(2) a(4) - STX
                     addressMode = cpu._addressModeZeroPageIndexedY;
                     dst = InstructionTarget::MEMORY;
                     src = InstructionTarget::X;
                     break;
-                case 0b101: // c(2) a(5) - LDX
+                case 0b101:              // c(2) a(5) - LDX
                     addressMode = cpu._addressModeZeroPageIndexedY;
                     dst = InstructionTarget::X;
                     src = InstructionTarget::MEMORY;
                     break;
-                case 0b110: // c(2) a(6) - DEC
+                case 0b110:              // c(2) a(6) - DEC
                     break;
-                case 0b111: // c(2) a(7) - INC
+                case 0b111:              // c(2) a(7) - INC
                     break;
                 }
                 break;
-            case 0b110: // c(2) b(6) - Absolute,Y
+            case 0b110:                  // c(2) b(6) - Absolute,Y
                 // a(4,5) implied a(0-3,6-7) illegal
                 addressMode = cpu._addressModeImplied;
                 break;
-            case 0b111: // c(2) b(7) - Absolute,X
+            case 0b111:                  // c(2) b(7) - Absolute,X
 
                 switch (opCode.memory.a) // 3 bits
                 {
-                case 0b000: // c(2) b(7) a(0) - ASL
-                case 0b001: // c(2) b(7) a(1) - ROL
-                case 0b010: // c(2) b(7) a(2) - LSR
-                case 0b011: // c(2) b(7) a(3) - ROR
-                case 0b110: // c(2) b(7) a(6) - DEC
-                case 0b111: // c(2) b(7) a(7) - INC
+                case 0b000:              // c(2) b(7) a(0) - ASL
+                case 0b001:              // c(2) b(7) a(1) - ROL
+                case 0b010:              // c(2) b(7) a(2) - LSR
+                case 0b011:              // c(2) b(7) a(3) - ROR
+                case 0b110:              // c(2) b(7) a(6) - DEC
+                case 0b111:              // c(2) b(7) a(7) - INC
                     addressMode = cpu._addressModeAbsoluteIndexedX;
                     break;
-                case 0b100: // c(2) b(4) a(4) - STX
+                case 0b100:              // c(2) b(4) a(4) - STX
                     //  n/a
                     break;
-                case 0b101: // c(2) b(5) a(5) - LDX
+                case 0b101:              // c(2) b(5) a(5) - LDX
                     addressMode = cpu._addressModeAbsoluteIndexedY;
                     break;
                 }
@@ -1288,7 +1289,7 @@ namespace m6502
             }
             break;
         }
-        case 0b11: // c(3)
+        case 0b11:                       // c(3)
             throw std::domain_error("Invalid OpCode: ");
             break;
         }

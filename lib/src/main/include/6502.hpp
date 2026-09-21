@@ -90,20 +90,22 @@ namespace m6502
         the control flow depending on the respective state of the Z, N, C or V flag.
     */
 
-    // Addressing Modes
-    // Implicit
-    // Accumulator         A
-    // Immediate           #$nn
-    // Zero Page           $nn        LO bits 4,5,6
-    // Zero Page,X         $nn,X      LO bits 4,5,6
-    // Zero Page,Y         $nn,Y      LO bits 4,5,6
-    // Relative            $nnnn
-    // Absolute            $nnnn
-    // Absolute,X          $nnnn,X
-    // Absolute,Y          $nnnn,Y
-    // Indirect            ($nnnn)
-    // X Indexed Indirect  ($nn,X)    LO bit 1
-    // Y Indirect Indexed  ($nn),Y    LO bit 1
+    /*
+        Addressing Modes
+        Implicit
+        Accumulator         A
+        Immediate           #$nn
+        Zero Page           $nn        LO bits 4,5,6
+        Zero Page,X         $nn,X      LO bits 4,5,6
+        Zero Page,Y         $nn,Y      LO bits 4,5,6
+        Relative            $nnnn
+        Absolute            $nnnn
+        Absolute,X          $nnnn,X
+        Absolute,Y          $nnnn,Y
+        Indirect            ($nnnn)
+        X Indexed Indirect  ($nn,X)    LO bit 1
+        Y Indirect Indexed  ($nn),Y    LO bit 1
+    */
 
     // Hardware / Software Vectors
     enum class HardwareVector

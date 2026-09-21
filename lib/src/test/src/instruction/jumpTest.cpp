@@ -170,7 +170,7 @@ namespace m6502
         cpu->executeFromAddress(0x2000, 1);
 
         // --- then
-        testMemory.showMemory(0x01f8, 0x08, "Stack after JSR absolute");
+        // testMemory.showMemory(0x01f8, 0x08, "Stack after JSR absolute");
         EXPECT_EQ(0xA010, cpu->PC());
         // verify stack contents and stack pointer
         EXPECT_EQ(0x01FD, cpu->S());

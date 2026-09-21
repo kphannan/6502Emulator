@@ -38,7 +38,10 @@ namespace m6502
     //
     // + add 1 cycle if page boundary crossed
     //
-    // Compare sets flags as if a subtraction had been carried out. If the value in the accumulator is equal or greater than the compared value, the Carry will be set. The equal (Z) and negative (N) flags will be set based on equality or lack thereof and the sign (i.e. A>=$80) of the accumulator.
+    // Compare sets flags as if a subtraction had been carried out. If the value in
+    // the accumulator is equal or greater than the compared value, the Carry will
+    // be set. The equal (Z) and negative (N) flags will be set based on equality or
+    // lack thereof and the sign (i.e. A>=$80) of the accumulator.
     //----------------------------------------
 
     void CPU::InstructionCompare::compare(hardware::Byte v1, hardware::Byte v2)
@@ -51,14 +54,14 @@ namespace m6502
 
         value == 0 ? cpu.setZ() : cpu.clearZ();
 
-        value = v1 + ~v2 + 1;
+        value = v1 + ~v2 + 1;   // 2's compliment addition...
         // Carry occurs if there is any bit higher than bit 7 is set.
         // mask out the low byte  (8 bits) from the int...
-        value & ~0xFF ? cpu.setC() : cpu.clearC();
+        value & ~0xFF ? cpu.clearC() : cpu.setC();
 
         // TODO add this to a root class of add/subtract also for BIT
-        bool overflow = !((v1 ^ v2) & 0x80) && ((v1 ^ value) & 0x80);
-        overflow ? cpu.setV() : cpu.clearV();
+        // bool overflow = !((v1 ^ v2) & 0x80) && ((v1 ^ value) & 0x80);
+        // overflow ? cpu.setV() : cpu.clearV();
     }
 
     void CPU::InstructionCompare::execute(InstructionTarget dst, InstructionTarget src)

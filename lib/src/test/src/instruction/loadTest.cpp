@@ -20,12 +20,12 @@ namespace m6502
         InstructionLoadTest()
         {
             // Destination of the reset vector - leaves zeroPage available for testing
-            testMemory.write(0x2000, 0x49); // LDA #00 // starting instruction after reset
-            testMemory.write(0x2001, 0x5A);
+            testMemory[0x2000] = 0x49; // LDA #00 // starting instruction after reset
+            testMemory[0x2001] = 0x5A;
 
             // Reset vector points to start of memory
-            testMemory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
-            testMemory.write(0xFFFD, 0x20); //      MSB
+            testMemory[0xFFFC] = 0x00; // cpu::HardwareVector::RESET
+            testMemory[0xFFFD] = 0x20; //      MSB
 
             cpu = new CPU(testMemory);
         }
@@ -79,8 +79,8 @@ namespace m6502
     TEST_F(InstructionLoadTest, LDA_ImmediateZero)
     {
         // Destination of the reset vector - leaves zeroPage available for testing
-        testMemory.write(0x2000, 0xA9); // LDA #$00
-        testMemory.write(0x2001, 0x00);
+        testMemory[0x2000] = 0xA9; // LDA #$00
+        testMemory[0x2001] = 0x00;
 
         cpu->executeFromAddress(0x2000, 1);
 
@@ -93,8 +93,8 @@ namespace m6502
 
     TEST_F(InstructionLoadTest, LDA_ImmediatePositive)
     {
-        testMemory.write(0x2000, 0xA9); // LDA #$07
-        testMemory.write(0x2001, 0x07);
+        testMemory[0x2000] = 0xA9; // LDA #$07
+        testMemory[0x2001] = 0x07;
 
         cpu->executeFromAddress(0x2000, 1);
 
@@ -107,8 +107,8 @@ namespace m6502
 
     TEST_F(InstructionLoadTest, LDA_ImmediateNegative)
     {
-        testMemory.write(0x2000, 0xA9); // LDA #$FF
-        testMemory.write(0x2001, 0xFF);
+        testMemory[0x2000] = 0xA9; // LDA #$FF
+        testMemory[0x2001] = 0xFF;
 
         cpu->executeFromAddress(0x2000, 1);
 
@@ -125,10 +125,10 @@ namespace m6502
     // ----- ZeroPage $LL
     TEST_F(InstructionLoadTest, LDA_ZeroPageZero)
     {
-        testMemory.write(0x2000, 0xA5); // LDA $0F
-        testMemory.write(0x2001, 0x0F);
+        testMemory[0x2000] = 0xA5; // LDA $0F
+        testMemory[0x2001] = 0x0F;
 
-        testMemory.write(0x000F, 0x00); // The data value to load
+        testMemory[0x000F] = 0x00; // The data value to load
 
         cpu->executeFromAddress(0x2000, 1);
 
@@ -141,10 +141,10 @@ namespace m6502
 
     TEST_F(InstructionLoadTest, LDA_ZeroPagePositive)
     {
-        testMemory.write(0x2000, 0xA5); // LDA $80
-        testMemory.write(0x2001, 0x80);
+        testMemory[0x2000] = 0xA5; // LDA $80
+        testMemory[0x2001] = 0x80;
 
-        testMemory.write(0x0080, 0x34); // The data value to load
+        testMemory[0x0080] = 0x34; // The data value to load
 
         cpu->executeFromAddress(0x2000, 1);
 
@@ -157,10 +157,10 @@ namespace m6502
 
     TEST_F(InstructionLoadTest, LDA_ZeroPageNegative)
     {
-        testMemory.write(0x2000, 0xA5); // LDA #$E0
-        testMemory.write(0x2001, 0xE0);
+        testMemory[0x2000] = 0xA5; // LDA #$E0
+        testMemory[0x2001] = 0xE0;
 
-        testMemory.write(0x00E0, 0xFF); // The data value to load
+        testMemory[0x00E0] = 0xFF; // The data value to load
 
         cpu->executeFromAddress(0x2000, 1);
 
@@ -174,12 +174,12 @@ namespace m6502
     // ----- ZeroPage,X $LL,X
     TEST_F(InstructionLoadTest, LDA_ZeroPageIndexedX)
     {
-        testMemory.write(0x2000, 0xA2); // LDX $02
-        testMemory.write(0x2001, 0x02);
-        testMemory.write(0x2002, 0xB5); // LDA $80,X
-        testMemory.write(0x2003, 0x80);
+        testMemory[0x2000] = 0xA2; // LDX $02
+        testMemory[0x2001] = 0x02;
+        testMemory[0x2002] = 0xB5; // LDA $80,X
+        testMemory[0x2003] = 0x80;
 
-        testMemory.write(0x0082, 0x64); // The data value to load
+        testMemory[0x0082] = 0x64; // The data value to load
 
         cpu->executeFromAddress(0x2000, 2);
 
@@ -197,11 +197,11 @@ namespace m6502
     // ----- Absolute $LLHH
     TEST_F(InstructionLoadTest, LDA_Absolute)
     {
-        testMemory.write(0x2000, 0xAD); // LDA $3010
-        testMemory.write(0x2001, 0x10);
-        testMemory.write(0x2002, 0x30);
+        testMemory[0x2000] = 0xAD; // LDA $3010
+        testMemory[0x2001] = 0x10;
+        testMemory[0x2002] = 0x30;
 
-        testMemory.write(0x3010, 0x34); // The data value to load
+        testMemory[0x3010] = 0x34; // The data value to load
 
         cpu->executeFromAddress(0x2000, 1);
 
@@ -215,13 +215,13 @@ namespace m6502
     // ----- AbsoluteX $LLHH,X
     TEST_F(InstructionLoadTest, LDA_AbsoluteIndexedX)
     {
-        testMemory.write(0x2000, 0xA2); // LDX #$12
-        testMemory.write(0x2001, 0x12);
-        testMemory.write(0x2002, 0xBD); // LDA $3102,X
-        testMemory.write(0x2003, 0x20);
-        testMemory.write(0x2004, 0x31);
+        testMemory[0x2000] = 0xA2; // LDX #$12
+        testMemory[0x2001] = 0x12;
+        testMemory[0x2002] = 0xBD; // LDA $3102,X
+        testMemory[0x2003] = 0x20;
+        testMemory[0x2004] = 0x31;
 
-        testMemory.write(0x3132, 0x78); // The data value to load
+        testMemory[0x3132] = 0x78; // The data value to load
 
         cpu->executeFromAddress(0x2000, 2);
 
@@ -236,13 +236,13 @@ namespace m6502
     // ----- AbsoluteY $LLHH,Y
     TEST_F(InstructionLoadTest, LDA_AbsoluteIndexedY)
     {
-        testMemory.write(0x2000, 0xA0); // LDY #$10
-        testMemory.write(0x2001, 0x10);
-        testMemory.write(0x2002, 0xB9); // LDA $FADE,Y
-        testMemory.write(0x2003, 0xDE);
-        testMemory.write(0x2004, 0xFA);
+        testMemory[0x2000] = 0xA0; // LDY #$10
+        testMemory[0x2001] = 0x10;
+        testMemory[0x2002] = 0xB9; // LDA $FADE,Y
+        testMemory[0x2003] = 0xDE;
+        testMemory[0x2004] = 0xFA;
 
-        testMemory.write(0xFAEE, 0xC3); // The data value to load
+        testMemory[0xFAEE] = 0xC3; // The data value to load
 
         cpu->executeFromAddress(0x2000, 2);
 
@@ -259,16 +259,16 @@ namespace m6502
     // ----- Indexed Indirect X ($LL,X)
     TEST_F(InstructionLoadTest, LDA_IndexedIndirectX)
     {
-        testMemory.write(0x2000, 0xA2); // LDX #$05
-        testMemory.write(0x2001, 0x05); // Base of lookup table in page zero
-        testMemory.write(0x2002, 0xA1); // LDA ($70,X)
-        testMemory.write(0x2003, 0x70); // offset from base address
+        testMemory[0x2000] = 0xA2; // LDX #$05
+        testMemory[0x2001] = 0x05; // Base of lookup table in page zero
+        testMemory[0x2002] = 0xA1; // LDA ($70,X)
+        testMemory[0x2003] = 0x70; // offset from base address
 
         // Lookup table of addresses
-        testMemory.write(0x0075, 0x23); // Entry 0, $LL Address lookup table
-        testMemory.write(0x0076, 0x30); //          $HH
+        testMemory[0x0075] = 0x23; // Entry 0, $LL Address lookup table
+        testMemory[0x0076] = 0x30; //          $HH
 
-        testMemory.write(0x3023, 0xA5); // Data
+        testMemory[0x3023] = 0xA5; // Data
 
         cpu->executeFromAddress(0x2000, 2);
 
@@ -284,18 +284,18 @@ namespace m6502
     TEST_F(InstructionLoadTest, LDA_IndirectIndexedY)
     {
         cpu->Y(0x10);
-        testMemory.write(0x2002, 0xB1); // LDA ($70),Y      ; Indirect table address
-        testMemory.write(0x2003, 0x70);
+        testMemory[0x2002] = 0xB1; // LDA ($70),Y      ; Indirect table address
+        testMemory[0x2003] = 0x70;
 
         // Lookup table of addresses
-        testMemory.write(0x0070, 0x43); // Entry 0, $LL Address lookup table
-        testMemory.write(0x0071, 0x35); //          $HH
+        testMemory[0x0070] = 0x43; // Entry 0, $LL Address lookup table
+        testMemory[0x0071] = 0x35; //          $HH
 
         // Indexed address table
-        testMemory.write(0x3553, 0x00); // Data
-        testMemory.write(0x3554, 0x90); // Data
+        testMemory[0x3553] = 0x00; // Data
+        testMemory[0x3554] = 0x90; // Data
 
-        testMemory.write(0x9000, 0x23); // Data
+        testMemory[0x9000] = 0x23; // Data
 
         cpu->executeFromAddress(0x2002, 1);
 
@@ -325,8 +325,8 @@ namespace m6502
     TEST_F(InstructionLoadTest, LDX_ImmediateZero)
     {
         // Destination of the reset vector - leaves zeroPage available for testing
-        testMemory.write(0x2000, 0xA2); // LDX #$00
-        testMemory.write(0x2001, 0x00);
+        testMemory[0x2000] = 0xA2; // LDX #$00
+        testMemory[0x2001] = 0x00;
 
         cpu->executeFromAddress(0x2000, 1);
 
@@ -340,8 +340,8 @@ namespace m6502
     TEST_F(InstructionLoadTest, LDX_ImmediatePositive)
     {
         // Destination of the reset vector - leaves zeroPage available for testing
-        testMemory.write(0x2000, 0xA2); // LDX #$21
-        testMemory.write(0x2001, 0x21);
+        testMemory[0x2000] = 0xA2; // LDX #$21
+        testMemory[0x2001] = 0x21;
 
         cpu->executeFromAddress(0x2000, 1);
 
@@ -355,8 +355,8 @@ namespace m6502
     TEST_F(InstructionLoadTest, LDX_ImmediateNegative)
     {
         // Destination of the reset vector - leaves zeroPage available for testing
-        testMemory.write(0x2000, 0xA2); // LDX #$F0
-        testMemory.write(0x2001, 0xF0);
+        testMemory[0x2000] = 0xA2; // LDX #$F0
+        testMemory[0x2001] = 0xF0;
 
         cpu->executeFromAddress(0x2000, 1);
 
@@ -373,10 +373,10 @@ namespace m6502
     // ----- ZeroPage $LL
     TEST_F(InstructionLoadTest, LDX_ZeroPage)
     {
-        testMemory.write(0x2000, 0xA6); // LDX $12
-        testMemory.write(0x2001, 0x12);
+        testMemory[0x2000] = 0xA6; // LDX $12
+        testMemory[0x2001] = 0x12;
 
-        testMemory.write(0x0012, 0x42);
+        testMemory[0x0012] = 0x42;
 
         cpu->executeFromAddress(0x2000, 1);
 
@@ -393,13 +393,13 @@ namespace m6502
     TEST_F(InstructionLoadTest, LDX_ZeroPageY)
     {
         // --- given
-        testMemory.write(0x2000, 0xB6); // LDX $12,Y
-        testMemory.write(0x2001, 0x12);
+        testMemory[0x2000] = 0xB6; // LDX $12,Y
+        testMemory[0x2001] = 0x12;
 
         cpu->X(0x99);
         cpu->Y(0x10);
 
-        testMemory.write(0x0022, 0x24);
+        testMemory[0x0022] = 0x24;
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -419,11 +419,11 @@ namespace m6502
     TEST_F(InstructionLoadTest, LDX_Absolute)
     {
         // --- given
-        testMemory.write(0x2000, 0xAE); // LDX $3010
-        testMemory.write(0x2001, 0x10);
-        testMemory.write(0x2002, 0x30);
+        testMemory[0x2000] = 0xAE; // LDX $3010
+        testMemory[0x2001] = 0x10;
+        testMemory[0x2002] = 0x30;
 
-        testMemory.write(0x3010, 0x99);
+        testMemory[0x3010] = 0x99;
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -442,11 +442,11 @@ namespace m6502
     TEST_F(InstructionLoadTest, LDX_AbsoluteY)
     {
         // --- given
-        testMemory.write(0x2000, 0xBE); // LDX $3010,Y
-        testMemory.write(0x2001, 0x10);
-        testMemory.write(0x2002, 0x30);
+        testMemory[0x2000] = 0xBE; // LDX $3010,Y
+        testMemory[0x2001] = 0x10;
+        testMemory[0x2002] = 0x30;
 
-        testMemory.write(0x3020, 0x68);
+        testMemory[0x3020] = 0x68;
 
         cpu->Y(0x10);
 
@@ -484,8 +484,8 @@ namespace m6502
     TEST_F(InstructionLoadTest, LDY_ImmediateZero)
     {
         // Destination of the reset vector - leaves zeroPage available for testing
-        testMemory.write(0x2000, 0xA0); // LDY #$00
-        testMemory.write(0x2001, 0x00);
+        testMemory[0x2000] = 0xA0; // LDY #$00
+        testMemory[0x2001] = 0x00;
 
         cpu->executeFromAddress(0x2000, 1);
 
@@ -499,8 +499,8 @@ namespace m6502
     TEST_F(InstructionLoadTest, LDY_ImmediatePositive)
     {
         // Destination of the reset vector - leaves zeroPage available for testing
-        testMemory.write(0x2000, 0xA0); // LDY #$25
-        testMemory.write(0x2001, 0x25);
+        testMemory[0x2000] = 0xA0; // LDY #$25
+        testMemory[0x2001] = 0x25;
 
         cpu->executeFromAddress(0x2000, 1);
 
@@ -514,8 +514,8 @@ namespace m6502
     TEST_F(InstructionLoadTest, LDY_ImmediateNegative)
     {
         // Destination of the reset vector - leaves zeroPage available for testing
-        testMemory.write(0x2000, 0xA0); // LDY #$F0
-        testMemory.write(0x2001, 0xF0);
+        testMemory[0x2000] = 0xA0; // LDY #$F0
+        testMemory[0x2001] = 0xF0;
 
         cpu->executeFromAddress(0x2000, 1);
 
@@ -532,10 +532,10 @@ namespace m6502
     // ----- ZeroPage $LL
     TEST_F(InstructionLoadTest, LDY_ZeroPage)
     {
-        testMemory.write(0x2000, 0xA4); // LDY $0A
-        testMemory.write(0x2001, 0x0A);
+        testMemory[0x2000] = 0xA4; // LDY $0A
+        testMemory[0x2001] = 0x0A;
 
-        testMemory.write(0x000A, 0x66); // The data value to load
+        testMemory[0x000A] = 0x66; // The data value to load
 
         cpu->executeFromAddress(0x2000, 1);
 
@@ -555,11 +555,11 @@ namespace m6502
     TEST_F(InstructionLoadTest, LDY_Absolute)
     {
         // --- given
-        testMemory.write(0x2000, 0xAC); // LDY $3014
-        testMemory.write(0x2001, 0x14);
-        testMemory.write(0x2002, 0x30);
+        testMemory[0x2000] = 0xAC; // LDY $3014
+        testMemory[0x2001] = 0x14;
+        testMemory[0x2002] = 0x30;
 
-        testMemory.write(0x3014, 0x11);
+        testMemory[0x3014] = 0x11;
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -576,13 +576,13 @@ namespace m6502
     TEST_F(InstructionLoadTest, LDY_AbsoluteX)
     {
         // --- given
-        testMemory.write(0x2000, 0xBC); // LDY $3010,X
-        testMemory.write(0x2001, 0x10);
-        testMemory.write(0x2002, 0x30);
+        testMemory[0x2000] = 0xBC; // LDY $3010,X
+        testMemory[0x2001] = 0x10;
+        testMemory[0x2002] = 0x30;
 
         cpu->X(0x08);
 
-        testMemory.write(0x3018, 0x71);
+        testMemory[0x3018] = 0x71;
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);

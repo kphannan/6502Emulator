@@ -82,8 +82,8 @@ namespace memory
     {
         // --- given
         // --- when
-        memory.showMemory(0x0000, 0x08, "Start of memory");
-        memory.showMemory(0xFFF8, 0x08, "End of memory");
+        // memory.showMemory(0x0000, 0x08, "Start of memory");
+        // memory.showMemory(0xFFF8, 0x08, "End of memory");
 
         // --- then
         EXPECT_EQ(0xAA, memory[0x0000]);
@@ -145,7 +145,7 @@ namespace memory
         // 0x0000: 11 55 AA AA AA AA AA AA
 
         // --- then
-        memory.showMemory(0x0000, 0x08);
+        // memory.showMemory(0x0000, 0x08);
         EXPECT_EQ(0x5511, memory.readWord(0x0000));
         EXPECT_EQ(0xAAAA, memory.readWord(0x0002));
         EXPECT_EQ(0xAA55, memory.readWord(0x0001));
@@ -162,7 +162,7 @@ namespace memory
         // 0xFFF8: AA AA AA AA AA AA 88 77
 
         // --- then
-        memory.showMemory(0xFFF0, 0x0F);
+        // memory.showMemory(0xFFF0, 0x0F);
         EXPECT_EQ(0x7788, memory.readWord(0xFFFE));
         EXPECT_EQ(0xAAAA, memory.readWord(0xFFFC));
         EXPECT_EQ(0x88AA, memory.readWord(0xFFFD));
@@ -179,8 +179,8 @@ namespace memory
         // 0xFFF8: AA AA AA AA AA AA 88 77
 
         // --- then
-        memory.showMemory(0x0000, 0x08);
-        memory.showMemory(0xFFF8, 0x08);
+        // memory.showMemory(0x0000, 0x08);
+        // memory.showMemory(0xFFF8, 0x08);
 
         EXPECT_EQ( 0x88, memory[0xFFFF] );
         EXPECT_EQ( 0x77, memory[0x0000] );
@@ -197,8 +197,8 @@ namespace memory
         // 0xFFF8: AA AA AA AA AA AA 88 77
 
         // --- then
-        memory.showMemory(0x0000, 0x08);
-        memory.showMemory(0xFFF8, 0x08);
+        // memory.showMemory(0x0000, 0x08);
+        // memory.showMemory(0xFFF8, 0x08);
 
         EXPECT_EQ( 0x66, memory[0xFFFF] );
         EXPECT_EQ( 0x55, memory[0x0000] );
@@ -272,7 +272,7 @@ namespace memory
         // 0x0000: 11 55 AA AA AA AA AA AA
 
         // --- then
-        testMemory.showMemory(0x8000, 0x08);
+        // testMemory.showMemory(0x8000, 0x08);
         EXPECT_EQ(0x5511, testMemory.readWord(0x8000));
         EXPECT_EQ(0xAA55, testMemory.readWord(0x8001));
         EXPECT_EQ(0xAAAA, testMemory.readWord(0x8002));
@@ -292,7 +292,7 @@ namespace memory
         // 0xFFF8: AA AA AA AA AA AA 88 77
 
         // --- then
-        testMemory.showMemory(0x9FF0, 0x0F);
+        // testMemory.showMemory(0x9FF0, 0x0F);
         EXPECT_EQ(0x7788, testMemory.readWord(0x9FFE));
         EXPECT_EQ(0xAAAA, testMemory.readWord(0x9FFC));
         EXPECT_EQ(0x88AA, testMemory.readWord(0x9FFD));
@@ -311,8 +311,8 @@ namespace memory
         // 0xFFF8: AA AA AA AA AA AA 88 77
 
         // --- then
-        testMemory.showMemory(0x8000, 0x08, "Wrapped byte");
-        testMemory.showMemory(0x9FF8, 0x08, "end of bank");
+        // testMemory.showMemory(0x8000, 0x08, "Wrapped byte");
+        // testMemory.showMemory(0x9FF8, 0x08, "end of bank");
 
         EXPECT_EQ( 0x88, testMemory[0x9FFF] );
         EXPECT_EQ( 0x77, testMemory[0x8000] );
@@ -329,8 +329,8 @@ namespace memory
         // 0xFFF8: AA AA AA AA AA AA 88 77
 
         // --- then
-        memory.showMemory(0x0000, 0x08);
-        memory.showMemory(0xFFF8, 0x08);
+        // memory.showMemory(0x0000, 0x08);
+        // memory.showMemory(0xFFF8, 0x08);
 
         EXPECT_EQ( 0x66, memory[0xFFFF] );
         EXPECT_EQ( 0x55, memory[0x0000] );

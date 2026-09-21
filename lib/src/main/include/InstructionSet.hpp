@@ -10,7 +10,6 @@
 
 namespace m6502
 {
-
     enum class InstructionTarget
     {
         Undefined,
@@ -41,46 +40,46 @@ namespace m6502
     class CPU::Instruction
     {
         // Types
-    public:
-    protected:
-    private:
-        // Constants
-    public:
-    protected:
-    private:
-        // Constructors
-    public:
-        Instruction(CPU &cpu, const char *name, const char *mnemonic) : cpu(cpu), modeName(name), modeMnemonic(mnemonic) {}
+        public:
+        protected:
+        private:
+            // Constants
+        public:
+        protected:
+        private:
+            // Constructors
+        public:
+            Instruction(CPU &cpu, const char *name, const char *mnemonic) : cpu(cpu), modeName(name), modeMnemonic(mnemonic) {}
 
-    protected:
-    private:
-        // Fields
-    public:
-    protected:
-        CPU &cpu;
+        protected:
+        private:
+            // Fields
+        public:
+        protected:
+            CPU &cpu;
 
-    private:
-        const char *modeName;
-        const char *modeMnemonic;
+        private:
+            const char *modeName;
+            const char *modeMnemonic;
 
-        // Methods
-    public:
-        const char *name() const { return modeName; };
-        const char *mnemonic() const { return modeMnemonic; };
-        const char *targetName(InstructionTarget target);
+            // Methods
+        public:
+            const char *name() const { return modeName; };
+            const char *mnemonic() const { return modeMnemonic; };
+            const char *targetName( const InstructionTarget& target);
 
-        virtual void execute(InstructionTarget dst, InstructionTarget src)
-        {
-            // std::cout << name() << " ; " << mnemonic() << " " << cpu.decodePipeline().addressMode->mnemonic() << std::endl;
-            // std::cout << targetName(dst) << " from " << targetName(src) << std::endl;
-        }
+            virtual void execute(InstructionTarget dst, InstructionTarget src)
+            {
+                // std::cout << name() << " ; " << mnemonic() << " " << cpu.decodePipeline().addressMode->mnemonic() << std::endl;
+                // std::cout << targetName(dst) << " from " << targetName(src) << std::endl;
+            }
 
-    protected:
-    private:
+        protected:
+        private:
         // Operators
-    public:
-    protected:
-    private:
+        public:
+        protected:
+        private:
     };
 
     // ===== Transfer Instructions =====
@@ -360,29 +359,30 @@ namespace m6502
     class CPU::InstructionBranch : public Instruction
     {
         // Constructors
-    public:
-        // InstructionBranch(CPU &cpu) : Instruction(cpu, "Branch on flag", "branch") {}
-        InstructionBranch(CPU &cpu, const char *name, const char *mnemonic) : Instruction(cpu, name, mnemonic) {}
+        public:
+            // InstructionBranch(CPU &cpu) : Instruction(cpu, "Branch on flag", "branch") {}
+            InstructionBranch(CPU &cpu, const char *name, const char *mnemonic) : Instruction(cpu, name, mnemonic) {}
 
         // methods
-    public:
-        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+        public:
+            virtual void execute(InstructionTarget dst, InstructionTarget src) override;
 
-        bool branchTest(const unsigned bitNumber) const;
+            bool branchTest(const unsigned bitNumber) const;
         // void compare(hardware::Byte v1, hardware::Byte v2);
     };
+
     // --- BCC
     class CPU::InstructionBranchCarryClear : public InstructionBranch
     {
         // Constructors
-    public:
-        InstructionBranchCarryClear(CPU &cpu) : InstructionBranch(cpu, "Branch on Carry Clear", "BCC") {}
+        public:
+            InstructionBranchCarryClear(CPU &cpu) : InstructionBranch(cpu, "Branch on Carry Clear", "BCC") {}
 
         // methods
-    public:
-        virtual void execute(InstructionTarget dst, InstructionTarget src) override;
+        public:
+            virtual void execute(InstructionTarget dst, InstructionTarget src) override;
 
-        // void compare(hardware::Byte v1, hardware::Byte v2);
+           // void compare(hardware::Byte v1, hardware::Byte v2);
     };
     // --- BCS
     class CPU::InstructionBranchCarrySet : public InstructionBranch

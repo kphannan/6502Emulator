@@ -32,7 +32,8 @@ namespace m6502
     // MODE           SYNTAX       HEX LEN TIM
     // Implied       NOP           $EA  1   2
     //
-    // NOP is used to reserve space for future modifications or effectively REM out existing code.
+    // NOP is used to reserve space for future modifications or effectively
+    // REM out existing code.
     //----------------------------------------
 
     // Addressing Modes
@@ -42,14 +43,15 @@ namespace m6502
     {
         Instruction::execute(dst, src);
 
-//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-//        hardware::Byte value = cpu.addressSpace.read(address);
+        // src & dst are IMPLIED
         switch (dst)
         {
         case InstructionTarget::IMPLIED:
             break;
         default:
-            std::cout << "Illegal destination of a NOP operation" << std::endl;
+            // TODO stream format of InstructionTarget
+            // std::cout << "Test output of enum: '" << dst << "'" << std::endl;
+            throw std::logic_error(std::format("Illegal destination of a NOP operation: '{}'", targetName(dst)));
             break;
         }
     }

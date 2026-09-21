@@ -275,8 +275,12 @@ namespace hardware
             friend std::ostream &operator<<(std::ostream &os, const Address &rhs)
             {
                 // std::cout << "        PC: " << std::setfill('0') << std::setw(4) << (int)(registers.PC) << " Program Counter" << std::endl;
+                // std::cout.setf(std::ios::hex, std::ios::basefield);
+                // os << "0x" << std::setfill('0') << std::setw(4) << rhs.value.address.word;
+                // std::cout.unsetf(std::ios::basefield);
 
-                os << std::setfill('0') << std::setw(4) << rhs.value.address.word;
+                // os << std::format("{:#06x}", rhs.value.address.word, 4 + 2 );
+                os << std::format("{:#0{}x}", rhs.value.address.word, 4 + 2 );
 
                 return os;
             }
@@ -306,6 +310,7 @@ namespace hardware
             {
                 return operator-( lhs, (const unsigned int)(rhs.word));
             }
+
 
     };
 

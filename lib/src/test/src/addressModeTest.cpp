@@ -20,6 +20,8 @@ namespace m6502 {
         protected:
         AddressModeTest()
         {
+            memory[0x00FC] = 0xDE;
+            memory[0x00FD] = 0xFA;
             // Destination of the reset vector - leaves zeroPage available for
             // testing
             memory[0x2000] = 0x49;  // LDA #00 // starting instruction after reset
@@ -134,7 +136,6 @@ namespace m6502 {
         memory[0x3210] = 0x64; // Address Mode
         memory[0x3211] = 0x88; // Address Mode
         cpu->PC(0x3210);
-        // cpu->Y(0x10);
 
         // --- when
         hardware::Address address = mode->execute();

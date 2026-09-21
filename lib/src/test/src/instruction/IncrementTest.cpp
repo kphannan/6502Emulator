@@ -19,12 +19,12 @@ namespace m6502
         InstructionIncrementTest()
         {
             // Destination of the reset vector - leaves zeroPage available for testing
-            testMemory.write(0x2000, 0x49); // LDA #00 // starting instruction after reset
-            testMemory.write(0x2001, 0x5A);
+            testMemory[0x2000] = 0x49; // LDA #00 // starting instruction after reset
+            testMemory[0x2001] = 0x5A;
 
             // Reset vector points to start of memory
-            testMemory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
-            testMemory.write(0xFFFD, 0x20); //      MSB
+            testMemory[0xFFFC] = 0x00; // cpu::HardwareVector::RESET
+            testMemory[0xFFFD] = 0x20; //      MSB
 
             cpu = new CPU(testMemory);
         }
@@ -79,10 +79,10 @@ namespace m6502
     TEST_F(InstructionIncrementTest, DEC_ZeroPage)
     {
         // --- given
-        testMemory.write(0x2000, 0xC6); // DEC $72
-        testMemory.write(0x2001, 0x72);
+        testMemory[0x2000] = 0xC6; // DEC $72
+        testMemory[0x2001] = 0x72;
 
-        testMemory.write(0x0072, 0x74); //
+        testMemory[0x0072] = 0x74; //
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -98,10 +98,10 @@ namespace m6502
     TEST_F(InstructionIncrementTest, DEC_ZeroPageZero)
     {
         // --- given
-        testMemory.write(0x2000, 0xC6); // DEC $72
-        testMemory.write(0x2001, 0x72);
+        testMemory[0x2000] = 0xC6; // DEC $72
+        testMemory[0x2001] = 0x72;
 
-        testMemory.write(0x0072, 0x01); //
+        testMemory[0x0072] = 0x01; //
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -117,10 +117,10 @@ namespace m6502
     TEST_F(InstructionIncrementTest, DEC_ZeroPageNegative)
     {
         // --- given
-        testMemory.write(0x2000, 0xC6); // DEC $72
-        testMemory.write(0x2001, 0x72);
+        testMemory[0x2000] = 0xC6; // DEC $72
+        testMemory[0x2001] = 0x72;
 
-        testMemory.write(0x0072, 0x00); //
+        testMemory[0x0072] = 0x00; //
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -138,10 +138,10 @@ namespace m6502
     {
         // --- given
         cpu->X(0x10);
-        testMemory.write(0x2000, 0xD6); // DEC $72,X
-        testMemory.write(0x2001, 0x72);
+        testMemory[0x2000] = 0xD6; // DEC $72,X
+        testMemory[0x2001] = 0x72;
 
-        testMemory.write(0x0082, 0x78); //
+        testMemory[0x0082] = 0x78; //
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -161,11 +161,11 @@ namespace m6502
     TEST_F(InstructionIncrementTest, DEC_Absolute)
     {
         // --- given
-        testMemory.write(0x2000, 0xCE); // DEC $2233
-        testMemory.write(0x2001, 0x33);
-        testMemory.write(0x2002, 0x22);
+        testMemory[0x2000] = 0xCE; // DEC $2233
+        testMemory[0x2001] = 0x33;
+        testMemory[0x2002] = 0x22;
 
-        testMemory.write(0x2233, 0x54); //
+        testMemory[0x2233] = 0x54; //
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -183,11 +183,11 @@ namespace m6502
     {
         // --- given
         cpu->X(0x10);
-        testMemory.write(0x2000, 0xDE); // DEC $2233,X
-        testMemory.write(0x2001, 0x33);
-        testMemory.write(0x2002, 0x22);
+        testMemory[0x2000] = 0xDE; // DEC $2233,X
+        testMemory[0x2001] = 0x33;
+        testMemory[0x2002] = 0x22;
 
-        testMemory.write(0x2243, 0x19); //
+        testMemory[0x2243] = 0x19; //
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -223,7 +223,7 @@ namespace m6502
     {
         // --- given
         cpu->X(0x10);
-        testMemory.write(0x2000, 0xCA); // DEX
+        testMemory[0x2000] = 0xCA; // DEX
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -240,7 +240,7 @@ namespace m6502
     {
         // --- given
         cpu->X(0x01);
-        testMemory.write(0x2000, 0xCA); // DEX
+        testMemory[0x2000] = 0xCA; // DEX
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -257,7 +257,7 @@ namespace m6502
     {
         // --- given
         cpu->X(0x00);
-        testMemory.write(0x2000, 0xCA); // DEX
+        testMemory[0x2000] = 0xCA; // DEX
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -274,7 +274,7 @@ namespace m6502
     {
         // --- given
         cpu->Y(0x20);
-        testMemory.write(0x2000, 0x88); // DEY
+        testMemory[0x2000] = 0x88; // DEY
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -291,7 +291,7 @@ namespace m6502
     {
         // --- given
         cpu->Y(0x01);
-        testMemory.write(0x2000, 0x88); // DEY
+        testMemory[0x2000] = 0x88; // DEY
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -308,7 +308,7 @@ namespace m6502
     {
         // --- given
         cpu->Y(0x00);
-        testMemory.write(0x2000, 0x88); // DEY
+        testMemory[0x2000] = 0x88; // DEY
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -342,10 +342,10 @@ namespace m6502
     TEST_F(InstructionIncrementTest, INC_ZeroPage)
     {
         // --- given
-        testMemory.write(0x2000, 0xE6); // INC $72
-        testMemory.write(0x2001, 0x72);
+        testMemory[0x2000] = 0xE6; // INC $72
+        testMemory[0x2001] = 0x72;
 
-        testMemory.write(0x0072, 0x74); //
+        testMemory[0x0072] = 0x74; //
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -361,10 +361,10 @@ namespace m6502
     TEST_F(InstructionIncrementTest, INC_ZeroPageZero) // TODO add tests for <,= 0
     {
         // --- given
-        testMemory.write(0x2000, 0xE6); // DEC $72
-        testMemory.write(0x2001, 0x72);
+        testMemory[0x2000] = 0xE6; // DEC $72
+        testMemory[0x2001] = 0x72;
 
-        testMemory.write(0x0072, 0xFF); //
+        testMemory[0x0072] = 0xFF; //
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -380,10 +380,10 @@ namespace m6502
     TEST_F(InstructionIncrementTest, INC_ZeroPageNegative) // TODO add tests for <,= 0
     {
         // --- given
-        testMemory.write(0x2000, 0xE6); // DEC $72
-        testMemory.write(0x2001, 0x72);
+        testMemory[0x2000] = 0xE6; // DEC $72
+        testMemory[0x2001] = 0x72;
 
-        testMemory.write(0x0072, 0x7F); // Largest positive value
+        testMemory[0x0072] = 0x7F; // Largest positive value
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -401,10 +401,10 @@ namespace m6502
     {
         // --- given
         cpu->X(0x04);
-        testMemory.write(0x2000, 0xF6); // INC $72,X
-        testMemory.write(0x2001, 0x72);
+        testMemory[0x2000] = 0xF6; // INC $72,X
+        testMemory[0x2001] = 0x72;
 
-        testMemory.write(0x0076, 0x01); //
+        testMemory[0x0076] = 0x01; //
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -425,11 +425,11 @@ namespace m6502
     {
         // --- given
         cpu->X(0x04);
-        testMemory.write(0x2000, 0xEE); // INC $72,X
-        testMemory.write(0x2001, 0x44);
-        testMemory.write(0x2002, 0x72);
+        testMemory[0x2000] = 0xEE; // INC $72,X
+        testMemory[0x2001] = 0x44;
+        testMemory[0x2002] = 0x72;
 
-        testMemory.write(0x7244, 0x63); //
+        testMemory[0x7244] = 0x63; //
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -447,11 +447,11 @@ namespace m6502
     {
         // --- given
         cpu->X(0x04);
-        testMemory.write(0x2000, 0xFE); // INC $7231,X
-        testMemory.write(0x2001, 0x31);
-        testMemory.write(0x2002, 0x72);
+        testMemory[0x2000] = 0xFE; // INC $7231,X
+        testMemory[0x2001] = 0x31;
+        testMemory[0x2002] = 0x72;
 
-        testMemory.write(0x7235, 0x08); //
+        testMemory[0x7235] = 0x08; //
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -486,7 +486,7 @@ namespace m6502
     {
         // --- given
         cpu->X(0x10);
-        testMemory.write(0x2000, 0xE8); // INX
+        testMemory[0x2000] = 0xE8; // INX
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -504,7 +504,7 @@ namespace m6502
     {
         // --- given
         cpu->X(0xFF);
-        testMemory.write(0x2000, 0xE8); // INX
+        testMemory[0x2000] = 0xE8; // INX
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -522,7 +522,7 @@ namespace m6502
     {
         // --- given
         cpu->X(0x7F);
-        testMemory.write(0x2000, 0xE8); // DEX
+        testMemory[0x2000] = 0xE8; // DEX
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -540,7 +540,7 @@ namespace m6502
     {
         // --- given
         cpu->Y(0x10);
-        testMemory.write(0x2000, 0xC8); // INY
+        testMemory[0x2000] = 0xC8; // INY
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -558,7 +558,7 @@ namespace m6502
     {
         // --- given
         cpu->Y(0xFF);
-        testMemory.write(0x2000, 0xC8); // INY
+        testMemory[0x2000] = 0xC8; // INY
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -577,7 +577,7 @@ namespace m6502
     {
         // --- given
         cpu->Y(0x7F);
-        testMemory.write(0x2000, 0xC8); // INY
+        testMemory[0x2000] = 0xC8; // INY
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);

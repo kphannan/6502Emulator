@@ -10,30 +10,30 @@ namespace m6502
 {
     class InstructionBranchTest : public testing::Test
     {
-    public:
-        memory::Memory testMemory = *(new memory::Memory( "UnitTest - Branching" ));
+        public:
+            memory::Memory testMemory = *(new memory::Memory( "UnitTest - Branching" ));
 
-        CPU *cpu;
+            CPU *cpu;
 
-    protected:
-        InstructionBranchTest()
-        {
-            // Destination of the reset vector - leaves zeroPage available for testing
-            testMemory[0x2000] = 0x49; // LDA #00 // starting instruction after reset
-            testMemory[0x2001] = 0x5A;
+        protected:
+            InstructionBranchTest()
+            {
+                // Destination of the reset vector - leaves zeroPage available for testing
+                testMemory[0x2000] = 0x49; // LDA #00 // starting instruction after reset
+                testMemory[0x2001] = 0x5A;
 
-            // Reset vector points to start of memory
-            testMemory.writeWord(0xFFFC, 0x2000); // cpu::HardwareVector::RESET
-            testMemory.writeWord(0xFFFE, 0xDEAD); // cpu::HardwareVector::IRQ
-            testMemory.writeWord(0xFFFA, 0xBEEF); // cpu::HardwareVector::NMI
+                // Reset vector points to start of memory
+                testMemory.writeWord(0xFFFC, 0x2000); // cpu::HardwareVector::RESET
+                testMemory.writeWord(0xFFFE, 0xDEAD); // cpu::HardwareVector::IRQ
+                testMemory.writeWord(0xFFFA, 0xBEEF); // cpu::HardwareVector::NMI
 
-            cpu = new CPU(testMemory);
-        }
+                cpu = new CPU(testMemory);
+            }
 
-        ~InstructionBranchTest() override
-        {
-            delete cpu;
-        }
+            ~InstructionBranchTest() override
+            {
+                delete cpu;
+            }
     };
 
     // Addressing Modes
@@ -70,9 +70,12 @@ namespace m6502
     //
     // Affect Flags: none
     //
-    // All branches are relative mode and have a length of two bytes. Syntax is "Bxx Displacement" or (better) "Bxx Label". See the notes on the Program Counter for more on displacements.
+    // All branches are relative mode and have a length of two bytes. Syntax is "Bxx Displacement"
+    // or (better) "Bxx Label". See the notes on the Program Counter for more on displacements.
     //
-    // Branches are dependant on the status of the flag bits when the op code is encountered. A branch not taken requires two machine cycles. Add one if the branch is taken and add one more if the branch crosses a page boundary.
+    // Branches are dependant on the status of the flag bits when the op code is encountered.
+    // A branch not taken requires two machine cycles. Add one if the branch is taken and add
+    // one more if the branch crosses a page boundary.
     //
     // MNEMONIC                       HEX
     // BPL (Branch on PLus)           $10

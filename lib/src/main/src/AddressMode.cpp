@@ -67,10 +67,16 @@ namespace m6502
     hardware::Address CPU::AddressModeAbsolute::execute()
     {
         AddressMode::execute();
+
+        // std::cout << "     .PC: " << cpu.registers.PC << std::endl;
         hardware::Address absolute = cpu.addressSpace.readAddress(cpu.registers.PC);
+        // std::cout << "      PC: " << (hardware::Address)(cpu.registers.PC) << std::endl;
+        // std::cout << "absolute: " << absolute << std::endl;
         // cpu.decodePipeline().operand = cpu.addressSpace.read(absolute);
         // cpu.registers.PC.value.address += 2;
         cpu.registers.PC += 2;
+
+
 
         return absolute;
     }
@@ -163,15 +169,20 @@ namespace m6502
         // pch: zp + x + 1
         // value = read( $nnnn + X)
 
-        AddressMode::execute();
+        hardware::Address address = AddressMode::execute();
+        // std::cout << "     base address: " << address << std::endl;
 
         // Base address in zeroPage
         hardware::Address zeroPageBase(cpu.addressSpace[cpu.registers.PC]);
+        // std::cout << "   zero page base: (" << zeroPageBase
+        //           << ", " << (int)(cpu.registers.X) << ")" << std::endl;
         cpu.registers.PC++;
         // index from the base address
         hardware::Address zeroPageAddress = zeroPageBase + cpu.registers.X;
+        // std::cout << "zero page address: " << zeroPageAddress << std::endl;
         // Get the address from the indexed address
-        hardware::Address address = cpu.addressSpace.readAddress(zeroPageAddress);
+        address = cpu.addressSpace.readAddress(zeroPageAddress);
+        // std::cout << "  indexed address: " << address << std::endl;
 
         return address;
     }
@@ -202,17 +213,24 @@ namespace m6502
     // -----------------------------------------------------------------------
     hardware::Address CPU::AddressModeIndirectIndexedY::execute()
     {
-        AddressMode::execute();
+        hardware::Address address = AddressMode::execute();
         // read( read( $nn ) | (read( $nn + 1) << 8) + Y )
         // indirect pointer (PC | (PC+1)<<8) + Y
         // value = read( $nn + X )
 
+        // std::cout << "     base address: " << address << std::endl;
+        // std::cout << "             ..PC: " << cpu.registers.PC << std::endl;
+        // std::cout << "             ...Y: " << (int)(cpu.registers.Y) << std::endl;
         // Base address in zeroPage
         hardware::Address zeroPageAddress(cpu.addressSpace[cpu.registers.PC]);
+        // std::cout << "   zero page base: (" << zeroPageAddress
+        //           << ", " << (int)(cpu.registers.Y) << ")" << std::endl;
         cpu.registers.PC++;
         hardware::Address tableBase(cpu.addressSpace.readAddress(zeroPageAddress));
+        // std::cout << "       table base: " << tableBase << std::endl;
         // hardware::Word tableBase(cpu.addressSpace.readWord(zeroPageAddress));
-        hardware::Address address(cpu.addressSpace.readAddress(tableBase + cpu.registers.Y));
+        address = cpu.addressSpace.readAddress(tableBase + cpu.registers.Y);
+        // std::cout << "  indexed address: " << address << std::endl;
 
         return address;
     }
@@ -232,6 +250,7 @@ namespace m6502
     hardware::Address CPU::AddressModeImplied::execute()
     {
         AddressMode::execute();
+        // std::cout << "AddressMode(Implied):" << std::endl;
 
         return cpu.registers.PC; // return address is always ignored.
         // return 0xFFFF; // return address is always ignored.

@@ -19,12 +19,12 @@ namespace m6502
         InstructionFlagTest()
         {
             // Destination of the reset vector - leaves zeroPage available for testing
-            testMemory.write(0x2000, 0x49); // LDA #00 // starting instruction after reset
-            testMemory.write(0x2001, 0x5A);
+            testMemory[0x2000] = 0x49; // LDA #00 // starting instruction after reset
+            testMemory[0x2001] = 0x5A;
 
             // Reset vector points to start of memory
-            testMemory.write(0xFFFC, 0x00); // cpu::HardwareVector::RESET
-            testMemory.write(0xFFFD, 0x20); //      MSB
+            testMemory[0xFFFC] = 0x00; // cpu::HardwareVector::RESET
+            testMemory[0xFFFD] = 0x20; //      MSB
 
             cpu = new CPU(testMemory);
         }
@@ -102,7 +102,7 @@ namespace m6502
     {
         // --- given
         cpu->setC();
-        testMemory.write(0x2000, 0x18); // CLC
+        testMemory[0x2000] = 0x18; // CLC
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -119,7 +119,7 @@ namespace m6502
     {
         // --- given
         cpu->clearC();
-        testMemory.write(0x2000, 0x38); // SEC
+        testMemory[0x2000] = 0x38; // SEC
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -136,7 +136,7 @@ namespace m6502
     {
         // --- given
         cpu->setI();
-        testMemory.write(0x2000, 0x58); // CLI
+        testMemory[0x2000] = 0x58; // CLI
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -153,7 +153,7 @@ namespace m6502
     {
         // --- given
         cpu->clearI();
-        testMemory.write(0x2000, 0x78); // SEI
+        testMemory[0x2000] = 0x78; // SEI
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -170,7 +170,7 @@ namespace m6502
     {
         // --- given
         cpu->setV();
-        testMemory.write(0x2000, 0xB8); // CLV
+        testMemory[0x2000] = 0xB8; // CLV
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -187,7 +187,7 @@ namespace m6502
     {
         // --- given
         cpu->setD();
-        testMemory.write(0x2000, 0xD8); // CLD
+        testMemory[0x2000] = 0xD8; // CLD
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
@@ -204,7 +204,7 @@ namespace m6502
     {
         // --- given
         cpu->setD();
-        testMemory.write(0x2000, 0xF8); // SED
+        testMemory[0x2000] = 0xF8; // SED
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);

@@ -213,14 +213,21 @@ namespace memory
     }
     hardware::Address Memory::readAddress(const hardware::Address &address) const
     {
+        // std::cout << "....address: " << address << std::endl;
+        // std::cout << lowerBound << ".." << upperBound << "   is: " << byteCount << std::endl;
+        // std::cout << std::format( "[{:#06x} - {:#06x}] size:{:#06x}", lowerBound, upperBound, byteCount ) << std::endl;
         if ( isInBounds( address ))
         {
-            size_t msbOffset = address - lowerBound + 1;
+            size_t msbOffset = (address - lowerBound + 1);
             // handle wrap around
             msbOffset = msbOffset <= byteCount ? msbOffset : 0;
-            size_t lsbOffset = address - lowerBound;
+            size_t lsbOffset = (address - lowerBound);
 
             hardware::Address addr(contents[msbOffset], contents[lsbOffset]);
+            // std::cout << std::format("msb[{:#04x}], lsb[{:#04x}]: {:#06x}", msbOffset, lsbOffset, addr ) << std::endl;
+            // std::cout << "msb: " << msbOffset << " lsb: " << lsbOffset << " " << addr << std::endl;
+            // std::cout << std::format("msb[{}], lsb[{}]: {}", msbOffset, lsbOffset, addr ) << std::endl;
+            // std::cout << std::format("msb[{:#04x}] lsb[{:#04x}] -> ", msbOffset, lsbOffset) << addr << std::endl;
 
             return addr;
         }
