@@ -146,7 +146,8 @@ namespace m6502
             case InstructionTarget::MEMORY:
             {
                 hardware::Byte result = cpu.A() & value;
-                result & 0b10000000 ? cpu.setN() : cpu.clearN();
+                value & NegativeBitMask ? cpu.setN() : cpu.clearN();
+                value & OverflowBitMask ? cpu.setV() : cpu.clearV();
                 result == 0 ? cpu.setZ() : cpu.clearZ();
                 break;
             }
