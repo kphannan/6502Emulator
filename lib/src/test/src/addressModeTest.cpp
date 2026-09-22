@@ -126,6 +126,86 @@ namespace m6502 {
     }
 
     // ----- Relative $BB
+    TEST_F(AddressModeTest, Relative_Forward_Max)
+    {
+        // --- given
+        std::unique_ptr<CPU::AddressMode> mode = std::make_unique<CPU::AddressModeRelative>(*cpu);
+        memory[0x6000] = 0x7F; // +127
+        cpu->PC(0x6000);
+
+        // --- when
+        hardware::Address address = mode->execute();
+
+        // --- then
+        EXPECT_EQ(0x6001, cpu->PC());
+        EXPECT_EQ(0x6080, address);
+    }
+
+    TEST_F(AddressModeTest, Relative_Forward_Min)
+    {
+        // --- given
+        std::unique_ptr<CPU::AddressMode> mode = std::make_unique<CPU::AddressModeRelative>(*cpu);
+        memory[0x6000] = 0x00; // +0
+        cpu->PC(0x6000);
+
+        // --- when
+        hardware::Address address = mode->execute();
+
+        // --- then
+        EXPECT_EQ(0x6001, cpu->PC());
+        EXPECT_EQ(0x6001, address);
+    }
+
+    TEST_F(AddressModeTest, Relative_Forward_One)
+    {
+        // --- given
+        std::unique_ptr<CPU::AddressMode> mode = std::make_unique<CPU::AddressModeRelative>(*cpu);
+        memory[0x6000] = 0x01; // +1
+        cpu->PC(0x6000);
+
+        // --- when
+        hardware::Address address = mode->execute();
+
+        // --- then
+        EXPECT_EQ(0x6001, cpu->PC());
+        EXPECT_EQ(0x6002, address);
+    }
+
+
+
+
+    TEST_F(AddressModeTest, Relative_Reverse_Max)
+    {
+        // --- given
+        std::unique_ptr<CPU::AddressMode> mode = std::make_unique<CPU::AddressModeRelative>(*cpu);
+        memory[0x6000] = 0x80; // -128
+        cpu->PC(0x6000);
+
+        // --- when
+        hardware::Address address = mode->execute();
+
+        // --- then
+        EXPECT_EQ(0x6001, cpu->PC());
+        EXPECT_EQ(0x5F81, address);
+    }
+
+    TEST_F(AddressModeTest, Relative_Reverse_Min)
+    {
+        // --- given
+        std::unique_ptr<CPU::AddressMode> mode = std::make_unique<CPU::AddressModeRelative>(*cpu);
+        memory[0x6000] = 0xFF; // -1
+        cpu->PC(0x6000);
+
+        // --- when
+        hardware::Address address = mode->execute();
+
+        // --- then
+        EXPECT_EQ(0x6001, cpu->PC());
+        EXPECT_EQ(0x6000, address);
+    }
+
+
+
 
     // ----- Absolute $LLHH
     TEST_F(AddressModeTest, Absolute)

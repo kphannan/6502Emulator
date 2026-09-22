@@ -84,16 +84,19 @@ namespace m6502
     // ----- AddressModeRelative -----
     hardware::Address CPU::AddressModeRelative::execute()
     {
-        std::cout << "AddressMode(Relative): Not yet implemented" << std::endl;
-        // TODO return 'byte - offset'
-        return AddressMode::execute();
+        hardware::Address address = AddressMode::execute();
 
-        // AddressMode::execute();
-        // hardware::Address absolute = cpu.addressSpace.readWord(cpu.registers.PC);
-        // // cpu.decodePipeline().operand = cpu.addressSpace.read(absolute);
-        // cpu.registers.PC.address += 2;
+        char offset = cpu.addressSpace[cpu.registers.PC];
 
-        // return absolute;
+        cpu.registers.PC++;
+        address = cpu.registers.PC + offset;
+
+
+        std::cout << "     PC: " << cpu.registers.PC << std::endl;
+        std::cout << " offset: " << (int)offset << std::endl;
+        std::cout << "address: " << address << std::endl;
+
+        return address;
     }
 
     // ----- AddressModeAbsoluteIndexedX -----

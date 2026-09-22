@@ -112,63 +112,486 @@ namespace m6502
     // ..... ZeroPage,X $LL,X
     // ..... ZeroPage,Y $LL,Y
     // ----- Relative $BB
-    TEST_F(InstructionBranchTest, BCC_Relative)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
 
-    TEST_F(InstructionBranchTest, BCS_Relative)
+    // --- BPL ---
+    TEST_F(InstructionBranchTest, BPL_Relative_No)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
-    TEST_F(InstructionBranchTest, BEQ_Relative)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
-    TEST_F(InstructionBranchTest, BMI_Relative)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
-    TEST_F(InstructionBranchTest, BNE_Relative)
-    {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
-    }
-
-    TEST_F(InstructionBranchTest, BPL_Relative_true_forward)
-    {
-        // ADD_FAILURE_AT(__FILE__, __LINE__);
         // --- given
-        // cpu->A(0x3A);
-        // cpu->clearC();
-        cpu->clearN();
+        // cpu->clearN();
+        cpu->setN();
         testMemory[0x2000] = 0x10; // BPL
         testMemory[0x2001] = 0x7F; // maximum forward
-        // testMemory[0x2001] = 0xFF; // maximum negative
+        // testMemory[0x2001] = 0x80; // maximum reverse
 
         // --- when
         cpu->executeFromAddress(0x2000, 1);
 
         // --- then
-        EXPECT_EQ(0x2080, cpu->PC());
-        // EXPECT_EQ(0xB6, cpu->A());
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0b10100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_N, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionBranchTest, BPL_Relative_Forward_Max)
+    {
+        // --- given
+        cpu->clearN();
+        testMemory[0x2000] = 0x10; // BPL
+        testMemory[0x2001] = 0x7F; // maximum forward
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2081, cpu->PC());
         EXPECT_EQ(0b00100000, cpu->P());
 
         EXPECT_EQ(InstructionTarget::FLAG_N, cpu->decodePipeline().src);
         EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
     }
 
-    TEST_F(InstructionBranchTest, BVC_Relative)
+    TEST_F(InstructionBranchTest, BPL_Relative_Reverse_Max)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->clearN();
+        testMemory[0x2000] = 0x10; // BPL
+        testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x1F82, cpu->PC());
+        EXPECT_EQ(0b00100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_N, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
     }
 
-    TEST_F(InstructionBranchTest, BVS_Relative)
+    // --- BMI ---
+    TEST_F(InstructionBranchTest, BMI_Relative_No)
     {
-        ADD_FAILURE_AT(__FILE__, __LINE__);
+        // --- given
+        cpu->clearN();
+        // cpu->setN();
+        testMemory[0x2000] = 0x30; // BMI
+        testMemory[0x2001] = 0x7F; // maximum forward
+        // testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0b00100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_N, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
     }
+
+    TEST_F(InstructionBranchTest, BMI_Relative_Forward_Max)
+    {
+        // --- given
+        cpu->setN();
+        testMemory[0x2000] = 0x30; // BMI
+        testMemory[0x2001] = 0x7F; // maximum forward
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2081, cpu->PC());
+        EXPECT_EQ(0b10100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_N, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionBranchTest, BMI_Relative_Reverse_Max)
+    {
+        // --- given
+        cpu->setN();
+        testMemory[0x2000] = 0x30; // BMI
+        testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x1F82, cpu->PC());
+        EXPECT_EQ(0b10100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_N, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    // --- BVC ---
+    TEST_F(InstructionBranchTest, BVC_Relative_No)
+    {
+        // --- given
+        cpu->setV();
+        // cpu->setN();
+        testMemory[0x2000] = 0x50; // BVC
+        testMemory[0x2001] = 0x7F; // maximum forward
+        // testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0b01100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_V, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionBranchTest, BVC_Relative_Forward_Max)
+    {
+        // --- given
+        cpu->clearV();
+        testMemory[0x2000] = 0x50; // BVC
+        testMemory[0x2001] = 0x7F; // maximum forward
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2081, cpu->PC());
+        EXPECT_EQ(0b00100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_V, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionBranchTest, BVC_Relative_Reverse_Max)
+    {
+        // --- given
+        cpu->clearV();
+        testMemory[0x2000] = 0x50; // BVC
+        testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x1F82, cpu->PC());
+        EXPECT_EQ(0b00100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_V, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+
+    // --- BVS ---
+    TEST_F(InstructionBranchTest, BVS_Relative_No)
+    {
+        // --- given
+        cpu->clearV();
+        // cpu->setN();
+        testMemory[0x2000] = 0x70; // BVS
+        testMemory[0x2001] = 0x7F; // maximum forward
+        // testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0b00100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_V, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionBranchTest, BVS_Relative_Forward_Max)
+    {
+        // --- given
+        cpu->setV();
+        testMemory[0x2000] = 0x70; // BVS
+        testMemory[0x2001] = 0x7F; // maximum forward
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2081, cpu->PC());
+        EXPECT_EQ(0b01100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_V, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionBranchTest, BVS_Relative_Reverse_Max)
+    {
+        // --- given
+        cpu->setV();
+        testMemory[0x2000] = 0x70; // BVS
+        testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x1F82, cpu->PC());
+        EXPECT_EQ(0b01100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_V, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+
+
+
+
+    // --- BCC ---
+    TEST_F(InstructionBranchTest, BCC_Relative_No)
+    {
+        // --- given
+        // cpu->clearC();
+        cpu->setC();
+        testMemory[0x2000] = 0x90; // BCC
+        testMemory[0x2001] = 0x7F; // maximum forward
+        // testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0b00100001, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_C, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionBranchTest, BCC_Relative_Forward_Max)
+    {
+        // --- given
+        cpu->clearC();
+        // cpu->setC();
+        testMemory[0x2000] = 0x90; // BCC
+        testMemory[0x2001] = 0x7F; // maximum forward
+        // testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2081, cpu->PC());
+        EXPECT_EQ(0b00100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_C, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionBranchTest, BCC_Relative_Reverse_Max)
+    {
+        // --- given
+        cpu->clearC();
+        // cpu->setC();
+        testMemory[0x2000] = 0x90; // BCC
+        // testMemory[0x2001] = 0x7F; // maximum forward
+        testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x1F82, cpu->PC());
+        EXPECT_EQ(0b00100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_C, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    // --- BCS ---
+    TEST_F(InstructionBranchTest, BCS_Relative_No)
+    {
+        // --- given
+        cpu->clearC();
+        // cpu->setC();
+        testMemory[0x2000] = 0xB0; // BCS
+        testMemory[0x2001] = 0x7F; // maximum forward
+        // testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0b00100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_C, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionBranchTest, BCS_Relative_Forward_Max)
+    {
+        // --- given
+        // cpu->clearC();
+        cpu->setC();
+        testMemory[0x2000] = 0xB0; // BCS
+        testMemory[0x2001] = 0x7F; // maximum forward
+        // testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2081, cpu->PC());
+        EXPECT_EQ(0b00100001, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_C, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionBranchTest, BCS_Relative_Reverse_Max)
+    {
+        // --- given
+        // cpu->clearC();
+        cpu->setC();
+        testMemory[0x2000] = 0xB0; // BCS
+        // testMemory[0x2001] = 0x7F; // maximum forward
+        testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x1F82, cpu->PC());
+        EXPECT_EQ(0b00100001, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_C, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+
+
+
+    // --- BNE ---
+    TEST_F(InstructionBranchTest, BNE_Relative_No)
+    {
+        // --- given
+        cpu->setZ();
+        // cpu->setN();
+        testMemory[0x2000] = 0xD0; // BNE
+        testMemory[0x2001] = 0x7F; // maximum forward
+        // testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0b00100010, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_Z, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionBranchTest, BNE_Relative_Forward_Max)
+    {
+        // --- given
+        cpu->clearZ();
+        testMemory[0x2000] = 0xD0; // BNE
+        testMemory[0x2001] = 0x7F; // maximum forward
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2081, cpu->PC());
+        EXPECT_EQ(0b00100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_Z, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionBranchTest, BNE_Relative_Reverse_Max)
+    {
+        // --- given
+        cpu->clearZ();
+        testMemory[0x2000] = 0xD0; // BNE
+        testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x1F82, cpu->PC());
+        EXPECT_EQ(0b00100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_Z, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+
+    // --- BEQ ---
+    TEST_F(InstructionBranchTest, BEQ_Relative_No)
+    {
+        // --- given
+        cpu->clearZ();
+        // cpu->setN();
+        testMemory[0x2000] = 0xF0; // BEQ
+        testMemory[0x2001] = 0x7F; // maximum forward
+        // testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2002, cpu->PC());
+        EXPECT_EQ(0b00100000, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_Z, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionBranchTest, BEQ_Relative_Forward_Max)
+    {
+        // --- given
+        cpu->setZ();
+        testMemory[0x2000] = 0xF0; // BEQ
+        testMemory[0x2001] = 0x7F; // maximum forward
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x2081, cpu->PC());
+        EXPECT_EQ(0b00100010, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_Z, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+    TEST_F(InstructionBranchTest, BEQ_Relative_Reverse_Max)
+    {
+        // --- given
+        cpu->setZ();
+        testMemory[0x2000] = 0xF0; // BEQ
+        testMemory[0x2001] = 0x80; // maximum reverse
+
+        // --- when
+        cpu->executeFromAddress(0x2000, 1);
+
+        // --- then
+        EXPECT_EQ(0x1F82, cpu->PC());
+        EXPECT_EQ(0b00100010, cpu->P());
+
+        EXPECT_EQ(InstructionTarget::FLAG_Z, cpu->decodePipeline().src);
+        EXPECT_EQ(InstructionTarget::PC, cpu->decodePipeline().dst);
+    }
+
+
+
+
+
+
+
 
     // ..... Absolute $LLHH
     // ..... AbsoluteX $LLHH,X

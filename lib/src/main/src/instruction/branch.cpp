@@ -116,15 +116,13 @@ namespace m6502
     {
         Instruction::execute(dst, src);
 
-        // TODO define a src and dst that is set during opcode decode
         // src: memory - addressMode
         // dst: A register
         // cpu.A(cpu.decodePipeline().operand);
         // std::cout << "   GENERIC LOAD " << std::endl;
 
-        // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-//        hardware::Byte value = cpu.addressSpace.read(address);
+        // hardware::Address address = cpu.decodePipeline().addressMode->execute();
+        // hardware::Byte value = cpu.addressSpace.read(address);
         switch (src)
         {
         case InstructionTarget::FLAG_N:
@@ -176,28 +174,16 @@ namespace m6502
     {
         Instruction::execute(dst, src);
 
-        // TODO define a src and dst that is set during opcode decode
-        // src: memory - addressMode
-        // dst: A register
-        // cpu.A(cpu.decodePipeline().operand);
-        // std::cout << "   GENERIC LOAD " << std::endl;
+        hardware::Address address = cpu.decodePipeline().addressMode->execute();
 
-        // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (src)
         {
-        case InstructionTarget::FLAG_N:
-            // set boolean for branch (true) or (false) from bit.
-        case InstructionTarget::FLAG_V:
-        case InstructionTarget::FLAG_B:
-        case InstructionTarget::FLAG_D:
-        case InstructionTarget::FLAG_I:
-        case InstructionTarget::FLAG_Z:
         case InstructionTarget::FLAG_C:
             switch (dst)
             {
             case InstructionTarget::PC:
+                if (!cpu.isC())
+                    cpu.registers.PC = address;
                 break;
             case InstructionTarget::A:
             case InstructionTarget::X:
@@ -215,9 +201,16 @@ namespace m6502
             case InstructionTarget::STACK:
             case InstructionTarget::IMPLIED:
             default:
+                throw std::domain_error(std::format("Invalid operation destination '{}'", targetName( src )));
                 break;
             }
             break;
+        case InstructionTarget::FLAG_N:
+        case InstructionTarget::FLAG_V:
+        case InstructionTarget::FLAG_B:
+        case InstructionTarget::FLAG_D:
+        case InstructionTarget::FLAG_I:
+        case InstructionTarget::FLAG_Z:
         case InstructionTarget::A:
         case InstructionTarget::X:
         case InstructionTarget::Y:
@@ -228,6 +221,7 @@ namespace m6502
         case InstructionTarget::STACK:
         case InstructionTarget::IMPLIED:
         default:
+            throw std::domain_error(std::format("Invalid operation source '{}'", targetName( src )));
             break;
         }
     }
@@ -236,28 +230,16 @@ namespace m6502
     {
         Instruction::execute(dst, src);
 
-        // TODO define a src and dst that is set during opcode decode
-        // src: memory - addressMode
-        // dst: A register
-        // cpu.A(cpu.decodePipeline().operand);
-        // std::cout << "   GENERIC LOAD " << std::endl;
+        hardware::Address address = cpu.decodePipeline().addressMode->execute();
 
-        // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (src)
         {
-        case InstructionTarget::FLAG_N:
-            // set boolean for branch (true) or (false) from bit.
-        case InstructionTarget::FLAG_V:
-        case InstructionTarget::FLAG_B:
-        case InstructionTarget::FLAG_D:
-        case InstructionTarget::FLAG_I:
-        case InstructionTarget::FLAG_Z:
         case InstructionTarget::FLAG_C:
             switch (dst)
             {
             case InstructionTarget::PC:
+                if (cpu.isC())
+                    cpu.registers.PC = address;
                 break;
             case InstructionTarget::A:
             case InstructionTarget::X:
@@ -275,9 +257,16 @@ namespace m6502
             case InstructionTarget::STACK:
             case InstructionTarget::IMPLIED:
             default:
+                throw std::domain_error(std::format("Invalid operation destination '{}'", targetName( src )));
                 break;
             }
             break;
+        case InstructionTarget::FLAG_N:
+        case InstructionTarget::FLAG_V:
+        case InstructionTarget::FLAG_B:
+        case InstructionTarget::FLAG_D:
+        case InstructionTarget::FLAG_I:
+        case InstructionTarget::FLAG_Z:
         case InstructionTarget::A:
         case InstructionTarget::X:
         case InstructionTarget::Y:
@@ -288,6 +277,7 @@ namespace m6502
         case InstructionTarget::STACK:
         case InstructionTarget::IMPLIED:
         default:
+            throw std::domain_error(std::format("Invalid operation source '{}'", targetName( src )));
             break;
         }
     }
@@ -296,28 +286,16 @@ namespace m6502
     {
         Instruction::execute(dst, src);
 
-        // TODO define a src and dst that is set during opcode decode
-        // src: memory - addressMode
-        // dst: A register
-        // cpu.A(cpu.decodePipeline().operand);
-        // std::cout << "   GENERIC LOAD " << std::endl;
+        hardware::Address address = cpu.decodePipeline().addressMode->execute();
 
-        // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (src)
         {
-        case InstructionTarget::FLAG_N:
-            // set boolean for branch (true) or (false) from bit.
-        case InstructionTarget::FLAG_V:
-        case InstructionTarget::FLAG_B:
-        case InstructionTarget::FLAG_D:
-        case InstructionTarget::FLAG_I:
         case InstructionTarget::FLAG_Z:
-        case InstructionTarget::FLAG_C:
             switch (dst)
             {
             case InstructionTarget::PC:
+                if (cpu.isZ())
+                    cpu.registers.PC = address;
                 break;
             case InstructionTarget::A:
             case InstructionTarget::X:
@@ -335,69 +313,16 @@ namespace m6502
             case InstructionTarget::STACK:
             case InstructionTarget::IMPLIED:
             default:
+                throw std::domain_error(std::format("Invalid operation destination '{}'", targetName( src )));
                 break;
             }
             break;
-        case InstructionTarget::A:
-        case InstructionTarget::X:
-        case InstructionTarget::Y:
-        case InstructionTarget::S:
-        case InstructionTarget::PC:
-        case InstructionTarget::PSR:
-        case InstructionTarget::MEMORY:
-        case InstructionTarget::STACK:
-        case InstructionTarget::IMPLIED:
-        default:
-            break;
-        }
-    }
-
-    void CPU::InstructionBranchMinus::execute(InstructionTarget dst, InstructionTarget src)
-    {
-        Instruction::execute(dst, src);
-
-        // TODO define a src and dst that is set during opcode decode
-        // src: memory - addressMode
-        // dst: A register
-        // cpu.A(cpu.decodePipeline().operand);
-        // std::cout << "   GENERIC LOAD " << std::endl;
-
-        // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-//        hardware::Byte value = cpu.addressSpace.read(address);
-        switch (src)
-        {
         case InstructionTarget::FLAG_N:
-            // set boolean for branch (true) or (false) from bit.
         case InstructionTarget::FLAG_V:
         case InstructionTarget::FLAG_B:
         case InstructionTarget::FLAG_D:
         case InstructionTarget::FLAG_I:
-        case InstructionTarget::FLAG_Z:
         case InstructionTarget::FLAG_C:
-            switch (dst)
-            {
-            case InstructionTarget::PC:
-                break;
-            case InstructionTarget::A:
-            case InstructionTarget::X:
-            case InstructionTarget::Y:
-            case InstructionTarget::S:
-            case InstructionTarget::PSR:
-            case InstructionTarget::FLAG_N:
-            case InstructionTarget::FLAG_V:
-            case InstructionTarget::FLAG_B:
-            case InstructionTarget::FLAG_D:
-            case InstructionTarget::FLAG_I:
-            case InstructionTarget::FLAG_Z:
-            case InstructionTarget::FLAG_C:
-            case InstructionTarget::MEMORY:
-            case InstructionTarget::STACK:
-            case InstructionTarget::IMPLIED:
-            default:
-                break;
-            }
-            break;
         case InstructionTarget::A:
         case InstructionTarget::X:
         case InstructionTarget::Y:
@@ -408,6 +333,7 @@ namespace m6502
         case InstructionTarget::STACK:
         case InstructionTarget::IMPLIED:
         default:
+            throw std::domain_error(std::format("Invalid operation source '{}'", targetName( src )));
             break;
         }
     }
@@ -416,28 +342,16 @@ namespace m6502
     {
         Instruction::execute(dst, src);
 
-        // TODO define a src and dst that is set during opcode decode
-        // src: memory - addressMode
-        // dst: A register
-        // cpu.A(cpu.decodePipeline().operand);
-        // std::cout << "   GENERIC LOAD " << std::endl;
+        hardware::Address address = cpu.decodePipeline().addressMode->execute();
 
-        // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (src)
         {
-        case InstructionTarget::FLAG_N:
-            // set boolean for branch (true) or (false) from bit.
-        case InstructionTarget::FLAG_V:
-        case InstructionTarget::FLAG_B:
-        case InstructionTarget::FLAG_D:
-        case InstructionTarget::FLAG_I:
         case InstructionTarget::FLAG_Z:
-        case InstructionTarget::FLAG_C:
             switch (dst)
             {
             case InstructionTarget::PC:
+                if (!cpu.isZ())
+                    cpu.registers.PC = address;
                 break;
             case InstructionTarget::A:
             case InstructionTarget::X:
@@ -455,9 +369,16 @@ namespace m6502
             case InstructionTarget::STACK:
             case InstructionTarget::IMPLIED:
             default:
+                throw std::domain_error(std::format("Invalid operation destination '{}'", targetName( src )));
                 break;
             }
             break;
+        case InstructionTarget::FLAG_N:
+        case InstructionTarget::FLAG_V:
+        case InstructionTarget::FLAG_B:
+        case InstructionTarget::FLAG_D:
+        case InstructionTarget::FLAG_I:
+        case InstructionTarget::FLAG_C:
         case InstructionTarget::A:
         case InstructionTarget::X:
         case InstructionTarget::Y:
@@ -468,34 +389,82 @@ namespace m6502
         case InstructionTarget::STACK:
         case InstructionTarget::IMPLIED:
         default:
+            throw std::domain_error(std::format("Invalid operation source '{}'", targetName( src )));
             break;
         }
     }
+
+    void CPU::InstructionBranchMinus::execute(InstructionTarget dst, InstructionTarget src)
+    {
+        Instruction::execute(dst, src);
+
+        hardware::Address address = cpu.decodePipeline().addressMode->execute();
+
+        switch (src)
+        {
+        case InstructionTarget::FLAG_N:
+            switch (dst)
+            {
+            case InstructionTarget::PC:
+                if (cpu.isN())
+                    cpu.registers.PC = address;
+                break;
+            case InstructionTarget::A:
+            case InstructionTarget::X:
+            case InstructionTarget::Y:
+            case InstructionTarget::S:
+            case InstructionTarget::PSR:
+            case InstructionTarget::FLAG_N:
+            case InstructionTarget::FLAG_V:
+            case InstructionTarget::FLAG_B:
+            case InstructionTarget::FLAG_D:
+            case InstructionTarget::FLAG_I:
+            case InstructionTarget::FLAG_Z:
+            case InstructionTarget::FLAG_C:
+            case InstructionTarget::MEMORY:
+            case InstructionTarget::STACK:
+            case InstructionTarget::IMPLIED:
+            default:
+                throw std::domain_error(std::format("Invalid operation destination '{}'", targetName( src )));
+                break;
+            }
+            break;
+        case InstructionTarget::FLAG_V:
+        case InstructionTarget::FLAG_B:
+        case InstructionTarget::FLAG_D:
+        case InstructionTarget::FLAG_I:
+        case InstructionTarget::FLAG_Z:
+        case InstructionTarget::FLAG_C:
+        case InstructionTarget::A:
+        case InstructionTarget::X:
+        case InstructionTarget::Y:
+        case InstructionTarget::S:
+        case InstructionTarget::PC:
+        case InstructionTarget::PSR:
+        case InstructionTarget::MEMORY:
+        case InstructionTarget::STACK:
+        case InstructionTarget::IMPLIED:
+        default:
+            throw std::domain_error(std::format("Invalid operation source '{}'", targetName( src )));
+            break;
+        }
+    }
+
 
     void CPU::InstructionBranchOnPlus::execute(InstructionTarget dst, InstructionTarget src)
     {
         Instruction::execute(dst, src);
 
-        // TODO define a src and dst that is set during opcode decode
-        // src: memory - addressMode
-        // dst: A register
-        // cpu.A(cpu.decodePipeline().operand);
-        // std::cout << "   GENERIC LOAD " << std::endl;
-
-        // if ( testIsTrue() )
-        //     cpu.PC( address );
-
-        // TODO Need to deal with implied, Accumulator, Immediate addressingModes
         hardware::Address address = cpu.decodePipeline().addressMode->execute();
-//        hardware::Byte value = cpu.addressSpace.read(address);
+
         switch (src)
         {
         case InstructionTarget::FLAG_N:
-            // set boolean for branch (true) or (false) from bit.
             switch (dst)
             {
             case InstructionTarget::PC:
-                cpu.PC(address);
+                if (!cpu.isN())
+                    cpu.registers.PC = address;
                 break;
             case InstructionTarget::A:
             case InstructionTarget::X:
@@ -513,6 +482,7 @@ namespace m6502
             case InstructionTarget::STACK:
             case InstructionTarget::IMPLIED:
             default:
+                throw std::domain_error(std::format("Invalid operation destination '{}'", targetName( src )));
                 break;
             }
             break;
@@ -532,6 +502,7 @@ namespace m6502
         case InstructionTarget::STACK:
         case InstructionTarget::IMPLIED:
         default:
+            throw std::domain_error(std::format("Invalid operation source '{}'", targetName( src )));
             break;
         }
     }
@@ -540,28 +511,16 @@ namespace m6502
     {
         Instruction::execute(dst, src);
 
-        // TODO define a src and dst that is set during opcode decode
-        // src: memory - addressMode
-        // dst: A register
-        // cpu.A(cpu.decodePipeline().operand);
-        // std::cout << "   GENERIC LOAD " << std::endl;
+        hardware::Address address = cpu.decodePipeline().addressMode->execute();
 
-        // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (src)
         {
-        case InstructionTarget::FLAG_N:
-            // set boolean for branch (true) or (false) from bit.
         case InstructionTarget::FLAG_V:
-        case InstructionTarget::FLAG_B:
-        case InstructionTarget::FLAG_D:
-        case InstructionTarget::FLAG_I:
-        case InstructionTarget::FLAG_Z:
-        case InstructionTarget::FLAG_C:
             switch (dst)
             {
             case InstructionTarget::PC:
+                if (!cpu.isV())
+                    cpu.registers.PC = address;
                 break;
             case InstructionTarget::A:
             case InstructionTarget::X:
@@ -579,9 +538,16 @@ namespace m6502
             case InstructionTarget::STACK:
             case InstructionTarget::IMPLIED:
             default:
+                throw std::domain_error(std::format("Invalid operation destination '{}'", targetName( src )));
                 break;
             }
             break;
+        case InstructionTarget::FLAG_N:
+        case InstructionTarget::FLAG_B:
+        case InstructionTarget::FLAG_D:
+        case InstructionTarget::FLAG_I:
+        case InstructionTarget::FLAG_Z:
+        case InstructionTarget::FLAG_C:
         case InstructionTarget::A:
         case InstructionTarget::X:
         case InstructionTarget::Y:
@@ -592,6 +558,7 @@ namespace m6502
         case InstructionTarget::STACK:
         case InstructionTarget::IMPLIED:
         default:
+            throw std::domain_error(std::format("Invalid operation source '{}'", targetName( src )));
             break;
         }
     }
@@ -600,28 +567,16 @@ namespace m6502
     {
         Instruction::execute(dst, src);
 
-        // TODO define a src and dst that is set during opcode decode
-        // src: memory - addressMode
-        // dst: A register
-        // cpu.A(cpu.decodePipeline().operand);
-        // std::cout << "   GENERIC LOAD " << std::endl;
+        hardware::Address address = cpu.decodePipeline().addressMode->execute();
 
-        // TODO Need to deal with implied, Accumulator, Immediate addressingModes
-//        hardware::Address address = cpu.decodePipeline().addressMode->execute();
-//        hardware::Byte value = cpu.addressSpace.read(address);
         switch (src)
         {
-        case InstructionTarget::FLAG_N:
-            // set boolean for branch (true) or (false) from bit.
         case InstructionTarget::FLAG_V:
-        case InstructionTarget::FLAG_B:
-        case InstructionTarget::FLAG_D:
-        case InstructionTarget::FLAG_I:
-        case InstructionTarget::FLAG_Z:
-        case InstructionTarget::FLAG_C:
             switch (dst)
             {
             case InstructionTarget::PC:
+                if (cpu.isV())
+                    cpu.registers.PC = address;
                 break;
             case InstructionTarget::A:
             case InstructionTarget::X:
@@ -639,9 +594,16 @@ namespace m6502
             case InstructionTarget::STACK:
             case InstructionTarget::IMPLIED:
             default:
+                throw std::domain_error(std::format("Invalid operation destination '{}'", targetName( src )));
                 break;
             }
             break;
+        case InstructionTarget::FLAG_N:
+        case InstructionTarget::FLAG_B:
+        case InstructionTarget::FLAG_D:
+        case InstructionTarget::FLAG_I:
+        case InstructionTarget::FLAG_Z:
+        case InstructionTarget::FLAG_C:
         case InstructionTarget::A:
         case InstructionTarget::X:
         case InstructionTarget::Y:
@@ -652,6 +614,7 @@ namespace m6502
         case InstructionTarget::STACK:
         case InstructionTarget::IMPLIED:
         default:
+            throw std::domain_error(std::format("Invalid operation source '{}'", targetName( src )));
             break;
         }
     }
